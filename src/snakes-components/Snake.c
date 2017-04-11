@@ -6,6 +6,24 @@
 #include <unistd.h>
 #include "GameBoard.h"
 
+void movePositionsOfSnakeToTheLeft(WINDOW * window, LinkedListPosition * currentNode, Position * newPosition) {
+    Position * temp;
+    // Continue to change positions until the last element is reached.
+    if (currentNode->next != NULL) {
+        temp = currentNode->position;
+        currentNode->position = newPosition;
+        mvwaddch(window, currentNode->position->y, currentNode->position->x, '#');
+        movePositionsOfSnakeToTheLeft(window, currentNode->next, temp);
+    } else {
+        // The last element will have the useless position (old) that needs to be discarded.
+        temp = currentNode->position;
+        currentNode->position = newPosition;
+        mvwaddch(window, currentNode->position->y, currentNode->position->x, '#');
+        free(temp);
+    }
+}
+
+
 Snake * createSnake(WINDOW * window) {
     LinkedListPosition * head;
     // TODO: position random.
@@ -71,18 +89,6 @@ int moveSnake(WINDOW * window, Snake * snake) {
     return 0;
 }
 
-void movePositionsOfSnakeToTheLeft(WINDOW * window, LinkedListPosition * currentNode, Position * newPosition) {
-    Position * temp;
-    // Continue to change positions until the last element is reached.
-    if (currentNode->next != NULL) {
-        temp = currentNode->position;
-        currentNode->position = newPosition;
-        mvwaddch(window, currentNode->position->y, currentNode->position->x, '#');
-        movePositionsOfSnakeToTheLeft(window, currentNode->next, temp);
-    }
-    // The last element will have the useless position (old) that needs to be discarded.
-    temp = currentNode->position;
-    currentNode->position = newPosition;
-    mvwaddch(window, currentNode->position->y, currentNode->position->x, '#');
-    free(temp);
+int growSnake(WINDOW *window, Snake *snake) {
+    return 0;
 }

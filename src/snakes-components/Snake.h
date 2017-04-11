@@ -33,6 +33,6 @@ Snake * createSnake(WINDOW * window);
 
 int moveSnake(WINDOW * window, Snake * snake);
 
-void movePositionsOfSnakeToTheLeft(WINDOW * window, LinkedListPosition * currentNode, Position * newPosition);
+int growSnake(WINDOW * window, Snake * snake);
 
 #endif //SNAKES_SNAKE_H
