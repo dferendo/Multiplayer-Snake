@@ -35,16 +35,25 @@ void waitInput(Snake * snake) {
         nextChar = getch();
         switch (nextChar) {
             case 'w':
-                snake->direction = D_UP;
+                // If snake allowed to go opposite side, it would mean he is dead.
+                if (snake->direction != D_DOWN) {
+                    snake->direction = D_UP;
+                }
                 break;
             case 'a':
-                snake->direction = D_LEFT;
+                if (snake->direction != D_RIGHT) {
+                    snake->direction = D_LEFT;
+                }
                 break;
             case 'd':
-                snake->direction = D_RIGHT;
+                if (snake->direction != D_LEFT) {
+                    snake->direction = D_RIGHT;
+                }
                 break;
             case 'x':
-                snake->direction = D_DOWN;
+                if (snake->direction != D_UP) {
+                    snake->direction = D_DOWN;
+                }
             case ERR:
                 break;
             default:
