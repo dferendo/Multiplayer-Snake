@@ -3,6 +3,7 @@
 //
 #include "Snake.h"
 #include <stdlib.h>
+#include <unistd.h>
 #include "GameBoard.h"
 
 Snake * createSnake(WINDOW * window) {
@@ -34,23 +35,38 @@ Snake * createSnake(WINDOW * window) {
 }
 
 int moveSnake(WINDOW * window, Snake * snake) {
+    Position * newPosition;
+    int x = -1, y = -1;
 
     switch (snake->direction) {
         case D_UP:
-            snake->positions->position->y--;
+            x = snake->positions->position->x;
+            y = snake->positions->position->y - 1;
             break;
         case D_LEFT:
-            snake->positions->position->x--;
+            x = snake->positions->position->x - 1;
+            y = snake->positions->position->y;
             break;
         case D_DOWN:
-            snake->positions->position->y++;
+            x = snake->positions->position->x;
+            y = snake->positions->position->y + 1;
             break;
         case D_RIGHT:
-            snake->positions->position->x++;
+            x = snake->positions->position->x + 1;
+            y = snake->positions->position->y;
             break;
     }
+    // Clear the window.
     window = resetWindow(window);
-    mvwaddch(window, snake->positions->y, snake->positions->x, '#');
+    newPosition = malloc(sizeof(Position));
+    if (newPosition == NULL) {
+        perror("Failed to allocate memory to Position.");
+        return -1;
+    }
+    newPosition->x = x;
+    newPosition->y = y;
+    // Update all the positions the snake had according to the new Move.
+    movePositionsOfSnakeToTheLeft(window, snake->positions, newPosition);
     wrefresh(window);
     return 0;
 }
@@ -67,5 +83,6 @@ void movePositionsOfSnakeToTheLeft(WINDOW * window, LinkedListPosition * current
     // The last element will have the useless position (old) that needs to be discarded.
     temp = currentNode->position;
     currentNode->position = newPosition;
+    mvwaddch(window, currentNode->position->y, currentNode->position->x, '#');
     free(temp);
 }

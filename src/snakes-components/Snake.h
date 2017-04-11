@@ -18,7 +18,7 @@ typedef enum {
     D_RIGHT
 } Direction;
 
-typedef struct {
+typedef struct Position {
     int x;
     int y;
 } Position;
@@ -34,6 +34,5 @@ Snake * createSnake(WINDOW * window);
 int moveSnake(WINDOW * window, Snake * snake);
 
 void movePositionsOfSnakeToTheLeft(WINDOW * window, LinkedListPosition * currentNode, Position * newPosition);
-
 
 #endif //SNAKES_SNAKE_H

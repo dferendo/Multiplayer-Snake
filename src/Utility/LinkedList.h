@@ -5,7 +5,7 @@
 #ifndef SNAKES_LINKEDLIST_H
 #define SNAKES_LINKEDLIST_H
 
-#include "../snakes-components/Snake.h"
+typedef struct Position Position;
 
 typedef struct LinkedListPosition {
     Position * position;
