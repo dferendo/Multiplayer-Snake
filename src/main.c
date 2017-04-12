@@ -1,31 +1,30 @@
 #include <ncurses.h>
+#include <time.h>
 #include <stdlib.h>
 #include "snakes-components/Game.h"
 
 #include "snakes-components/Food.h"
-#include "Utility/Vector.h"
+#include "snakes-components/GameBoard.h"
 
 int main() {
-//    nCursesInit();
-    vectorFood * temp = initModifiedVectorFood();
-    Position * position = (Position *) malloc(sizeof(Position));
-    position->x = 5;
-    position->y = 6;
-    Food * food = (Food *) malloc(sizeof(Food));
-    food->position = position;
-    food->foodType = NORMAL;
+    srand((unsigned int) time(NULL));
 
-    Position * position3 = (Position *) malloc(sizeof(Position));
-    position3->x = 4;
-    position3->y = 2;
-    Food * food2 = (Food *) malloc(sizeof(Food));
-    food2->position = position3;
-    food2->foodType = NORMAL;
+    initscr();
+    // Allows more control for the input.
+    cbreak();
+    // Do not display inserted keys to the screen.
+    noecho();
+    // Creates the border for the game.
+    createBorder();
+    // Show the Border.
+    refresh();
+    // getch() returns ERR if no input is present and does not block the thread.
+    nodelay(stdscr, TRUE);
 
-    addFoodToModifiedVector(temp, food);
-    addFoodToModifiedVector(temp, food2);
-    deleteItem(temp, food);
+    WINDOW * snakesWindow = createSnakeRoamingWindow();
+    Snake * snake = createSnake(snakesWindow);
 
-    deleteVector(temp);
+    foodInit(snakesWindow);
+    getch();
     return 0;
 }

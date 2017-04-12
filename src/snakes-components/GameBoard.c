@@ -3,6 +3,7 @@
 //
 #include "GameBoard.h"
 #include "Snake.h"
+#include "CharactersDefinition.h"
 
 void createBorder() {
     // Draw top and bottom borders.

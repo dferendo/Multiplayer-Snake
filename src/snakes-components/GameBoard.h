@@ -11,7 +11,6 @@
 // otherwise it would be unfair for other players.
 #define ROW 24
 #define COLUMN 89
-#define BORDER_CHARACTER '&'
 
 void createBorder();
 

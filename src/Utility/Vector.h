@@ -7,7 +7,7 @@
 
 #include "../snakes-components/Food.h"
 
-typedef struct {
+typedef struct vectorFood {
     Food ** foods;
     size_t size;
 } vectorFood;

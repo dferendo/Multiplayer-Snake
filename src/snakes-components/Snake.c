@@ -2,9 +2,10 @@
 // Created by dylan on 11/04/2017.
 //
 #include "Snake.h"
+#include "GameBoard.h"
+#include "CharactersDefinition.h"
 #include <stdlib.h>
 #include <unistd.h>
-#include "GameBoard.h"
 
 void movePositionsOfSnakeToTheLeft(WINDOW * window, LinkedListPosition * currentNode, Position * newPosition) {
     Position * temp;
@@ -12,13 +13,13 @@ void movePositionsOfSnakeToTheLeft(WINDOW * window, LinkedListPosition * current
     if (currentNode->next != NULL) {
         temp = currentNode->position;
         currentNode->position = newPosition;
-        mvwaddch(window, currentNode->position->y, currentNode->position->x, '#');
+        mvwaddch(window, currentNode->position->y, currentNode->position->x, SNAKE_BODY);
         movePositionsOfSnakeToTheLeft(window, currentNode->next, temp);
     } else {
         // The last element will have the useless position (old) that needs to be discarded.
         temp = currentNode->position;
         currentNode->position = newPosition;
-        mvwaddch(window, currentNode->position->y, currentNode->position->x, '#');
+        mvwaddch(window, currentNode->position->y, currentNode->position->x, SNAKE_BODY);
         free(temp);
     }
 }
@@ -47,7 +48,7 @@ Snake * createSnake(WINDOW * window) {
     // Snake must at least have 1 position.
     head = initLinkedListPosition(position);
     snake->positions = head;
-    mvwaddch(window, position->y, position->x, '#');
+    mvwaddch(window, position->y, position->x, SNAKE_BODY);
     wrefresh(window);
     return snake;
 }
