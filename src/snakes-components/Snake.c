@@ -55,7 +55,8 @@ Snake * createSnake(WINDOW * window) {
 int moveSnake(WINDOW * window, Snake * snake) {
     Position * newPosition;
     int x = -1, y = -1;
-
+    // A snake will still be moved even though a button was not pressed, which is
+    // determined by the direction the snake is currently facing.
     switch (snake->direction) {
         case D_UP:
             x = snake->positions->position->x;
@@ -90,5 +91,19 @@ int moveSnake(WINDOW * window, Snake * snake) {
 }
 
 int growSnake(WINDOW *window, Snake *snake) {
-    return 0;
+    // Allocate 1 more space to the snake.
+    Position * position = malloc(sizeof(Position));
+    if (position == NULL) {
+        perror("Failed to allocate memory to position when snake is growing.");
+        return -1;
+    }
+    // The position is currently don't care and the snake will be seen that it was
+    // grown was the next move.
+    position->x = -1;
+    position->y = -1;
+    snake->size++;
+    if (addPosition(snake->positions, position) == -1) {
+        return -2;
+    }
+    return 1;
 }
