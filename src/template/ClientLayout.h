@@ -11,6 +11,9 @@
 #define PLAY_GAME_MENU_ITEMS 3
 #define PLAY_GAME_MENU_LENGTH 13
 
+#define ERROR_NO_HOST "Error, no such host!"
+#define ERROR_CONNECTION_FAILED "Error, connection failed!"
+
 extern const char * const MENU_ITEMS[MAIN_MENU_ITEMS];
 
 extern const char * const CREDITS;
