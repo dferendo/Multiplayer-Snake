@@ -5,19 +5,17 @@
 #ifndef SNAKES_VECTOR_H
 #define SNAKES_VECTOR_H
 
-#include "../snakes-components/Food.h"
-
-typedef struct vectorFood {
-    Food ** foods;
+typedef struct Vector {
+    void ** data;
     size_t size;
-} vectorFood;
+} Vector;
 
-vectorFood * initModifiedVectorFood();
+Vector * initVector();
 
-int addFoodToModifiedVector(vectorFood * vector, Food * food);
+int addItemToVector(Vector *vector, void *item);
 
-void deleteVector(vectorFood * vector);
+void deleteVector(Vector * vector);
 
-int deleteItem(vectorFood * vector, Food * food);
+int deleteItemFromVector(Vector *vector, void *item);
 
 #endif //SNAKES_VECTOR_H
