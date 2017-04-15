@@ -5,6 +5,8 @@
 #ifndef SNAKES_VECTOR_H
 #define SNAKES_VECTOR_H
 
+#include <stdlib.h>
+
 typedef struct Vector {
     void ** data;
     size_t size;

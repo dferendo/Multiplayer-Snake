@@ -4,6 +4,7 @@
 #include "StartGame.h"
 #include "../template/WindowProperties.h"
 #include "../template/ClientLayout.h"
+#include "../utility/General.h"
 #include <stdlib.h>
 #include <strings.h>
 
@@ -65,6 +66,7 @@ void startGameInit() {
                 break;
             }
         }
+        close(sockFd);
     }
 }
 
@@ -105,14 +107,4 @@ bool printError(char *errorMessage) {
         return true;
     }
     return false;
-}
-
-WINDOW * createWindowAtTheCenterOfTheScreen() {
-    WINDOW * tempWindow;
-    // StartingX and Y put in centre (Approx)
-    int height = 4, width = MAXIMUM_INPUT_STRING + PLAY_GAME_MENU_LENGTH,
-            startingX = (COLUMN / 2) - (width / 2), startingY = (ROW / 2) - height;
-    // Create new window where main menu will be placed.
-    tempWindow = newwin(height, width, startingY, startingX);
-    return tempWindow;
 }
