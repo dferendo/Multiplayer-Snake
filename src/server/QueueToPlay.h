@@ -5,13 +5,17 @@
 #ifndef SNAKES_QUEUETOPLAY_H
 #define SNAKES_QUEUETOPLAY_H
 
-#include <ncurses.h>
 #include "../utility/Vector.h"
+#include "Server.h"
+#include <ncurses.h>
 
-void * addConnectionHost(void *arg);
+void * initNewConnection(void *arg);
 
-void * addConnectionNotHost(void *arg);
+Connection * createConnection(bool isHost, char * name, int socketFileDescriptor);
 
-WINDOW * generateWindow(Vector * connections);
+char * readNameFromSocket(int socketFileDescriptor);
+
+void writeConnectionsToSockets(Vector *connections);
+
 
 #endif //SNAKES_QUEUETOPLAY_H

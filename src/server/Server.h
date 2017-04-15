@@ -5,8 +5,8 @@
 #ifndef SNAKES_SERVERLAUNCHER_H
 #define SNAKES_SERVERLAUNCHER_H
 
-#include <stdbool.h>
 #include "../utility/Vector.h"
+#include <stdbool.h>
 
 typedef struct ClientInfo {
     char * name;
@@ -17,6 +17,11 @@ typedef struct Connection {
     int sockFd;
     ClientInfo * clientInfo;
 } Connection;
+
+typedef struct CreateConnectThreadArguments {
+    bool isHost;
+    int sockFd;
+} CreateConnectThreadArguments;
 
 // Vector containing Connections Type
 extern Vector * connections;

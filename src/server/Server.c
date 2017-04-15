@@ -28,7 +28,10 @@ int main(int argc, char *argv[]) {
     }
 
     bzero((char *) &serverAddress, sizeof(serverAddress));
-    // TODO check;
+    if (argc < 2) {
+        perror("Port number was not passed.");
+        exit(1);
+    }
     portNumber = atoi(argv[1]);
     serverAddress.sin_family = AF_INET;
     // Accepts any addresses
@@ -53,13 +56,29 @@ int main(int argc, char *argv[]) {
             perror("Error on client accept.");
             continue;
         }
+        CreateConnectThreadArguments args = (CreateConnectThreadArguments *)
+                malloc(sizeof(CreateConnectThreadArguments));
+
+        // Failed connection, ignore client
+        if (args == NULL) {
+            perror("Error on malloc arguments.");
+            close(newSockFd);
+            continue;
+        }
+        args.sockFd = newSockFd;
 
         if (!hostEstablish) {
-            pthread_create(&clientThread, NULL, addConnectionHost, newSockFd);
+            hostEstablish = true;
+            args.isHost = true;
         } else {
-            pthread_create(&clientThread, NULL, addConnectionNotHost, newSockFd);
+            args.isHost = false;
         }
-        hostEstablish = true;
+
+        if (pthread_create(&clientThread, NULL, initNewConnection, args) != 0) {
+            perror("Could not create a worker thread.");
+            free(args);
+            close(newSockFd);
+        }
     }
 
 }

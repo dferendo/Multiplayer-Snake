@@ -66,7 +66,6 @@ void startGameInit() {
                 break;
             }
         }
-        close(sockFd);
     }
 }
 

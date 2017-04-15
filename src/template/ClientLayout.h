@@ -5,6 +5,9 @@
 #ifndef SNAKES_CLIENTLAYOUT_H
 #define SNAKES_CLIENTLAYOUT_H
 
+#include <ncurses.h>
+#include "../utility/Vector.h"
+
 #define MAIN_MENU_BORDER_CHARACTER '+'
 #define MAIN_MENU_DIVIDER '-'
 #define MAIN_MENU_ITEMS 3
@@ -20,5 +23,5 @@ extern const char * const CREDITS;
 
 extern const char * const SERVER_REQUIRED[PLAY_GAME_MENU_ITEMS];
 
-
+WINDOW * generateWindowForWaitingInQueue(Vector * connections);
 #endif //SNAKES_CLIENTLAYOUT_H
