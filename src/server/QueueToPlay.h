@@ -8,9 +8,9 @@
 #include <ncurses.h>
 #include "../utility/Vector.h"
 
-void addConnectionHost(void *arg);
+void * addConnectionHost(void *arg);
 
-void addConnectionNotHost(void *arg);
+void * addConnectionNotHost(void *arg);
 
 WINDOW * generateWindow(Vector * connections);
 

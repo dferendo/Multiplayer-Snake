@@ -11,7 +11,7 @@
 Vector * connections;
 pthread_mutex_t lock;
 
-void addConnectionHost(void *arg) {
+void * addConnectionHost(void *arg) {
     int sockFd = (int)(uintptr_t) arg, requestResponseTemp;
     WINDOW * newClientWindow;
     // Allocate memory to client information
@@ -21,7 +21,7 @@ void addConnectionHost(void *arg) {
         perror("Failed to allocate memory to client");
         // Close socket.
         close(sockFd);
-        return;
+        pthread_exit(NULL);
     }
     clientInfo->isHost = true;
     // Read user name.
@@ -31,7 +31,7 @@ void addConnectionHost(void *arg) {
     if (requestResponseTemp == -1) {
         perror("Failed to read from socket");
         close(sockFd);
-        return;
+        pthread_exit(NULL);
     }
     // Allocate memory to Connection info
     Connection * connection = (Connection *) malloc(sizeof(Connection));
@@ -39,7 +39,7 @@ void addConnectionHost(void *arg) {
         perror("Failed to allocate memory to connection");
         // Close socket.
         close(sockFd);
-        return;
+        pthread_exit(NULL);
     }
 
     connection->sockFd = sockFd;
@@ -58,12 +58,12 @@ void addConnectionHost(void *arg) {
     if (requestResponseTemp == -1) {
         perror("Failed to write to the socket");
         close(sockFd);
-        return;
+        pthread_exit(NULL);
     }
     // Host can start game.
 }
 
-void addConnectionNotHost(void *arg) {
+void * addConnectionNotHost(void *arg) {
     int sockFd = (int)(uintptr_t) arg, requestResponseTemp;
     WINDOW * newClientWindow;
     // Allocate memory to client information
@@ -73,7 +73,7 @@ void addConnectionNotHost(void *arg) {
         perror("Failed to allocate memory to client");
         // Close socket.
         close(sockFd);
-        return;
+        pthread_exit(NULL);
     }
     clientInfo->isHost = false;
     // Read user name.
@@ -83,7 +83,7 @@ void addConnectionNotHost(void *arg) {
     if (requestResponseTemp == -1) {
         perror("Failed to read from socket");
         close(sockFd);
-        return;
+        pthread_exit(NULL);
     }
     // Allocate memory to Connection info
     Connection * connection = (Connection *) malloc(sizeof(Connection));
@@ -91,7 +91,7 @@ void addConnectionNotHost(void *arg) {
         perror("Failed to allocate memory to connection");
         // Close socket.
         close(sockFd);
-        return;
+        pthread_exit(NULL);
     }
 
     connection->sockFd = sockFd;
@@ -110,9 +110,10 @@ void addConnectionNotHost(void *arg) {
     if (requestResponseTemp == -1) {
         perror("Failed to write to the socket");
         close(sockFd);
-        return;
+        pthread_exit(NULL);
     }
     // Only host can start the game.
+    pthread_exit(NULL);
 }
 
 WINDOW *generateWindow(Vector * connections) {
