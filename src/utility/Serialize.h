@@ -8,7 +8,7 @@
 #include "../server/Server.h"
 
 #define CLIENTINFO_BYTES 22
-#define CONNECTION BYTES 26
+#define CONNECTION_BYTES 26
 
 unsigned char * serializeInt(unsigned char * buffer, int value);
 

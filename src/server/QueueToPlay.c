@@ -2,23 +2,22 @@
 // Created by dylan on 15/04/2017.
 //
 #include "QueueToPlay.h"
-#include "Server.h"
 #include "../template/WindowProperties.h"
 #include <unistd.h>
 #include <pthread.h>
-#include "../utility/General.h"
+#include "../utility/Serialize.h"
 
 Vector * connections;
 pthread_mutex_t lock;
 
 void * initNewConnection(void *arg) {
     int socketFileDescriptor = (int)(uintptr_t) ((CreateConnectThreadArguments *) arg)->sockFd;
-    bool isHost = (bool) ((CreateConnectThreadArguments *) arg)->isHost;
-    char * buffer;
+    short isHost = ((CreateConnectThreadArguments *) arg)->isHost;
+    char buffer[MAXIMUM_INPUT_STRING];
     Connection * connection;
 
     // Read name
-    buffer = readNameFromSocket(socketFileDescriptor);
+    readNameFromSocket(socketFileDescriptor, buffer);
     // Create Connection
     connection = createConnection(isHost, buffer, socketFileDescriptor);
 
@@ -42,7 +41,7 @@ void * initNewConnection(void *arg) {
     pthread_exit(NULL);
 }
 
-Connection * createConnection(bool isHost, char * name, int socketFileDescriptor) {
+Connection * createConnection(short isHost, char * name, int socketFileDescriptor) {
     ClientInfo * clientInfo = (ClientInfo *) malloc(sizeof(ClientInfo));
     // Failed to allocate memory, ignore client
     if (clientInfo == NULL) {
@@ -65,27 +64,32 @@ Connection * createConnection(bool isHost, char * name, int socketFileDescriptor
     return connection;
 }
 
-char * readNameFromSocket(int socketFileDescriptor) {
-    char * buffer = NULL;
+void readNameFromSocket(int socketFileDescriptor, char * name) {
+    unsigned char buffer[MAXIMUM_INPUT_STRING];
     int requestResponseTemp;
-    size_t size = sizeof(char) * MAXIMUM_INPUT_STRING;
 
-    requestResponseTemp = (int) read(socketFileDescriptor, buffer, size);
+    requestResponseTemp = (int) read(socketFileDescriptor, buffer, MAXIMUM_INPUT_STRING);
 
     if (requestResponseTemp == -1) {
         perror("Failed to read to the socket");
         close(socketFileDescriptor);
         pthread_exit(NULL);
     }
-    return buffer;
+    deserializeCharArray(buffer, name);
 }
 
 void writeConnectionsToSockets(Vector *connections) {
     int requestResponseTemp;
-    // Calculate the size of the vector
-    size_t size = sizeof(Vector) + (sizeof(*connections->data) * connections->size) +
-            (sizeof(connections->size) * sizeof(ClientInfo));
+    // 4 in the integer to tell the amount of connections
+    size_t size = (CONNECTION_BYTES * connections->size) + 4;
+    // Create the number of bytes needed.
+    unsigned char buffer[size];
 
+    serializeInt(buffer, 4);
+    // Fill the buffer with data
+    for (int i = 0; i < connections->size; i++) {
+        serializeConnection(buffer, (Connection *) connections->data[i]);
+    }
     // Write to all the other clients that someone joined.
     for (int i = 0; i < connections->size; i++) {
         struct Connection * connection = (Connection *) connections->data[i];

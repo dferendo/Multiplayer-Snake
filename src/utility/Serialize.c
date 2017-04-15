@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <strings.h>
 #include "../server/Server.h"
 #include "../template/WindowProperties.h"
 
@@ -67,6 +68,8 @@ char deserializeChar(unsigned char *buffer) {
 }
 
 void deserializeCharArray(unsigned char *buffer, char * value) {
+    bzero(value, MAXIMUM_INPUT_STRING);
+
     for (int i = 0; i < MAXIMUM_INPUT_STRING; i++) {
         value[i] = deserializeChar(buffer + i);
     }

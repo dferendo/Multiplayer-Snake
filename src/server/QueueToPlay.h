@@ -11,9 +11,9 @@
 
 void * initNewConnection(void *arg);
 
-Connection * createConnection(bool isHost, char * name, int socketFileDescriptor);
+Connection * createConnection(short isHost, char * name, int socketFileDescriptor);
 
-char * readNameFromSocket(int socketFileDescriptor);
+void readNameFromSocket(int socketFileDescriptor, char * name);
 
 void writeConnectionsToSockets(Vector *connections);
 

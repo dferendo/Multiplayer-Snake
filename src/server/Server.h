@@ -10,7 +10,7 @@
 
 typedef struct ClientInfo {
     char * name;
-    bool isHost;
+    short isHost;
 } ClientInfo;
 
 typedef struct Connection {
@@ -19,7 +19,7 @@ typedef struct Connection {
 } Connection;
 
 typedef struct CreateConnectThreadArguments {
-    bool isHost;
+    short isHost;
     int sockFd;
 } CreateConnectThreadArguments;
 

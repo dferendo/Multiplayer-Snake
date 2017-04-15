@@ -5,7 +5,6 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <netinet/in.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <strings.h>
 #include "QueueToPlay.h"
@@ -14,8 +13,10 @@ Vector * connections;
 
 int main(int argc, char *argv[]) {
     // Variables needed
-    int sockFd, portNumber, clientSize, newSockFd;
+    int sockFd, newSockFd;
+    uint16_t portNumber;
     struct sockaddr_in serverAddress, clientAddress;
+    socklen_t clientSize;
     pthread_t clientThread;
     connections = initVector();
     bool hostEstablish = false;
@@ -32,11 +33,11 @@ int main(int argc, char *argv[]) {
         perror("Port number was not passed.");
         exit(1);
     }
-    portNumber = atoi(argv[1]);
+    portNumber = (uint16_t) atoi(argv[1]);
     serverAddress.sin_family = AF_INET;
     // Accepts any addresses
     serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons((uint16_t) portNumber);
+    serverAddress.sin_port = htons(portNumber);
 
     // Binding
     if (bind(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
