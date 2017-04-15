@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
     // Binding
     if (bind(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
         perror("Error on binding");
+        exit(1);
     }
 
     listen(sockFd, 0);
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]) {
             perror("Error on client accept.");
             continue;
         }
-        CreateConnectThreadArguments args = (CreateConnectThreadArguments *)
+        CreateConnectThreadArguments * args = (CreateConnectThreadArguments *)
                 malloc(sizeof(CreateConnectThreadArguments));
 
         // Failed connection, ignore client
@@ -65,13 +66,13 @@ int main(int argc, char *argv[]) {
             close(newSockFd);
             continue;
         }
-        args.sockFd = newSockFd;
+        args->sockFd = newSockFd;
 
         if (!hostEstablish) {
             hostEstablish = true;
-            args.isHost = true;
+            args->isHost = true;
         } else {
-            args.isHost = false;
+            args->isHost = false;
         }
 
         if (pthread_create(&clientThread, NULL, initNewConnection, args) != 0) {
