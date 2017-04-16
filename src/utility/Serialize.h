@@ -9,12 +9,11 @@
 
 #define CLIENTINFO_BYTES 22
 #define CONNECTION_BYTES 26
+#define INTEGER_BYTES 4
 
 unsigned char * serializeInt(unsigned char * buffer, int value);
 
 unsigned char * serializeShort(unsigned char * buffer, short value);
-
-unsigned char * serializeChar(unsigned char *buffer, char value);
 
 unsigned char * serializeCharArray(unsigned char * buffer, char * value, int size);
 
@@ -22,16 +21,18 @@ unsigned char * serializeClientInfo(unsigned char * buffer, ClientInfo * clientI
 
 unsigned char * serializeConnection(unsigned char * buffer, Connection * connection);
 
-int deserializeInt(unsigned char *buffer);
+unsigned char * serializeVectorOfConnections(unsigned char * buffer, Vector * connections);
 
-short deserializeShort(unsigned char * buffer);
+unsigned char * deserializeInt(unsigned char *buffer, int * value);
 
-char deserializeChar(unsigned char *buffer);
+unsigned char * deserializeShort(unsigned char * buffer, short * value);
 
-void deserializeCharArray(unsigned char * buffer, char * value);
+unsigned char * deserializeCharArray(unsigned char * buffer, char * value, int size);
 
-ClientInfo * deserializeClient(unsigned char * buffer);
+unsigned char * deserializeClient(unsigned char * buffer, ClientInfo * clientInfo);
 
-Connection * deserializeConnection(unsigned char * buffer);
+unsigned char * deserializeConnection(unsigned char * buffer, Connection * connection);
+
+unsigned char * deserializeVectorOfConnections(unsigned char * buffer, Vector * connections, int size);
 
 #endif //SNAKES_SERIALIZE_H

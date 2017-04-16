@@ -22,16 +22,11 @@ unsigned char * serializeShort(unsigned char *buffer, short value) {
     return buffer + 2;
 }
 
-unsigned char * serializeChar(unsigned char *buffer, char value) {
-    buffer[0] = (unsigned char) value;
-    return buffer + 1;
-}
-
 unsigned char * serializeCharArray(unsigned char * buffer, char * value, int size) {
     for (int i = 0; i < size; i++) {
-        buffer = serializeChar(buffer, value[0]);
+        buffer[i] = (unsigned char) value[i];
     }
-    return buffer;
+    return buffer + size;
 }
 
 unsigned char * serializeClientInfo(unsigned char *buffer, ClientInfo * clientInfo) {
@@ -46,57 +41,72 @@ unsigned char * serializeConnection(unsigned char *buffer, Connection * connecti
     return buffer;
 }
 
-int deserializeInt(unsigned char *buffer) {
-    uint32_t value = 0;
-
-    value |= (uint32_t) buffer[0] << 24;
-    value |= (uint32_t) buffer[1] << 16;
-    value |= (uint32_t) buffer[2] << 8;
-    value |= (uint32_t) buffer[3];
-    return (int) value;
-}
-
-short deserializeShort(unsigned char *buffer) {
-    uint16_t value = 0;
-    value |= (uint16_t) buffer[0] << 8;
-    value |= (uint16_t) buffer[1];
-    return (short) value;
-}
-
-char deserializeChar(unsigned char *buffer) {
-    return buffer[0];
-}
-
-void deserializeCharArray(unsigned char *buffer, char * value) {
-    bzero(value, MAXIMUM_INPUT_STRING);
-
-    for (int i = 0; i < MAXIMUM_INPUT_STRING; i++) {
-        value[i] = deserializeChar(buffer + i);
+void serializeVectorOfConnections(unsigned char *buffer, Vector *connections) {
+    buffer = serializeInt(buffer, (int) connections->size);
+    // Fill the buffer with data
+    for (int i = 0; i < connections->size; i++) {
+        buffer = serializeConnection(buffer, (Connection *) connections->data[i]);
     }
 }
 
-ClientInfo * deserializeClient(unsigned char *buffer) {
+unsigned char * deserializeInt(unsigned char *buffer, int * value) {
+    int tempValue = 0;
+
+    tempValue |= buffer[0] << 24;
+    tempValue |= buffer[1] << 16;
+    tempValue |= buffer[2] << 8;
+    tempValue |= buffer[3];
+    *value = tempValue;
+    return buffer + 4;
+}
+
+unsigned char * deserializeShort(unsigned char *buffer, short *value) {
+    uint16_t tempValue = 0;
+
+    tempValue |= (uint16_t) buffer[0] << 8;
+    tempValue |= (uint16_t) buffer[1];
+    *value = tempValue;
+    return buffer + 2;
+}
+
+unsigned char *deserializeCharArray(unsigned char *buffer, char *value, int size) {
+
+    for (int i = 0; i < size; i++) {
+        value[i] = buffer[i];
+    }
+    return buffer + size;
+}
+
+unsigned char * deserializeClient(unsigned char *buffer, ClientInfo * clientInfo) {
+    buffer = deserializeCharArray(buffer, clientInfo->name, MAXIMUM_INPUT_STRING);
+    buffer = deserializeShort(buffer, &clientInfo->isHost);
+    return buffer;
+}
+
+unsigned char * deserializeConnection(unsigned char *buffer, Connection *connection) {
     ClientInfo * client = (ClientInfo *) malloc(sizeof(ClientInfo));
 
     if (client == NULL) {
         perror("Failed to allocate memory to client");
-        return NULL;
+        return buffer;
     }
-    client->isHost = deserializeShort(buffer);
-    deserializeCharArray(buffer + 2, client->name);
-    client->name[MAXIMUM_INPUT_STRING - 1] = '\0';
-    return client;
+    buffer = deserializeInt(buffer, &connection->sockFd);
+    buffer = deserializeClient(buffer, client);
+    connection->clientInfo = client;
+    return buffer;
 }
 
-Connection *deserializeConnection(unsigned char *buffer) {
-    Connection * connection = (Connection *) malloc(sizeof(Connection));
+unsigned char * deserializeVectorOfConnections(unsigned char *buffer, Vector * connections, int size) {
 
-    if (connection == NULL) {
-        perror("Failed to allocate memory to Connection");
-        return NULL;
+    for (int i = 0; i < size; i++) {
+        Connection * connection = (Connection *) malloc(sizeof(Connection));
+
+        if (connection == NULL) {
+            perror("Failed to allocate memory to connection");
+            return buffer;
+        }
+        buffer = deserializeConnection(buffer, connection);
+        addItemToVector(connections, connection);
     }
-
-    connection->sockFd = deserializeInt(buffer);
-    connection->clientInfo = deserializeClient(buffer + 4);
-    return connection;
+    return buffer;
 }
