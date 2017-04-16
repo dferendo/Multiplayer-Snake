@@ -1,17 +1,26 @@
 cmake_minimum_required(VERSION 3.7)
 project(Snakes)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pthread")
 
-set(SOURCE_FILES src/main.c
-        src/snakes-components/GameBoard.h
-        src/snakes-components/GameBoard.c
-        src/snakes-components/Food.h
-        src/snakes-components/Food.c
-        src/snakes-components/Snake.h
-        src/snakes-components/Snake.c src/snakes-components/Game.h src/snakes-components/Game.c src/Utility/LinkedList.h src/Utility/LinkedList.c src/Utility/Vector.h src/Utility/Vector.c src/Utility/RandomUtility.h src/Utility/RandomUtility.c src/snakes-components/CharactersDefinition.h)
-add_executable(Snakes ${SOURCE_FILES})
+set(CLIENT_FILES
+        src/utility/Vector.c
+        src/utility/General.c
+        src/utility/Serialize.c
+        src/template/ClientLayout.c
+        src/client/Client.c
+        src/client/StartGame.c)
+
+set(SERVER_FILES
+        src/utility/Vector.c
+        src/utility/Serialize.c
+        src/server/Server.c
+        src/server/QueueToPlay.c)
+
+add_executable(Client ${CLIENT_FILES})
+add_executable(Server ${SERVER_FILES})
+
 # Add ncurses library
-find_package(Curses REQUIRED)
+find_package(Curses  REQUIRED)
 include_directories(${CURSES_INCLUDE_DIRS})
-target_link_libraries( Snakes ${CURSES_LIBRARIES})
+target_link_libraries( Client ${CURSES_LIBRARIES})
