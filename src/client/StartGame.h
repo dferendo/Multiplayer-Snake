@@ -11,15 +11,18 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <ncurses.h>
+#include "../server/Server.h"
 
 void startGameInit();
 
 void getInput(char * name, char * serverName, char * port);
 
-bool printError(char * errorMessage);
+void writeNameToSocket(int socketFileDescriptor, char * name);
 
-bool attemptToConnectToServer(int sockFd, int portNumber,
-                              struct sockaddr_in * serverAddress,
-                              struct hostent * server);
+void readConnectionsFromSocket(int socketFileDescriptor, Vector * connections);
+
+bool printErrorAndOfferRetry(char *errorMessage);
+
+WINDOW * displayConnections(Vector * connections);
 
 #endif //SNAKES_STARTGAME_H
