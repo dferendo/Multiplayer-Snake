@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
     bzero((char *) &serverAddress, sizeof(serverAddress));
     if (argc < 2) {
-        perror("Port number was not passed.");
+        printf("Port number was not passed");
         exit(1);
     }
     portNumber = (uint16_t) atoi(argv[1]);

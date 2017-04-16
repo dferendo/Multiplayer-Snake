@@ -5,6 +5,7 @@
 #include "../template/WindowProperties.h"
 #include <unistd.h>
 #include <pthread.h>
+#include <strings.h>
 #include "../utility/Serialize.h"
 
 Vector * connections;
@@ -67,6 +68,7 @@ Connection * createConnection(short isHost, char * name, int socketFileDescripto
 void readNameFromSocket(int socketFileDescriptor, char * name) {
     unsigned char buffer[MAXIMUM_INPUT_STRING];
     int requestResponseTemp;
+    bzero(buffer, MAXIMUM_INPUT_STRING);
 
     requestResponseTemp = (int) read(socketFileDescriptor, buffer, MAXIMUM_INPUT_STRING);
 
@@ -75,26 +77,24 @@ void readNameFromSocket(int socketFileDescriptor, char * name) {
         close(socketFileDescriptor);
         pthread_exit(NULL);
     }
-    deserializeCharArray(buffer, name);
+    deserializeCharArray(buffer, name, MAXIMUM_INPUT_STRING);
 }
 
 void writeConnectionsToSockets(Vector *connections) {
     int requestResponseTemp;
-    // 4 in the integer to tell the amount of connections
+    // 4 is the integer to tell the amount of connections
     size_t size = (CONNECTION_BYTES * connections->size) + 4;
     // Create the number of bytes needed.
     unsigned char buffer[size];
+    bzero(buffer, size);
 
-    serializeInt(buffer, 4);
-    // Fill the buffer with data
-    for (int i = 0; i < connections->size; i++) {
-        serializeConnection(buffer, (Connection *) connections->data[i]);
-    }
+    serializeVectorOfConnections(buffer, connections);
+
     // Write to all the other clients that someone joined.
     for (int i = 0; i < connections->size; i++) {
         struct Connection * connection = (Connection *) connections->data[i];
 
-        requestResponseTemp = (int) write(connection->sockFd, connections, size);
+        requestResponseTemp = (int) write(connection->sockFd, buffer, size);
 
         if (requestResponseTemp == -1) {
             perror("Failed to write to the socket");
