@@ -3,7 +3,7 @@
 //
 #include <stdlib.h>
 #include "LinkedList.h"
-#include "../snakes-components/Snake.h"
+#include "../server/Snake.h"
 
 LinkedListPosition * initLinkedListPosition(Position *position) {
     LinkedListPosition *linkedList = (LinkedListPosition *) malloc(sizeof(LinkedListPosition));

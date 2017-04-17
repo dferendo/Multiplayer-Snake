@@ -1,0 +1,11 @@
+//
+// Created by dylan on 17/04/2017.
+//
+
+#ifndef SNAKES_GAMESETTINGS_H
+#define SNAKES_GAMESETTINGS_H
+
+#define DEFAULT_START_DIRECTION D_UP
+#define DEFAULT_START_SIZE 1
+
+#endif //SNAKES_GAMESETTINGS_H

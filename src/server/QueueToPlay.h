@@ -15,6 +15,8 @@ Connection * createConnection(short isHost, char * name, int socketFileDescripto
 
 void readNameFromSocket(int socketFileDescriptor, char * name);
 
+void writeUniqueIdentifier(int socketFileDescriptor);
+
 void writeConnectionsToSockets(Vector *connections);
 
 

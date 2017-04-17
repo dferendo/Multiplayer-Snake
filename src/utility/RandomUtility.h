@@ -5,7 +5,7 @@
 #ifndef SNAKES_RANDOMUTILITY_H
 #define SNAKES_RANDOMUTILITY_H
 
-#include "../snakes-components/Snake.h"
+#include "../server/Snake.h"
 
 Position * createNewRandomPosition(WINDOW * window);
 

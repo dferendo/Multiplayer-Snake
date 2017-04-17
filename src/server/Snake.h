@@ -6,10 +6,8 @@
 #define SNAKES_SNAKE_H
 
 #include <ncurses.h>
-#include "../Utility/LinkedList.h"
-
-#define DEFAULT_START_DIRECTION D_UP
-#define DEFAULT_START_SIZE 1
+#include "../utility/LinkedList.h"
+#include "../utility/Vector.h"
 
 typedef enum {
     D_UP,
@@ -29,10 +27,6 @@ typedef struct {
     LinkedListPosition * positions;
 } Snake;
 
-Snake * createSnake(WINDOW * window);
-
-int moveSnake(WINDOW * window, Snake * snake);
-
-int growSnake(WINDOW * window, Snake * snake);
+void snakesInit(Vector * connections);
 
 #endif //SNAKES_SNAKE_H

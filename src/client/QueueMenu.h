@@ -29,6 +29,6 @@ Vector * readConnectionsFromSocket(int socketFileDescriptor);
 
 bool printErrorAndOfferRetry(char *errorMessage);
 
-bool waitUntilHostStartsGame(WINDOW * window, int * sockFd);
+void waitUntilHostStartsGame(WINDOW * window, int * sockFd);
 
 #endif //SNAKES_STARTGAME_H

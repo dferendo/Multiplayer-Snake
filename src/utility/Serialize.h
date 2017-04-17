@@ -13,6 +13,7 @@
 
 #define DELIMITERS_SIZE 2
 #define VECTOR_OF_CONNECTIONS_DELIMITER "/C"
+#define CLIENT_ID_DELIMITER "/I"
 
 unsigned char * serializeInt(unsigned char * buffer, int value);
 
@@ -27,6 +28,8 @@ unsigned char * serializeConnection(unsigned char * buffer, Connection * connect
 unsigned char * serializeVectorOfConnections(unsigned char * buffer, Vector * connections);
 
 unsigned char * serializedVectorOfConnectionsDelimiter(unsigned char * buffer, Vector *connections);
+
+unsigned char * serializedClientId(unsigned char * buffer, int clientID);
 
 unsigned char * deserializeInt(unsigned char *buffer, int * value);
 

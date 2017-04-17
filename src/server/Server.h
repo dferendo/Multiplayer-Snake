@@ -7,11 +7,13 @@
 
 #include "../utility/Vector.h"
 #include "../template/WindowProperties.h"
+#include "Snake.h"
 #include <stdbool.h>
 
 typedef struct ClientInfo {
     char name[MAXIMUM_INPUT_STRING];
     short isHost;
+    Snake * snake;
 } ClientInfo;
 
 typedef struct Connection {
@@ -24,7 +26,7 @@ typedef struct CreateConnectThreadArguments {
     int sockFd;
 } CreateConnectThreadArguments;
 
-#endif //SNAKES_SERVERLAUNCHER_H
-
 // Vector containing Connections Type
 extern Vector * connections;
+
+#endif //SNAKES_SERVERLAUNCHER_H

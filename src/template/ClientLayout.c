@@ -9,10 +9,10 @@
 void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window) {
 
     mvwprintw(window, 0, 0, "Players waiting: ");
-
     for (int i = 0; i < connections->size; i++) {
         char str[MAXIMUM_INPUT_STRING + 10];
         Connection * nextConnection = (Connection *) connections->data[i];
+
         if (nextConnection->clientInfo->isHost) {
             sprintf(str, "%d) %s (H)", i + 1, nextConnection->clientInfo->name);
         } else {
@@ -20,5 +20,7 @@ void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window) {
         }
         mvwprintw(window, i + 1, 0, str);
     }
+    // TODO: Host only.
+    mvwprintw(window, (int) (connections->size + 2), 0, HOST_GAME_START);
     wrefresh(window);
 }

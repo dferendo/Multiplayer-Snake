@@ -6,6 +6,7 @@
 #include "../template/ClientLayout.h"
 #include "../utility/General.h"
 #include "../utility/Serialize.h"
+#include "SnakesGame.h"
 #include <unistd.h>
 #include <strings.h>
 #include <string.h>
@@ -210,9 +211,11 @@ void clearConnectionVector(Vector * oldVector) {
     deleteVector(oldVector);
 }
 
-bool waitUntilHostStartsGame(WINDOW *window, int *sockFd) {
+void waitUntilHostStartsGame(WINDOW *window, int *sockFd) {
     Vector * connections = NULL;
-    
+    // Set getCh delay.
+    halfdelay(WAIT_INPUT_TIME_FOR_HOST_TO_START_GAME);
+
     while (true) {
         if (checkIfThereAreConnections(*sockFd)) {
             if (connections != NULL) {
@@ -220,9 +223,15 @@ bool waitUntilHostStartsGame(WINDOW *window, int *sockFd) {
             }
             // Get connections the server has
             connections = readConnectionsFromSocket(*sockFd);
+            clearWindow(window);
             generateWindowForWaitingInQueue(connections, window);
         }
-        // Check every so seconds.
-        usleep(QUEUE_CONNECTION_CHECK_TIME_US);
+        int input = getch();
+        // Start Game
+        // TODO: host starts game
+        if (input == 'S') {
+            gameInit(connections);
+            break;
+        }
     }
 }

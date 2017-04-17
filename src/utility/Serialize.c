@@ -55,6 +55,12 @@ unsigned char *serializedVectorOfConnectionsDelimiter(unsigned char *buffer, Vec
     return buffer;
 }
 
+unsigned char *serializedClientId(unsigned char *buffer, int clientID) {
+    buffer = serializeCharArray(buffer, CLIENT_ID_DELIMITER, DELIMITERS_SIZE);
+    buffer = serializeInt(buffer, clientID);
+    return buffer;
+}
+
 unsigned char * deserializeInt(unsigned char *buffer, int * value) {
     int tempValue = 0;
 

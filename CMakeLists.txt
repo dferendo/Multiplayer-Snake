@@ -16,7 +16,7 @@ set(CLIENT_FILES
         src/template/ClientLayout.h
         src/client/Client.h
         src/client/QueueMenu.h
-        src/template/WindowProperties.h)
+        src/template/WindowProperties.h src/client/SnakesGame.h src/client/SnakesGame.c src/template/GameSettings.h)
 
 set(SERVER_FILES
         src/utility/Vector.c
@@ -26,7 +26,10 @@ set(SERVER_FILES
         src/utility/Vector.h
         src/utility/Serialize.h
         src/server/Server.h
-        src/server/QueueToPlay.h)
+        src/server/QueueToPlay.h
+        src/server/Snake.h
+        src/server/Snake.c
+        src/template/GameSettings.h)
 
 add_executable(Client ${CLIENT_FILES})
 add_executable(Server ${SERVER_FILES})

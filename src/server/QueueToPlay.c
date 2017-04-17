@@ -29,6 +29,9 @@ void * initNewConnection(void *arg) {
         pthread_exit(NULL);
     }
 
+    // Give a uniqueID to each client ie sockFd is unique to each client.
+    writeUniqueIdentifier(socketFileDescriptor);
+
     // Lock connections to add new connection
     pthread_mutex_lock(&lock);
     addItemToVector(connections, connection);
@@ -36,9 +39,8 @@ void * initNewConnection(void *arg) {
     // Unlock since connections no longer used.
     pthread_mutex_unlock(&lock);
 
-    if (!isHost) {
-        pthread_exit(NULL);
-    }
+    free(arg);
+    // TODO?
     // Only host can start the game.
     pthread_exit(NULL);
 }
@@ -79,6 +81,22 @@ void readNameFromSocket(int socketFileDescriptor, char * name) {
         pthread_exit(NULL);
     }
     deserializeCharArray(buffer, name, MAXIMUM_INPUT_STRING);
+}
+
+void writeUniqueIdentifier(int socketFileDescriptor) {
+    int request;
+    size_t size = DELIMITERS_SIZE + INTEGER_BYTES;
+    unsigned char buffer[size];
+    bzero(buffer, size);
+
+    serializedClientId(buffer, socketFileDescriptor);
+
+    request = (int) write(socketFileDescriptor, buffer, size);
+
+    if (request == -1) {
+        perror("Failed to write to the socket");
+        close(socketFileDescriptor);
+    }
 }
 
 void writeConnectionsToSockets(Vector *connections) {
