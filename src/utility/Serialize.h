@@ -10,7 +10,9 @@
 #define INTEGER_BYTES 4
 #define CLIENTINFO_BYTES 22
 #define CONNECTION_BYTES 26
-#define VECTOR_OF_CONNECTIONS_DELIMTER "\C"
+
+#define DELIMITERS_SIZE 2
+#define VECTOR_OF_CONNECTIONS_DELIMITER "/C"
 
 unsigned char * serializeInt(unsigned char * buffer, int value);
 
@@ -23,6 +25,8 @@ unsigned char * serializeClientInfo(unsigned char * buffer, ClientInfo * clientI
 unsigned char * serializeConnection(unsigned char * buffer, Connection * connection);
 
 unsigned char * serializeVectorOfConnections(unsigned char * buffer, Vector * connections);
+
+unsigned char * serializedVectorOfConnectionsDelimiter(unsigned char * buffer, Vector *connections);
 
 unsigned char * deserializeInt(unsigned char *buffer, int * value);
 

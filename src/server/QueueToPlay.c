@@ -84,12 +84,13 @@ void readNameFromSocket(int socketFileDescriptor, char * name) {
 void writeConnectionsToSockets(Vector *connections) {
     int requestResponseTemp;
     // 4 is the integer to tell the amount of connections
-    size_t size = (CONNECTION_BYTES * connections->size) + 4;
+    size_t size = (CONNECTION_BYTES * connections->size) + INTEGER_BYTES + DELIMITERS_SIZE;
     // Create the number of bytes needed.
     unsigned char buffer[size];
     bzero(buffer, size);
 
-    serializeVectorOfConnections(buffer, connections);
+    // Add delimiter so that clients know that there is data to be read.
+    serializedVectorOfConnectionsDelimiter(buffer, connections);
 
     // Write to all the other clients that someone joined.
     for (int i = 0; i < connections->size; i++) {

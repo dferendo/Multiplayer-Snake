@@ -8,6 +8,7 @@
 #include "../utility/Serialize.h"
 #include <unistd.h>
 #include <strings.h>
+#include <string.h>
 
 const char * const SERVER_REQUIRED[PLAY_GAME_MENU_ITEMS] = {
         "Player Name: ",
@@ -16,6 +17,7 @@ const char * const SERVER_REQUIRED[PLAY_GAME_MENU_ITEMS] = {
 };
 
 void queueConnectionManager(WINDOW *window) {
+    // SockFd will be the unique identifier of the users.
     int sockFd;
     char playerName[MAXIMUM_INPUT_STRING];
     Vector * connections = initVector();
@@ -31,9 +33,8 @@ void queueConnectionManager(WINDOW *window) {
     readConnectionsFromSocket(sockFd, connections);
     // Display connections
     generateWindowForWaitingInQueue(connections, window);
-
-    if (connections)
-    getch();
+    // Continue updating the queue players until host starts game.
+    waitUntilHostStartsGame(window, &sockFd, connections);
 }
 
 bool connectToServer(WINDOW *window, int * sockFd, char * playerName) {
@@ -149,6 +150,25 @@ void writeNameToSocket(int socketFileDescriptor, char * name) {
     }
 }
 
+bool checkIfThereAreConnections(int socketFileDescriptor) {
+    int response;
+    unsigned char buffer[DELIMITERS_SIZE];
+    bzero(buffer, DELIMITERS_SIZE);
+
+    response = (int) read(socketFileDescriptor, buffer, DELIMITERS_SIZE);
+
+    if (response == -1) {
+        perror("Error when reading from socket");
+        close(socketFileDescriptor);
+        exit(1);
+    }
+
+    if (strcmp((const char *) buffer, VECTOR_OF_CONNECTIONS_DELIMITER)) {
+        return true;
+    }
+    return false;
+}
+
 void readConnectionsFromSocket(int socketFileDescriptor, Vector * connections) {
     int response;
     int amountOfConnections;
@@ -179,4 +199,11 @@ void readConnectionsFromSocket(int socketFileDescriptor, Vector * connections) {
     }
     // De-serialize the connections and put them in a vector
     deserializeVectorOfConnections(buffer, connections, amountOfConnections);
+}
+
+bool waitUntilHostStartsGame(WINDOW *window, int *sockFd, Vector *connections) {
+
+    while (true) {
+
+    }
 }

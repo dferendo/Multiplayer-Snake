@@ -21,8 +21,12 @@ void getInput(char * name, char * serverName, char * port, WINDOW * window);
 
 void writeNameToSocket(int socketFileDescriptor, char * name);
 
+bool checkIfThereAreConnections(int socketFileDescriptor);
+
 void readConnectionsFromSocket(int socketFileDescriptor, Vector * connections);
 
 bool printErrorAndOfferRetry(char *errorMessage);
+
+bool waitUntilHostStartsGame(WINDOW * window, int * sockFd, Vector * connections);
 
 #endif //SNAKES_STARTGAME_H

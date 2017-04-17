@@ -1,8 +1,7 @@
+#include "Serialize.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <strings.h>
-#include "../server/Server.h"
-#include "../template/WindowProperties.h"
 
 //
 // Created by dylan on 15/04/2017.
@@ -41,12 +40,19 @@ unsigned char * serializeConnection(unsigned char *buffer, Connection * connecti
     return buffer;
 }
 
-void serializeVectorOfConnections(unsigned char *buffer, Vector *connections) {
+unsigned char * serializeVectorOfConnections(unsigned char *buffer, Vector *connections) {
     buffer = serializeInt(buffer, (int) connections->size);
     // Fill the buffer with data
     for (int i = 0; i < connections->size; i++) {
         buffer = serializeConnection(buffer, (Connection *) connections->data[i]);
     }
+    return buffer;
+}
+
+unsigned char *serializedVectorOfConnectionsDelimiter(unsigned char *buffer, Vector *connections) {
+    buffer = serializeCharArray(buffer, VECTOR_OF_CONNECTIONS_DELIMITER, DELIMITERS_SIZE);
+    buffer = serializeVectorOfConnections(buffer, connections);
+    return buffer;
 }
 
 unsigned char * deserializeInt(unsigned char *buffer, int * value) {
