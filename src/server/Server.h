@@ -24,7 +24,7 @@ typedef struct CreateConnectThreadArguments {
     int sockFd;
 } CreateConnectThreadArguments;
 
+#endif //SNAKES_SERVERLAUNCHER_H
+
 // Vector containing Connections Type
 extern Vector * connections;
-
-#endif //SNAKES_SERVERLAUNCHER_H

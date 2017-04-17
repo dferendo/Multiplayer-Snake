@@ -23,10 +23,12 @@ void writeNameToSocket(int socketFileDescriptor, char * name);
 
 bool checkIfThereAreConnections(int socketFileDescriptor);
 
-void readConnectionsFromSocket(int socketFileDescriptor, Vector * connections);
+void clearConnectionVector(Vector * oldVector);
+
+Vector * readConnectionsFromSocket(int socketFileDescriptor);
 
 bool printErrorAndOfferRetry(char *errorMessage);
 
-bool waitUntilHostStartsGame(WINDOW * window, int * sockFd, Vector * connections);
+bool waitUntilHostStartsGame(WINDOW * window, int * sockFd);
 
 #endif //SNAKES_STARTGAME_H

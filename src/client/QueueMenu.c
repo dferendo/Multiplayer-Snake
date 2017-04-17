@@ -20,7 +20,6 @@ void queueConnectionManager(WINDOW *window) {
     // SockFd will be the unique identifier of the users.
     int sockFd;
     char playerName[MAXIMUM_INPUT_STRING];
-    Vector * connections = initVector();
 
     // Connection failed.
     if (!connectToServer(window, &sockFd, playerName)) {
@@ -29,12 +28,8 @@ void queueConnectionManager(WINDOW *window) {
 
     // Send Name To server
     writeNameToSocket(sockFd, playerName);
-    // Get connections the server has
-    readConnectionsFromSocket(sockFd, connections);
-    // Display connections
-    generateWindowForWaitingInQueue(connections, window);
     // Continue updating the queue players until host starts game.
-    waitUntilHostStartsGame(window, &sockFd, connections);
+    waitUntilHostStartsGame(window, &sockFd);
 }
 
 bool connectToServer(WINDOW *window, int * sockFd, char * playerName) {
@@ -163,18 +158,19 @@ bool checkIfThereAreConnections(int socketFileDescriptor) {
         exit(1);
     }
 
-    if (strcmp((const char *) buffer, VECTOR_OF_CONNECTIONS_DELIMITER)) {
+    if (strncmp((const char *) buffer, VECTOR_OF_CONNECTIONS_DELIMITER, DELIMITERS_SIZE) == 0) {
         return true;
     }
     return false;
 }
 
-void readConnectionsFromSocket(int socketFileDescriptor, Vector * connections) {
+Vector * readConnectionsFromSocket(int socketFileDescriptor) {
     int response;
     int amountOfConnections;
     size_t connectionsSize;
     unsigned char bufferInteger[INTEGER_BYTES];
     bzero(bufferInteger, INTEGER_BYTES);
+    Vector * connections = initVector();
 
     response = (int) read(socketFileDescriptor, bufferInteger, INTEGER_BYTES);
 
@@ -197,13 +193,36 @@ void readConnectionsFromSocket(int socketFileDescriptor, Vector * connections) {
         close(socketFileDescriptor);
         exit(1);
     }
+    // TODO: more efficient pls.
     // De-serialize the connections and put them in a vector
     deserializeVectorOfConnections(buffer, connections, amountOfConnections);
+    return connections;
 }
 
-bool waitUntilHostStartsGame(WINDOW *window, int *sockFd, Vector *connections) {
+void clearConnectionVector(Vector * oldVector) {
 
+    // ClientInfo will not be de-allocated by deleteVector().
+    for (int i = 0; i < oldVector->size; i++) {
+        Connection * temp = (Connection *) oldVector->data[i];
+        // Clear the Client.
+        free(temp->clientInfo);
+    }
+    deleteVector(oldVector);
+}
+
+bool waitUntilHostStartsGame(WINDOW *window, int *sockFd) {
+    Vector * connections = NULL;
+    
     while (true) {
-
+        if (checkIfThereAreConnections(*sockFd)) {
+            if (connections != NULL) {
+                clearConnectionVector(connections);
+            }
+            // Get connections the server has
+            connections = readConnectionsFromSocket(*sockFd);
+            generateWindowForWaitingInQueue(connections, window);
+        }
+        // Check every so seconds.
+        usleep(QUEUE_CONNECTION_CHECK_TIME_US);
     }
 }
