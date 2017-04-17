@@ -40,6 +40,10 @@ void * initNewConnection(void *arg) {
 
     if (isHost) {
         readStartGameFromHost(socketFileDescriptor);
+        // Inform others game is starting.
+        pthread_mutex_lock(&lock);
+        writeStartingGameToConnectionsExceptHost(connections);
+        pthread_mutex_unlock(&lock);
     }
     // Only host can start the game.
     free(arg);
@@ -134,5 +138,26 @@ void readStartGameFromHost(int socketFileDescriptor) {
             break;
         }
         usleep(HOST_START_GAME_DELAY);
+    }
+}
+
+void writeStartingGameToConnectionsExceptHost(Vector *connections) {
+    int response;
+    unsigned char buffer[DELIMITERS_SIZE];
+    bzero(buffer, DELIMITERS_SIZE);
+
+    serializeCharArray(buffer, HOST_STARTS_GAME_DELIMETER, DELIMITERS_SIZE);
+
+    for (int i = 0; i < connections->size; i++) {
+        Connection * temp = (Connection *) connections->data[i];
+        // Skip host since he made the call he already knows.
+        if (!temp->clientInfo->isHost) {
+            response = (int) write(temp->sockFd, buffer, DELIMITERS_SIZE);
+
+            if (response == -1) {
+                perror("Error reading from socket");
+                close(temp->sockFd);
+            }
+        }
     }
 }

@@ -21,9 +21,23 @@ bool checkIfHost(Vector *connections, char *playerID) {
         Connection * connection = (Connection *) connections->data[i];
 
         if (strcmp(connection->clientInfo->name, playerID) == 0 &&
-                connection->clientInfo->isHost) {
+            connection->clientInfo->isHost) {
             return true;
         }
     }
     return false;
+}
+
+bool setSocketBlockingEnabled(int sockFd, bool blocking) {
+    int flags;
+
+    if (sockFd < 0) {
+        return false;
+    }
+    flags = fcntl(sockFd, F_GETFL, 0);
+    if (flags < 0) {
+        return false;
+    }
+    flags = blocking ? (flags&~O_NONBLOCK) : (flags|O_NONBLOCK);
+    return (fcntl(sockFd, F_SETFL, flags) == 0) ? true : false;
 }

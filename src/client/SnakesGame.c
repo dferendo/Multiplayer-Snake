@@ -3,6 +3,7 @@
 //
 #include "SnakesGame.h"
 #include "../server/Server.h"
+#include "../template/ClientLayout.h"
 #include <stdio.h>
 
 void gameInit(Vector * connections) {
@@ -10,6 +11,9 @@ void gameInit(Vector * connections) {
         perror("There are not connections.");
         return;
     }
+    WINDOW * window = generatePlayingWindow();
+    wrefresh(window);
+    getch();
 }
 
 void sendAllSnakeDataToAllConnections(Vector *connections) {

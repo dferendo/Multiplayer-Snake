@@ -26,6 +26,13 @@ void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool
     wrefresh(window);
 }
 
+WINDOW *generatePlayingWindow() {
+    WINDOW * window;
+    // Creating playing window without borders.
+    window = newwin(ROW - 2, COLUMN - 2, 1, 1);
+    return window;
+}
+
 void clearWindow(WINDOW *window) {
     wclear(window);
     wrefresh(window);

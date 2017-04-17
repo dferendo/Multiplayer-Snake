@@ -19,4 +19,6 @@ void writeConnectionsToSockets(Vector *connections);
 
 void readStartGameFromHost(int socketFileDescriptor);
 
+void writeStartingGameToConnectionsExceptHost(Vector * connections);
+
 #endif //SNAKES_QUEUETOPLAY_H

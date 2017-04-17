@@ -23,7 +23,7 @@
 
 #define HOST_GAME_START "Press 'S' to start Game!"
 
-#define SLEEP_WHEN_NO_HOST_QUEUE_SEC 2
+#define SLEEP_WHEN_NO_HOST_QUEUE_SEC 1
 
 extern const char * const MENU_ITEMS[MAIN_MENU_ITEMS];
 
@@ -32,6 +32,8 @@ extern const char * const CREDITS;
 extern const char * const SERVER_REQUIRED[PLAY_GAME_MENU_ITEMS];
 
 void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool isHost);
+
+WINDOW * generatePlayingWindow();
 
 void clearWindow(WINDOW *window);
 
