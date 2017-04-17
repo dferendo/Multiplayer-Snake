@@ -1,4 +1,5 @@
 #include "Serialize.h"
+#include "../server/Snake.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <strings.h>
@@ -31,6 +32,7 @@ unsigned char * serializeCharArray(unsigned char * buffer, char * value, int siz
 unsigned char * serializeClientInfo(unsigned char *buffer, ClientInfo * clientInfo) {
     buffer = serializeCharArray(buffer, clientInfo->name, MAXIMUM_INPUT_STRING);
     buffer = serializeShort(buffer, clientInfo->isHost);
+    buffer = serializedSnake(buffer, clientInfo->snake);
     return buffer;
 }
 
@@ -55,9 +57,9 @@ unsigned char *serializedVectorOfConnectionsDelimiter(unsigned char *buffer, Vec
     return buffer;
 }
 
-unsigned char *serializedClientId(unsigned char *buffer, int clientID) {
-    buffer = serializeCharArray(buffer, CLIENT_ID_DELIMITER, DELIMITERS_SIZE);
-    buffer = serializeInt(buffer, clientID);
+unsigned char *serializedSnake(unsigned char *buffer, Snake *snake) {
+    buffer = serializeInt(buffer, snake->direction);
+    buffer = serializedLinkedList(buffer, snake->positions);
     return buffer;
 }
 
@@ -124,4 +126,22 @@ unsigned char * deserializeVectorOfConnections(unsigned char *buffer, Vector * c
         addItemToVector(connections, connection);
     }
     return buffer;
+}
+
+unsigned char *serializedPosition(unsigned char *buffer, Position *position) {
+    buffer = serializeInt(buffer, position->x);
+    buffer = serializeInt(buffer, position->y);
+    return buffer;
+}
+
+unsigned char * serializedLinkedList(unsigned char *buffer, LinkedListPosition *linkedListPosition) {
+
+    while (true) {
+        // Assumed the linked list will at least have 1 size.
+        buffer = serializedPosition(buffer, linkedListPosition->position);
+        if (linkedListPosition->next == NULL) {
+            return buffer;
+        }
+        linkedListPosition = linkedListPosition->next;
+    }
 }

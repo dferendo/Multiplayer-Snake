@@ -3,25 +3,24 @@
 //
 
 #include "RandomUtility.h"
-#include <stdlib.h>
-#include "../snakes-components/CharactersDefinition.h"
+#include "../template/WindowProperties.h"
 
-Position * createNewRandomPosition(WINDOW *window) {
-    int maxX, maxY, x, y, checkCharacter;
+Position * createNewRandomPosition(Vector * positionsTaken) {
+    int x, y;
 
     while (true) {
-        maxX = getmaxx(window);
-        maxY = getmaxy(window);
+        // There is a border hence the -1.
+        x = rand() % (ROW - 1);
+        y = rand() % (COLUMN - 1);
 
-        x = rand() % (maxX + 1);
-        y = rand() % (maxY + 1);
-
-        checkCharacter = mvwgetch(window, x, y);
-
-        // If there is someone on the screen, the position is not good thus re-try
-        if (checkCharacter == SNAKE_BODY || checkCharacter == BORDER_CHARACTER || checkCharacter == F_NORMAL) {
-            continue;
+        // Check if position is taken.
+        for (int i = 0; i < positionsTaken->size; i++) {
+            Position * temp = (Position *) positionsTaken->data[i];
+            if (temp->x == x && temp->y == y) {
+                continue;
+            }
         }
+
         Position * position = (Position *) malloc(sizeof(Position));
 
         if (position == NULL) {
@@ -30,6 +29,8 @@ Position * createNewRandomPosition(WINDOW *window) {
         }
         position->x = x;
         position->y = y;
+        // Add new position to vector.
+        addItemToVector(positionsTaken, position);
         return position;
     }
 }

@@ -7,6 +7,6 @@
 
 #include "../server/Snake.h"
 
-Position * createNewRandomPosition(WINDOW * window);
+Position * createNewRandomPosition(Vector * positionsTaken);
 
 #endif //SNAKES_RANDOMUTILITY_H

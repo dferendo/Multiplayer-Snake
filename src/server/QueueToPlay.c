@@ -10,6 +10,7 @@
 #include "../utility/Serialize.h"
 
 Vector * connections;
+Vector * initialPositions;
 pthread_mutex_t lock;
 
 void * initNewConnection(void *arg) {
@@ -28,9 +29,6 @@ void * initNewConnection(void *arg) {
         close(socketFileDescriptor);
         pthread_exit(NULL);
     }
-
-    // Give a uniqueID to each client ie sockFd is unique to each client.
-    writeUniqueIdentifier(socketFileDescriptor);
 
     // Lock connections to add new connection
     pthread_mutex_lock(&lock);
@@ -55,6 +53,7 @@ Connection * createConnection(short isHost, char * name, int socketFileDescripto
     }
     clientInfo->isHost = isHost;
     strcpy(clientInfo->name, name);
+    clientInfo->snake = createSnake(initialPositions);
     // Allocate memory to Connection info
     Connection * connection = (Connection *) malloc(sizeof(Connection));
     if (connection == NULL) {
@@ -81,22 +80,6 @@ void readNameFromSocket(int socketFileDescriptor, char * name) {
         pthread_exit(NULL);
     }
     deserializeCharArray(buffer, name, MAXIMUM_INPUT_STRING);
-}
-
-void writeUniqueIdentifier(int socketFileDescriptor) {
-    int request;
-    size_t size = DELIMITERS_SIZE + INTEGER_BYTES;
-    unsigned char buffer[size];
-    bzero(buffer, size);
-
-    serializedClientId(buffer, socketFileDescriptor);
-
-    request = (int) write(socketFileDescriptor, buffer, size);
-
-    if (request == -1) {
-        perror("Failed to write to the socket");
-        close(socketFileDescriptor);
-    }
 }
 
 void writeConnectionsToSockets(Vector *connections) {

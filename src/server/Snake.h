@@ -10,10 +10,10 @@
 #include "../utility/Vector.h"
 
 typedef enum {
-    D_UP,
-    D_LEFT,
-    D_DOWN,
-    D_RIGHT
+    D_UP = 0,
+    D_LEFT = 1,
+    D_DOWN = 2,
+    D_RIGHT = 3
 } Direction;
 
 typedef struct Position {
@@ -27,6 +27,6 @@ typedef struct {
     LinkedListPosition * positions;
 } Snake;
 
-void snakesInit(Vector * connections);
+Snake * createSnake(Vector * initialPositions);
 
 #endif //SNAKES_SNAKE_H

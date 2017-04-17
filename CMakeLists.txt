@@ -29,7 +29,11 @@ set(SERVER_FILES
         src/server/QueueToPlay.h
         src/server/Snake.h
         src/server/Snake.c
-        src/template/GameSettings.h)
+        src/template/GameSettings.h
+        src/utility/RandomUtility.c
+        src/utility/RandomUtility.h
+        src/utility/LinkedList.c
+        src/utility/LinkedList.h)
 
 add_executable(Client ${CLIENT_FILES})
 add_executable(Server ${SERVER_FILES})
