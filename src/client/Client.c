@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "../template/ClientLayout.h"
 #include "../template/WindowProperties.h"
-#include "StartGame.h"
+#include "QueueMenu.h"
 
 const char * const MENU_ITEMS[MAIN_MENU_ITEMS] = {
         "1) Play",
@@ -55,8 +55,8 @@ void mainMenu() {
 
         switch (charSelected) {
             case '1':
-                deleteWindow(mainMenu);
-                startGameInit();
+                clearWindow(mainMenu);
+                queueConnectionManager(mainMenu);
                 break;
             case '2':
                 delwin(mainMenu);
@@ -103,10 +103,4 @@ WINDOW * createMainMenuWindow() {
     // Add Credits
     mvwprintw(menuWindow, height - 2, 2, CREDITS);
     return menuWindow;
-}
-
-void deleteWindow(WINDOW * window) {
-    wclear(window);
-    wrefresh(window);
-    delwin(window);
 }

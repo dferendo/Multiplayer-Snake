@@ -13,6 +13,4 @@ void mainMenu();
 
 WINDOW * createMainMenuWindow();
 
-void deleteWindow(WINDOW * window);
-
 #endif //SNAKES_CLIENT_H

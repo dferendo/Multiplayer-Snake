@@ -13,16 +13,16 @@
 #include <ncurses.h>
 #include "../server/Server.h"
 
-void startGameInit();
+void queueConnectionManager(WINDOW *window);
 
-void getInput(char * name, char * serverName, char * port);
+bool connectToServer(WINDOW * window, int * sockFd, char * playerName);
+
+void getInput(char * name, char * serverName, char * port, WINDOW * window);
 
 void writeNameToSocket(int socketFileDescriptor, char * name);
 
 void readConnectionsFromSocket(int socketFileDescriptor, Vector * connections);
 
 bool printErrorAndOfferRetry(char *errorMessage);
-
-WINDOW * displayConnections(Vector * connections);
 
 #endif //SNAKES_STARTGAME_H

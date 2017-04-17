@@ -5,12 +5,16 @@
 #include "../template/WindowProperties.h"
 #include "../template/ClientLayout.h"
 
-WINDOW * createWindowAtTheCenterOfTheScreen() {
+WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width) {
     WINDOW * tempWindow;
     // StartingX and Y put in centre (Approx)
-    int height = 4, width = MAXIMUM_INPUT_STRING + PLAY_GAME_MENU_LENGTH,
-            startingX = (COLUMN / 2) - (width / 2), startingY = (ROW / 2) - height;
+    int startingX = (COLUMN / 2) - (width / 2), startingY = (ROW / 2) - height;
     // Create new window where main menu will be placed.
     tempWindow = newwin(height, width, startingY, startingX);
     return tempWindow;
+}
+
+void clearWindow(WINDOW *window) {
+    wclear(window);
+    wrefresh(window);
 }

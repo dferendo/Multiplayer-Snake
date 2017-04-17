@@ -23,5 +23,8 @@ extern const char * const CREDITS;
 
 extern const char * const SERVER_REQUIRED[PLAY_GAME_MENU_ITEMS];
 
-WINDOW * generateWindowForWaitingInQueue(Vector * connections);
+void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window);
+
+void clearWindow(WINDOW *window);
+
 #endif //SNAKES_CLIENTLAYOUT_H

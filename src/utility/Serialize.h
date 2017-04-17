@@ -7,9 +7,10 @@
 
 #include "../server/Server.h"
 
+#define INTEGER_BYTES 4
 #define CLIENTINFO_BYTES 22
 #define CONNECTION_BYTES 26
-#define INTEGER_BYTES 4
+#define VECTOR_OF_CONNECTIONS_DELIMTER "\C"
 
 unsigned char * serializeInt(unsigned char * buffer, int value);
 

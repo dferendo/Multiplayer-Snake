@@ -90,6 +90,9 @@ unsigned char * deserializeConnection(unsigned char *buffer, Connection *connect
         perror("Failed to allocate memory to client");
         return buffer;
     }
+    // Clear name.
+    bzero(client->name, MAXIMUM_INPUT_STRING);
+
     buffer = deserializeInt(buffer, &connection->sockFd);
     buffer = deserializeClient(buffer, client);
     connection->clientInfo = client;

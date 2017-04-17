@@ -9,13 +9,24 @@ set(CLIENT_FILES
         src/utility/Serialize.c
         src/template/ClientLayout.c
         src/client/Client.c
-        src/client/StartGame.c)
+        src/client/QueueMenu.c
+        src/utility/Vector.h
+        src/utility/General.h
+        src/utility/Serialize.h
+        src/template/ClientLayout.h
+        src/client/Client.h
+        src/client/QueueMenu.h
+        src/template/WindowProperties.h)
 
 set(SERVER_FILES
         src/utility/Vector.c
         src/utility/Serialize.c
         src/server/Server.c
-        src/server/QueueToPlay.c)
+        src/server/QueueToPlay.c
+        src/utility/Vector.h
+        src/utility/Serialize.h
+        src/server/Server.h
+        src/server/QueueToPlay.h)
 
 add_executable(Client ${CLIENT_FILES})
 add_executable(Server ${SERVER_FILES})

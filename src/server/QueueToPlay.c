@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <strings.h>
+#include <memory.h>
 #include "../utility/Serialize.h"
 
 Vector * connections;
@@ -51,7 +52,7 @@ Connection * createConnection(short isHost, char * name, int socketFileDescripto
         return NULL;
     }
     clientInfo->isHost = isHost;
-    clientInfo->name = name;
+    strcpy(clientInfo->name, name);
     // Allocate memory to Connection info
     Connection * connection = (Connection *) malloc(sizeof(Connection));
     if (connection == NULL) {

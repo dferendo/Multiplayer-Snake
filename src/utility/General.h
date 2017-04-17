@@ -7,6 +7,6 @@
 
 #include <ncurses.h>
 
-WINDOW * createWindowAtTheCenterOfTheScreen();
+WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width);
 
 #endif //SNAKES_GENERAL_H

@@ -6,10 +6,11 @@
 #define SNAKES_SERVERLAUNCHER_H
 
 #include "../utility/Vector.h"
+#include "../template/WindowProperties.h"
 #include <stdbool.h>
 
 typedef struct ClientInfo {
-    char * name;
+    char name[MAXIMUM_INPUT_STRING];
     short isHost;
 } ClientInfo;
 
