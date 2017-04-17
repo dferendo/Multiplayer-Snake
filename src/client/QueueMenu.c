@@ -9,8 +9,6 @@
 #include <unistd.h>
 #include <strings.h>
 #include <string.h>
-#include <sys/poll.h>
-#include <sys/ioctl.h>
 
 const char * const SERVER_REQUIRED[PLAY_GAME_MENU_ITEMS] = {
         "Player Name: ",
@@ -147,27 +145,6 @@ void writeNameToSocket(int socketFileDescriptor, char * name) {
     }
 }
 
-bool checkIfThereAreConnections(int socketFileDescriptor) {
-    int response;
-    unsigned char buffer[DELIMITERS_SIZE];
-    bzero(buffer, DELIMITERS_SIZE);
-
-    // Disable blocking for read.
-    setSocketBlockingEnabled(socketFileDescriptor, false);
-    response = (int) read(socketFileDescriptor, buffer, DELIMITERS_SIZE);
-    // Enable blocking.
-    setSocketBlockingEnabled(socketFileDescriptor, true);
-
-    if (response == -1) {
-        return false;
-    }
-
-    if (strncmp((const char *) buffer, VECTOR_OF_CONNECTIONS_DELIMITER, DELIMITERS_SIZE) == 0) {
-        return true;
-    }
-    return false;
-}
-
 Vector * readConnectionsFromSocket(int socketFileDescriptor) {
     int response;
     int amountOfConnections;
@@ -219,9 +196,16 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
     bool isHost = false;
     // Set getCh delay.
     halfdelay(WAIT_INPUT_TIME_FOR_HOST_TO_START_GAME);
-    // TODO: starting screen
+
     while (true) {
-        if (checkIfThereAreConnections(*sockFd)) {
+
+        int nextAction = readDelimiter(sockFd);
+
+        if (nextAction == 1) {
+            clearWindow(window);
+            delwin(window);
+            gameInit(connections);
+        } else if (nextAction == 2) {
             if (connections != NULL) {
                 clearConnectionVector(connections);
             }
@@ -243,14 +227,7 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
                 break;
             }
         } else {
-            if (readStartGameFromSocket(sockFd)) {
-                clearWindow(window);
-                delwin(window);
-                gameInit(connections);
-                break;
-            } else {
-                sleep(SLEEP_WHEN_NO_HOST_QUEUE_SEC);
-            }
+            sleep(SLEEP_WHEN_NO_HOST_QUEUE_SEC);
         }
     }
 }
@@ -270,7 +247,7 @@ void writeStartGameToSocket(int *sockFd) {
     }
 }
 
-bool readStartGameFromSocket(int *sockFd) {
+int readDelimiter(int *sockFd) {
     int response;
     unsigned char buffer[DELIMITERS_SIZE];
 
@@ -280,12 +257,15 @@ bool readStartGameFromSocket(int *sockFd) {
     response = (int) read(*sockFd, buffer, DELIMITERS_SIZE);
     setSocketBlockingEnabled(*sockFd, true);
 
-    if (response == 0) {
-        return false;
+    if (response < 0) {
+        return -1;
     }
-    // Host wants to start Game.
+
     if (strncmp((const char *) buffer, HOST_STARTS_GAME_DELIMETER, DELIMITERS_SIZE) == 0) {
-        return true;
+        return 1;
+    } else if (strncmp((const char *) buffer, VECTOR_OF_CONNECTIONS_DELIMITER, DELIMITERS_SIZE) == 0) {
+        return 2;
+    } else {
+        return -2;
     }
-    return false;
 }

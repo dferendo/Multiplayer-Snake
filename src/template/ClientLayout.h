@@ -23,7 +23,7 @@
 
 #define HOST_GAME_START "Press 'S' to start Game!"
 
-#define SLEEP_WHEN_NO_HOST_QUEUE_SEC 1
+#define SLEEP_WHEN_NO_HOST_QUEUE_SEC 2
 
 extern const char * const MENU_ITEMS[MAIN_MENU_ITEMS];
 
