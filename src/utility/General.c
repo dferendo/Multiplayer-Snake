@@ -1,9 +1,10 @@
 //
 // Created by dylan on 15/04/2017.
 //
+#include <string.h>
 #include "General.h"
 #include "../template/WindowProperties.h"
-#include "../template/ClientLayout.h"
+#include "../server/Server.h"
 
 WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width) {
     WINDOW * tempWindow;
@@ -14,7 +15,15 @@ WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width) {
     return tempWindow;
 }
 
-void clearWindow(WINDOW *window) {
-    wclear(window);
-    wrefresh(window);
+bool checkIfHost(Vector *connections, char *playerID) {
+
+    for (int i = 0; i < connections->size; i++) {
+        Connection * connection = (Connection *) connections->data[i];
+
+        if (strcmp(connection->clientInfo->name, playerID) == 0 &&
+                connection->clientInfo->isHost) {
+            return true;
+        }
+    }
+    return false;
 }

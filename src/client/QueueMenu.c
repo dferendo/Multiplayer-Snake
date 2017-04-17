@@ -2,7 +2,6 @@
 // Created by dylan on 14/04/2017.
 //
 #include "QueueMenu.h"
-#include "../template/WindowProperties.h"
 #include "../template/ClientLayout.h"
 #include "../utility/General.h"
 #include "../utility/Serialize.h"
@@ -30,7 +29,7 @@ void queueConnectionManager(WINDOW *window) {
     // Send Name To server
     writeNameToSocket(sockFd, playerName);
     // Continue updating the queue players until host starts game.
-    waitUntilHostStartsGame(window, &sockFd);
+    waitUntilHostStartsGame(window, &sockFd, playerName);
 }
 
 bool connectToServer(WINDOW *window, int * sockFd, char * playerName) {
@@ -211,8 +210,9 @@ void clearConnectionVector(Vector * oldVector) {
     deleteVector(oldVector);
 }
 
-void waitUntilHostStartsGame(WINDOW *window, int *sockFd) {
+void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
     Vector * connections = NULL;
+    bool isHost;
     // Set getCh delay.
     halfdelay(WAIT_INPUT_TIME_FOR_HOST_TO_START_GAME);
 
@@ -223,15 +223,38 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd) {
             }
             // Get connections the server has
             connections = readConnectionsFromSocket(*sockFd);
+            isHost = checkIfHost(connections, playerId);
             clearWindow(window);
-            generateWindowForWaitingInQueue(connections, window);
+            generateWindowForWaitingInQueue(connections, window, isHost);
+
+            if (isHost) {
+                int input = getch();
+                // Start Game
+                if (input == 'S') {
+                    writeStartGameToSocket(sockFd);
+                    // Remove delay from char.
+                    cbreak();
+                    gameInit(connections);
+                    break;
+                }
+            } else {
+                sleep(SLEEP_WHEN_NO_HOST_QUEUE_SEC);
+            }
         }
-        int input = getch();
-        // Start Game
-        // TODO: host starts game
-        if (input == 'S') {
-            gameInit(connections);
-            break;
-        }
+    }
+}
+
+void writeStartGameToSocket(int *sockFd) {
+    int response;
+    unsigned char buffer[DELIMITERS_SIZE];
+    bzero(buffer, DELIMITERS_SIZE);
+
+    serializeCharArray(buffer, HOST_STARTS_GAME_DELIMETER, DELIMITERS_SIZE);
+    response = (int) write(*sockFd, buffer, DELIMITERS_SIZE);
+
+    if (response == -1) {
+        perror("Error reading from socket");
+        close(*sockFd);
+        exit(1);
     }
 }

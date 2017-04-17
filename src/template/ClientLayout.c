@@ -6,7 +6,7 @@
 #include "WindowProperties.h"
 #include "../server/Server.h"
 
-void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window) {
+void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool isHost) {
 
     mvwprintw(window, 0, 0, "Players waiting: ");
     for (int i = 0; i < connections->size; i++) {
@@ -20,7 +20,13 @@ void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window) {
         }
         mvwprintw(window, i + 1, 0, str);
     }
-    // TODO: Host only.
-    mvwprintw(window, (int) (connections->size + 2), 0, HOST_GAME_START);
+    if (isHost) {
+        mvwprintw(window, (int) (connections->size + 2), 0, HOST_GAME_START);
+    }
+    wrefresh(window);
+}
+
+void clearWindow(WINDOW *window) {
+    wclear(window);
     wrefresh(window);
 }

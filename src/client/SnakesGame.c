@@ -13,5 +13,5 @@ void gameInit(Vector * connections) {
 }
 
 void sendAllSnakeDataToAllConnections(Vector *connections) {
-    size_t size = connections->size *
+//    size_t size = connections->size *
 }
