@@ -28,5 +28,7 @@ typedef struct CreateConnectThreadArguments {
 
 // Vector containing Connections Type
 extern Vector * connections;
+// Contains the initial positions of all snakes.
+extern Vector * initialPositions;
 
 #endif //SNAKES_SERVERLAUNCHER_H

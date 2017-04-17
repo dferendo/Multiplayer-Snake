@@ -7,6 +7,8 @@
 
 #include "../utility/Vector.h"
 
-void gameInit(Vector * connection);
+void gameInit(Vector * connections);
+
+void sendAllSnakeDataToAllConnections(Vector * connections);
 
 #endif //SNAKES_SNAKESGAME_H

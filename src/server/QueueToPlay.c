@@ -8,6 +8,7 @@
 #include <strings.h>
 #include <memory.h>
 #include "../utility/Serialize.h"
+#include "../template/GameSettings.h"
 
 Vector * connections;
 Vector * initialPositions;
@@ -37,9 +38,11 @@ void * initNewConnection(void *arg) {
     // Unlock since connections no longer used.
     pthread_mutex_unlock(&lock);
 
-    free(arg);
-    // TODO?
+    if (isHost) {
+        readStartGameFromHost(socketFileDescriptor);
+    }
     // Only host can start the game.
+    free(arg);
     pthread_exit(NULL);
 }
 
@@ -53,7 +56,12 @@ Connection * createConnection(short isHost, char * name, int socketFileDescripto
     }
     clientInfo->isHost = isHost;
     strcpy(clientInfo->name, name);
+
+    // Lock the initial positions.
+    pthread_mutex_lock(&lock);
     clientInfo->snake = createSnake(initialPositions);
+    pthread_mutex_unlock(&lock);
+
     // Allocate memory to Connection info
     Connection * connection = (Connection *) malloc(sizeof(Connection));
     if (connection == NULL) {
@@ -84,8 +92,9 @@ void readNameFromSocket(int socketFileDescriptor, char * name) {
 
 void writeConnectionsToSockets(Vector *connections) {
     int requestResponseTemp;
-    // 4 is the integer to tell the amount of connections
-    size_t size = (CONNECTION_BYTES * connections->size) + INTEGER_BYTES + DELIMITERS_SIZE;
+    // 2 Integer bytes are passed before tell the amount of connections and the
+    // size of the initial snake.
+    size_t size = (CONNECTION_BYTES_NO_SNAKE * connections->size) + INTEGER_BYTES + DELIMITERS_SIZE;
     // Create the number of bytes needed.
     unsigned char buffer[size];
     bzero(buffer, size);
@@ -103,5 +112,27 @@ void writeConnectionsToSockets(Vector *connections) {
             perror("Failed to write to the socket");
             close(connection->sockFd);
         }
+    }
+}
+
+void readStartGameFromHost(int socketFileDescriptor) {
+    int response;
+    unsigned char buffer[DELIMITERS_SIZE];
+
+    while (true) {
+        bzero(buffer, DELIMITERS_SIZE);
+
+        response = (int) read(socketFileDescriptor, buffer, DELIMITERS_SIZE);
+
+        if (response == -1) {
+            perror("Error when reading from socket");
+            close(socketFileDescriptor);
+            exit(1);
+        }
+        // Host wants to start Game.
+        if (strncmp((const char *) buffer, HOST_STARTS_GAME_DELIMETER, DELIMITERS_SIZE) == 0) {
+            break;
+        }
+        usleep(HOST_START_GAME_DELAY);
     }
 }

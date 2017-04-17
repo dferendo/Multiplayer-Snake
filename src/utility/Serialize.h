@@ -8,11 +8,15 @@
 #include "../server/Server.h"
 
 #define INTEGER_BYTES 4
-#define CLIENTINFO_BYTES 22
-#define CONNECTION_BYTES 26
+#define CLIENTINFO_BYTES_NO_SNAKE 22
+#define CONNECTION_BYTES_NO_SNAKE 26
+#define POSITION_BYTES 8
+#define SNAKE_BYTES_NO_POSITIONS 4
 
 #define DELIMITERS_SIZE 2
 #define VECTOR_OF_CONNECTIONS_DELIMITER "/C"
+#define SNAKE_DETAILS_DELIMETER "/S"
+#define HOST_STARTS_GAME_DELIMETER "/M"
 
 unsigned char * serializeInt(unsigned char * buffer, int value);
 

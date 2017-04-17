@@ -182,7 +182,7 @@ Vector * readConnectionsFromSocket(int socketFileDescriptor) {
     }
 
     deserializeInt(bufferInteger, &amountOfConnections);
-    connectionsSize = (size_t) (amountOfConnections * CONNECTION_BYTES);
+    connectionsSize = (size_t) (amountOfConnections * CONNECTION_BYTES_NO_SNAKE);
 
     unsigned char buffer[connectionsSize];
     bzero(buffer, connectionsSize);

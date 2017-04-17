@@ -32,7 +32,6 @@ unsigned char * serializeCharArray(unsigned char * buffer, char * value, int siz
 unsigned char * serializeClientInfo(unsigned char *buffer, ClientInfo * clientInfo) {
     buffer = serializeCharArray(buffer, clientInfo->name, MAXIMUM_INPUT_STRING);
     buffer = serializeShort(buffer, clientInfo->isHost);
-    buffer = serializedSnake(buffer, clientInfo->snake);
     return buffer;
 }
 

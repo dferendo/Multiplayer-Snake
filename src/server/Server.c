@@ -10,6 +10,7 @@
 #include "QueueToPlay.h"
 
 Vector * connections;
+Vector * initialPositions;
 
 int main(int argc, char *argv[]) {
     // Variables needed
@@ -19,6 +20,7 @@ int main(int argc, char *argv[]) {
     socklen_t clientSize;
     pthread_t clientThread;
     connections = initVector();
+    initialPositions = initVector();
     bool hostEstablish = false;
     // Create socket
     sockFd = socket(AF_INET, SOCK_STREAM, 0);
