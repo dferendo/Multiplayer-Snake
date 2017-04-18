@@ -22,8 +22,8 @@ typedef struct Position {
 } Position;
 
 typedef struct {
-    int size;
     Direction direction;
+    int size;
     LinkedListPosition * positions;
 } Snake;
 

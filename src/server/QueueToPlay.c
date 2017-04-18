@@ -136,7 +136,7 @@ void readStartGameFromHost(int socketFileDescriptor) {
             exit(1);
         }
         // Host wants to start Game.
-        if (strncmp((const char *) buffer, HOST_STARTS_GAME_DELIMETER, DELIMITERS_SIZE) == 0) {
+        if (strncmp((const char *) buffer, HOST_STARTS_GAME_DELIMITER, DELIMITERS_SIZE) == 0) {
             break;
         }
         usleep(HOST_START_GAME_DELAY);
@@ -148,7 +148,7 @@ void writeStartingGameToConnectionsExceptHost(Vector *connections) {
     unsigned char buffer[DELIMITERS_SIZE];
     bzero(buffer, DELIMITERS_SIZE);
 
-    serializeCharArray(buffer, HOST_STARTS_GAME_DELIMETER, DELIMITERS_SIZE);
+    serializeCharArray(buffer, HOST_STARTS_GAME_DELIMITER, DELIMITERS_SIZE);
 
     for (int i = 0; i < connections->size; i++) {
         Connection * temp = (Connection *) connections->data[i];

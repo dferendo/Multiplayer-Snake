@@ -59,6 +59,8 @@ unsigned char *serializedVectorOfConnectionsDelimiter(unsigned char *buffer, Vec
 
 unsigned char *serializedSnake(unsigned char *buffer, Snake *snake) {
     buffer = serializeInt(buffer, snake->direction);
+    // Send size.
+    buffer = serializeInt(buffer, snake->size);
     buffer = serializedLinkedList(buffer, snake->positions);
     return buffer;
 }
@@ -91,7 +93,7 @@ unsigned char *deserializeCharArray(unsigned char *buffer, char *value, int size
     return buffer + size;
 }
 
-unsigned char * deserializeClient(unsigned char *buffer, ClientInfo * clientInfo) {
+unsigned char * deserializeClientInfo(unsigned char *buffer, ClientInfo *clientInfo) {
     buffer = deserializeCharArray(buffer, clientInfo->name, MAXIMUM_INPUT_STRING);
     buffer = deserializeShort(buffer, &clientInfo->isHost);
     return buffer;
@@ -108,7 +110,7 @@ unsigned char * deserializeConnection(unsigned char *buffer, Connection *connect
     bzero(client->name, MAXIMUM_INPUT_STRING);
 
     buffer = deserializeInt(buffer, &connection->sockFd);
-    buffer = deserializeClient(buffer, client);
+    buffer = deserializeClientInfo(buffer, client);
     connection->clientInfo = client;
     return buffer;
 }
@@ -144,6 +146,20 @@ unsigned char * serializedLinkedList(unsigned char *buffer, LinkedListPosition *
         }
         linkedListPosition = linkedListPosition->next;
     }
+}
+
+unsigned char *serializedSnakeFromConnections(unsigned char *buffer, Vector *connections) {
+    Connection * connection;
+    // Add delimiter
+    buffer = serializeCharArray(buffer, SNAKE_DETAILS_DELIMITER, DELIMITERS_SIZE);
+
+    for (int i = 0; i < connections->size; i++) {
+        connection = (Connection *) connections->data;
+        // Send the owner of the snake before.
+        buffer = serializeCharArray(buffer, connection->clientInfo->name, MAXIMUM_INPUT_STRING);
+        buffer = serializedSnake(buffer, connection->clientInfo->snake);
+    }
+    return buffer;
 }
 
 unsigned char *serializedVectorOfFoodsWithDelimiter(unsigned char *buffer, Vector *foods) {

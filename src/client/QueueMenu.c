@@ -226,7 +226,7 @@ void writeStartGameToSocket(int *sockFd) {
     unsigned char buffer[DELIMITERS_SIZE];
     bzero(buffer, DELIMITERS_SIZE);
 
-    serializeCharArray(buffer, HOST_STARTS_GAME_DELIMETER, DELIMITERS_SIZE);
+    serializeCharArray(buffer, HOST_STARTS_GAME_DELIMITER, DELIMITERS_SIZE);
     response = (int) write(*sockFd, buffer, DELIMITERS_SIZE);
 
     if (response == -1) {
@@ -250,7 +250,7 @@ int readDelimiterQueue(int *sockFd) {
         return -1;
     }
 
-    if (strncmp((const char *) buffer, HOST_STARTS_GAME_DELIMETER, DELIMITERS_SIZE) == 0) {
+    if (strncmp((const char *) buffer, HOST_STARTS_GAME_DELIMITER, DELIMITERS_SIZE) == 0) {
         return 1;
     } else if (strncmp((const char *) buffer, VECTOR_OF_CONNECTIONS_DELIMITER, DELIMITERS_SIZE) == 0) {
         return 2;

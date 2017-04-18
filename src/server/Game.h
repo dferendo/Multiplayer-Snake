@@ -11,4 +11,6 @@ Vector * food;
 
 void gameInitialize();
 
+void sendInitialSnakeInformationToClients();
+
 #endif //SNAKES_GAME_H

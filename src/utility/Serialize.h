@@ -16,39 +16,49 @@
 
 #define DELIMITERS_SIZE 2
 #define VECTOR_OF_CONNECTIONS_DELIMITER "/C"
-#define SNAKE_DETAILS_DELIMETER "/S"
-#define HOST_STARTS_GAME_DELIMETER "/M"
+#define SNAKE_DETAILS_DELIMITER "/S"
+#define HOST_STARTS_GAME_DELIMITER "/M"
 #define VECTOR_OF_FOOD_DELIMITER "/F"
+
+// General serialize.
 
 unsigned char * serializeInt(unsigned char * buffer, int value);
 
+unsigned char * deserializeInt(unsigned char *buffer, int * value);
+
 unsigned char * serializeShort(unsigned char * buffer, short value);
+
+unsigned char * deserializeShort(unsigned char * buffer, short * value);
 
 unsigned char * serializeCharArray(unsigned char * buffer, char * value, int size);
 
+unsigned char * deserializeCharArray(unsigned char * buffer, char * value, int size);
+
+// Serialize/Deserialize Client information.
+
 unsigned char * serializeClientInfo(unsigned char * buffer, ClientInfo * clientInfo);
+
+unsigned char * deserializeClientInfo(unsigned char *buffer, ClientInfo *clientInfo);
+
+// Serialize/Deserialize Connection information.
 
 unsigned char * serializeConnection(unsigned char * buffer, Connection * connection);
 
+unsigned char * deserializeConnection(unsigned char * buffer, Connection * connection);
+
 unsigned char * serializeVectorOfConnections(unsigned char * buffer, Vector * connections);
 
+unsigned char * deserializeVectorOfConnections(unsigned char * buffer, Vector * connections, int size);
+
 unsigned char * serializedVectorOfConnectionsDelimiter(unsigned char * buffer, Vector *connections);
+
+// Serialize/Deserialize Position information.
 
 unsigned char * serializedLinkedList(unsigned char * buffer, LinkedListPosition * linkedListPosition);
 
 unsigned char * serializedSnake(unsigned char * buffer, Snake * snake);
 
-unsigned char * deserializeInt(unsigned char *buffer, int * value);
-
-unsigned char * deserializeShort(unsigned char * buffer, short * value);
-
-unsigned char * deserializeCharArray(unsigned char * buffer, char * value, int size);
-
-unsigned char * deserializeClient(unsigned char * buffer, ClientInfo * clientInfo);
-
-unsigned char * deserializeConnection(unsigned char * buffer, Connection * connection);
-
-unsigned char * deserializeVectorOfConnections(unsigned char * buffer, Vector * connections, int size);
+unsigned char * serializedSnakeFromConnections(unsigned char * buffer, Vector * connections)
 
 // Serialize/Deserialize Position information.
 

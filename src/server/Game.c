@@ -2,9 +2,13 @@
 // Created by dylan on 18/04/2017.
 //
 #include <pthread.h>
+#include <strings.h>
 #include "Game.h"
 #include "Server.h"
 #include "Food.h"
+#include "../utility/Serialize.h"
+#include <unistd.h>
+#include "Snake.h"
 
 Vector * connections;
 Vector * foods;
@@ -14,6 +18,8 @@ void gameInitialize() {
     pthread_t foodThread;
     // Where all the food will be placed.
     food = initVector();
+    // Send initial snake information
+    sendInitialSnakeInformationToClients();
     // Create thread for food.
     if (pthread_create(&foodThread, NULL, generateFood, NULL) != 0) {
         perror("Could not create a food thread.");
@@ -21,6 +27,38 @@ void gameInitialize() {
     }
 
     while (true) {
-        
+
+    }
+}
+
+void sendInitialSnakeInformationToClients() {
+    int response;
+    // Size without Positions of snake.
+    // The information consists of a delimiter and for each snake, it contains the
+    // owner name and the size of the snake and the current direction.
+    size_t size = DELIMITERS_SIZE + (connections->size * MAXIMUM_INPUT_STRING) +
+                  (connections->size * (INTEGER_BYTES * 2));
+
+    // Calculate the size of positions of the snake.
+    for (int i = 0; i < connections->size; i++) {
+        size += (((Connection *) connections->data)->clientInfo->snake->size) *
+                POSITION_BYTES;
+    }
+
+    unsigned char buffer[size];
+    bzero(buffer, size);
+
+    serializedSnakeFromConnections(buffer, connections);
+
+    // Write to all the clients about the information.
+    for (int i = 0; i < connections->size; i++) {
+        struct Connection * connection = (Connection *) connections->data[i];
+
+        response = (int) write(connection->sockFd, buffer, size);
+
+        if (response == -1) {
+            perror("Failed to write to the socket");
+            close(connection->sockFd);
+        }
     }
 }

@@ -19,7 +19,7 @@ void gameInit(Vector * connections, int sockFd) {
 
 void gameRunning(Vector *connections, Vector * foods, int sockFd) {
     int nextCompute;
-    WINDOW * window;
+    WINDOW * window = NULL;
 
     while (true) {
         nextCompute = readDelimiterSnakes(sockFd);
@@ -27,11 +27,12 @@ void gameRunning(Vector *connections, Vector * foods, int sockFd) {
         if (nextCompute == 1) {
             if (foods != NULL) {
                 clearFoodsVector(foods);
+            } else if (window != NULL) {
+                clearWindow(window);
             }
             foods = readFoodsFromSocket(sockFd);
-            clear();
             window = displayNewData(foods, connections);
-//            wrefresh(window);
+            wrefresh(window);
         }
     }
 }
@@ -113,8 +114,7 @@ WINDOW *displayNewData(Vector *foods, Vector *connections) {
     // Display Foods.
     for (int i = 0; i < foods->size; i++) {
         food = (Food *) foods->data[i];
-        mvprintw(food->position->y, food->position->x, "o");
+        mvwprintw(window, food->position->y, food->position->x, "o");
     }
-    refresh();
     return window;
 }
