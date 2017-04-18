@@ -1,5 +1,6 @@
 #include "Serialize.h"
 #include "../server/Snake.h"
+#include "../server/Food.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <strings.h>
@@ -143,4 +144,19 @@ unsigned char * serializedLinkedList(unsigned char *buffer, LinkedListPosition *
         }
         linkedListPosition = linkedListPosition->next;
     }
+}
+
+unsigned char *serializedVectorOfFoodsWithDelimiter(unsigned char *buffer, Vector *foods) {
+    buffer = serializeCharArray(buffer, VECTOR_OF_FOOD_DELIMITER, DELIMITERS_SIZE);
+    // Put amount of food after delimiter
+    buffer = serializeInt(buffer, (int) foods->size);
+
+    for (int i = 0; i < foods->size; i++) {
+        Food * food = (Food *) foods->data[i];
+        // Serialize positions
+        buffer = serializedPosition(buffer, food->position);
+        // Serialize Type
+        buffer = serializeInt(buffer, food->foodType);
+    }
+    return buffer;
 }

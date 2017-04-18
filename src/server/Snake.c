@@ -6,7 +6,7 @@
 #include "../template/GameSettings.h"
 
 Snake *createSnake(Vector *initialPositions) {
-    Position * position = createNewRandomPosition(initialPositions);
+    Position * position = createInitialSnakeRandomPosition(initialPositions);
     LinkedListPosition * linkedListPosition = initLinkedListPosition(position);
 
     Snake * snake = (Snake *) malloc(sizeof(Snake));

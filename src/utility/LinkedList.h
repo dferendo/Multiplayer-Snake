@@ -5,6 +5,8 @@
 #ifndef SNAKES_LINKEDLIST_H
 #define SNAKES_LINKEDLIST_H
 
+#include <stdbool.h>
+
 typedef struct Position Position;
 
 typedef struct LinkedListPosition {
@@ -14,8 +16,10 @@ typedef struct LinkedListPosition {
 
 LinkedListPosition * initLinkedListPosition(Position * position);
 
+int addPosition(LinkedListPosition * head, Position * position);
+
 void deleteLinkedListPosition(LinkedListPosition * head);
 
-int addPosition(LinkedListPosition * head, Position * position);
+void positionExistsLinkedList(LinkedListPosition *head, int x, int y, bool *exist);
 
 #endif //SNAKES_LINKEDLIST_H

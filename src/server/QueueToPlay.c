@@ -2,13 +2,13 @@
 // Created by dylan on 15/04/2017.
 //
 #include "QueueToPlay.h"
-#include "../template/WindowProperties.h"
 #include <unistd.h>
 #include <pthread.h>
 #include <strings.h>
 #include <memory.h>
 #include "../utility/Serialize.h"
 #include "../template/GameSettings.h"
+#include "Game.h"
 
 Vector * connections;
 Vector * initialPositions;
@@ -44,6 +44,8 @@ void * initNewConnection(void *arg) {
         pthread_mutex_lock(&lock);
         writeStartingGameToConnectionsExceptHost(connections);
         pthread_mutex_unlock(&lock);
+        // Start game
+        gameInitialize();
     }
     // Only host can start the game.
     free(arg);

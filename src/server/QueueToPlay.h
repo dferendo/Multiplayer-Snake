@@ -7,7 +7,6 @@
 
 #include "../utility/Vector.h"
 #include "Server.h"
-#include <ncurses.h>
 
 void * initNewConnection(void *arg);
 

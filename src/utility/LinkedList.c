@@ -39,3 +39,12 @@ int addPosition(LinkedListPosition *head, Position *position) {
     head->next = newEntry;
     return 1;
 }
+
+void positionExistsLinkedList(LinkedListPosition *head, int x, int y, bool *exists) {
+    if (head->position->x == x && head->position->y == y) {
+        *exists = true;
+    }
+    if (head->next != NULL) {
+        positionExistsLinkedList(head->next, x, y, exists);
+    }
+}

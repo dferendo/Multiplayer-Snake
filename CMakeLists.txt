@@ -33,7 +33,11 @@ set(SERVER_FILES
         src/utility/RandomUtility.c
         src/utility/RandomUtility.h
         src/utility/LinkedList.c
-        src/utility/LinkedList.h)
+        src/utility/LinkedList.h
+        src/server/Game.h
+        src/server/Game.c
+        src/server/Food.h
+        src/server/Food.c)
 
 add_executable(Client ${CLIENT_FILES})
 add_executable(Server ${SERVER_FILES})

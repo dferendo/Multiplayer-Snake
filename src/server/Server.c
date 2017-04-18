@@ -9,6 +9,8 @@
 
 Vector * connections;
 Vector * initialPositions;
+Vector * foods;
+pthread_mutex_t lock;
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -26,6 +28,8 @@ void serverInit(uint16_t portNumber) {
     // Vectors needed
     connections = initVector();
     initialPositions = initVector();
+    foods = initVector();
+    pthread_mutex_init(&lock, NULL);
     // Create socket
     sockFd = socket(AF_INET, SOCK_STREAM, 0);
 

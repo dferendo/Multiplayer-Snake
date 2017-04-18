@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <memory.h>
 #include "Vector.h"
-#include "../snakes-components/Food.h"
+#include "../server/Food.h"
 
 Vector * initVector() {
     Vector * newVector = (Vector *) malloc(sizeof(Vector));

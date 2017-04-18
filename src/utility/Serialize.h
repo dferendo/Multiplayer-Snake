@@ -12,11 +12,13 @@
 #define CONNECTION_BYTES_NO_SNAKE 26
 #define POSITION_BYTES 8
 #define SNAKE_BYTES_NO_POSITIONS 4
+#define FOOD_BYTES_SIZE 12
 
 #define DELIMITERS_SIZE 2
 #define VECTOR_OF_CONNECTIONS_DELIMITER "/C"
 #define SNAKE_DETAILS_DELIMETER "/S"
 #define HOST_STARTS_GAME_DELIMETER "/M"
+#define VECTOR_OF_FOOD_DELIMITER "/F"
 
 unsigned char * serializeInt(unsigned char * buffer, int value);
 
@@ -49,5 +51,11 @@ unsigned char * deserializeClient(unsigned char * buffer, ClientInfo * clientInf
 unsigned char * deserializeConnection(unsigned char * buffer, Connection * connection);
 
 unsigned char * deserializeVectorOfConnections(unsigned char * buffer, Vector * connections, int size);
+
+/**
+ * Serialize Food information.
+ */
+
+unsigned char * serializedVectorOfFoods(unsigned char * buffer, Vector * foods);
 
 #endif //SNAKES_SERIALIZE_H

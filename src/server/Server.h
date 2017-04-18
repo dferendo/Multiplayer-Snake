@@ -30,6 +30,10 @@ typedef struct CreateConnectThreadArguments {
 
 // Vector containing Connections Type
 extern Vector * connections;
+// Contains the food.
+extern Vector * foods;
+// Lock
+extern pthread_mutex_t lock;
 // Contains the initial positions of all snakes.
 extern Vector * initialPositions;
 
