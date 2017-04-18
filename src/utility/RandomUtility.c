@@ -13,8 +13,8 @@ Position * createInitialSnakeRandomPosition(Vector *positionsTaken) {
 
     while (true) {
         // There is a border hence the -1.
-        x = rand() % (ROW - 1);
-        y = rand() % (COLUMN - 1);
+        x = rand() % (COLUMN - 1);
+        y = rand() % (ROW - 1);
 
         // Check if position is taken.
         for (int i = 0; i < positionsTaken->size; i++) {
@@ -57,14 +57,16 @@ Position * createFoodPosition(Vector *positionsOfSnakes, Vector * foodLocations)
         }
 
         // Check if position is taken by a snake
-//        for (int i = 0; i < positionsOfSnakes->size; i++) {
-//            positionExists = false;
-//            Snake * snake = ((Connection *) positionsOfSnakes->data[i])->clientInfo->snake;
-//            positionExistsLinkedList(snake->positions, x, y, &positionExists);
-//            if (positionExists) {
-//                continue;
-//            }
-//        }
+        for (int i = 0; i < positionsOfSnakes->size; i++) {
+            positionExists = false;
+            Snake * snake = ((Connection *) positionsOfSnakes->data[i])->clientInfo->snake;
+            if (snake != NULL) {
+                positionExistsLinkedList(snake->positions, x, y, &positionExists);
+                if (positionExists) {
+                    continue;
+                }
+            }
+        }
 
         // Else position is good
         position = (Position *) malloc(sizeof(Position));

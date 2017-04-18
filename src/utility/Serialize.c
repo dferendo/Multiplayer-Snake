@@ -1,10 +1,6 @@
 #include "Serialize.h"
-#include "../server/Snake.h"
 #include "../server/Food.h"
-#include <stdint.h>
-#include <stdio.h>
 #include <strings.h>
-
 //
 // Created by dylan on 15/04/2017.
 //
@@ -51,16 +47,14 @@ unsigned char * serializeVectorOfConnections(unsigned char *buffer, Vector *conn
     return buffer;
 }
 
-unsigned char *serializedVectorOfConnectionsDelimiter(unsigned char *buffer, Vector *connections) {
+unsigned char * serializedVectorOfConnectionsDelimiter(unsigned char *buffer, Vector *connections) {
     buffer = serializeCharArray(buffer, VECTOR_OF_CONNECTIONS_DELIMITER, DELIMITERS_SIZE);
     buffer = serializeVectorOfConnections(buffer, connections);
     return buffer;
 }
 
-unsigned char *serializedSnake(unsigned char *buffer, Snake *snake) {
+unsigned char * serializedSnake(unsigned char *buffer, Snake *snake) {
     buffer = serializeInt(buffer, snake->direction);
-    // Send size.
-    buffer = serializeInt(buffer, snake->size);
     buffer = serializedLinkedList(buffer, snake->positions);
     return buffer;
 }
@@ -85,7 +79,7 @@ unsigned char * deserializeShort(unsigned char *buffer, short *value) {
     return buffer + 2;
 }
 
-unsigned char *deserializeCharArray(unsigned char *buffer, char *value, int size) {
+unsigned char * deserializeCharArray(unsigned char *buffer, char *value, int size) {
 
     for (int i = 0; i < size; i++) {
         value[i] = buffer[i];
@@ -96,6 +90,7 @@ unsigned char *deserializeCharArray(unsigned char *buffer, char *value, int size
 unsigned char * deserializeClientInfo(unsigned char *buffer, ClientInfo *clientInfo) {
     buffer = deserializeCharArray(buffer, clientInfo->name, MAXIMUM_INPUT_STRING);
     buffer = deserializeShort(buffer, &clientInfo->isHost);
+    clientInfo->snake = NULL;
     return buffer;
 }
 
@@ -130,12 +125,6 @@ unsigned char * deserializeVectorOfConnections(unsigned char *buffer, Vector * c
     return buffer;
 }
 
-unsigned char *serializedPosition(unsigned char *buffer, Position *position) {
-    buffer = serializeInt(buffer, position->x);
-    buffer = serializeInt(buffer, position->y);
-    return buffer;
-}
-
 unsigned char * serializedLinkedList(unsigned char *buffer, LinkedListPosition *linkedListPosition) {
 
     while (true) {
@@ -148,21 +137,28 @@ unsigned char * serializedLinkedList(unsigned char *buffer, LinkedListPosition *
     }
 }
 
-unsigned char *serializedSnakeFromConnections(unsigned char *buffer, Vector *connections) {
+unsigned char * serializedPosition(unsigned char *buffer, Position *position) {
+    buffer = serializeInt(buffer, position->x);
+    buffer = serializeInt(buffer, position->y);
+    return buffer;
+}
+
+unsigned char * serializedSnakeFromConnections(unsigned char *buffer, Vector *connections) {
     Connection * connection;
     // Add delimiter
     buffer = serializeCharArray(buffer, SNAKE_DETAILS_DELIMITER, DELIMITERS_SIZE);
 
     for (int i = 0; i < connections->size; i++) {
-        connection = (Connection *) connections->data;
+        connection = (Connection *) connections->data[i];
         // Send the owner of the snake before.
         buffer = serializeCharArray(buffer, connection->clientInfo->name, MAXIMUM_INPUT_STRING);
+        buffer = serializeInt(buffer, connection->clientInfo->snake->size);
         buffer = serializedSnake(buffer, connection->clientInfo->snake);
     }
     return buffer;
 }
 
-unsigned char *serializedVectorOfFoodsWithDelimiter(unsigned char *buffer, Vector *foods) {
+unsigned char * serializedVectorOfFoodsWithDelimiter(unsigned char *buffer, Vector *foods) {
     buffer = serializeCharArray(buffer, VECTOR_OF_FOOD_DELIMITER, DELIMITERS_SIZE);
     // Put amount of food after delimiter
     buffer = serializeInt(buffer, (int) foods->size);
@@ -177,7 +173,7 @@ unsigned char *serializedVectorOfFoodsWithDelimiter(unsigned char *buffer, Vecto
     return buffer;
 }
 
-unsigned char *deserializedPosition(unsigned char *buffer, Position *position) {
+unsigned char * deserializedPosition(unsigned char *buffer, Position *position) {
     buffer = deserializeInt(buffer, &position->x);
     buffer = deserializeInt(buffer, &position->y);
     return buffer;
@@ -207,5 +203,36 @@ unsigned char * deserializedVectorOfFoods(unsigned char *buffer, Vector *foods, 
         food->position = position;
         addItemToVector(foods, food);
     }
+    return buffer;
+}
+
+unsigned char * deserializedSnake(unsigned char *buffer, Snake * snake, int size) {
+    Position * position;
+
+    snake->size = size;
+    buffer = deserializeInt(buffer, &snake->direction);
+
+    // Deserialize positions of snakes
+    for (int i = 0; i < size; i++) {
+        position = (Position *) malloc(sizeof(Position));
+
+        if (position == NULL) {
+            perror("Failed to allocate memory to Position");
+            return buffer;
+        }
+
+        buffer = deserializedPosition(buffer, position);
+        if (i == 0) {
+            snake->positions = initLinkedListPosition(position);
+        } else {
+            addPosition(snake->positions, position);
+        }
+    }
+    return buffer;
+}
+
+unsigned char * deserializedNameAndSizeOfSnake(unsigned char *buffer, char *name, int *size) {
+    buffer = deserializeCharArray(buffer, name, MAXIMUM_INPUT_STRING);
+    buffer = deserializeInt(buffer, size);
     return buffer;
 }

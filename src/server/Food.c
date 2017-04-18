@@ -20,27 +20,31 @@ void * generateFood(void * arg) {
     int nextFoodGenerator;
 
     while (true) {
-        pthread_mutex_lock(&lock);
-        position = createFoodPosition(connections, foods);
 
-        food = (Food *) malloc(sizeof(Food));
+        if (MAXIMUM_AMOUNT_OF_FOOD == NULL ||
+                foods->size <= MAXIMUM_AMOUNT_OF_FOOD) {
+            pthread_mutex_lock(&lock);
 
-        if (food == NULL) {
-            perror("Failed to allocate memory to Food");
-            free(position);
-            continue;
+            position = createFoodPosition(connections, foods);
+
+            food = (Food *) malloc(sizeof(Food));
+
+            if (food == NULL) {
+                perror("Failed to allocate memory to Food");
+                free(position);
+                continue;
+            }
+
+            food->position = position;
+            food->foodType = F_NORMAL;
+
+            addItemToVector(foods, food);
+
+            // Write to clients about the foods.
+            writeFoodDataToClients(connections, foods);
+
+            pthread_mutex_unlock(&lock);
         }
-
-        food->position = position;
-        food->foodType = F_NORMAL;
-
-        addItemToVector(foods, food);
-
-        // Write to clients about the foods.
-        writeFoodDataToClients(connections, foods);
-
-        pthread_mutex_unlock(&lock);
-
         // Sleep thread
         nextFoodGenerator = rand() % (MAXIMUM_FOOD_INTERVAL_SECS_US + 1 -
                 MINIMUM_FOOD_INTERVAL_SECS_US) + MINIMUM_FOOD_INTERVAL_SECS_US;

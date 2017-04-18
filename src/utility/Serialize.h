@@ -8,10 +8,8 @@
 #include "../server/Server.h"
 
 #define INTEGER_BYTES 4
-#define CLIENTINFO_BYTES_NO_SNAKE 22
 #define CONNECTION_BYTES_NO_SNAKE 26
 #define POSITION_BYTES 8
-#define SNAKE_BYTES_NO_POSITIONS 4
 #define FOOD_BYTES_SIZE 12
 
 #define DELIMITERS_SIZE 2
@@ -52,13 +50,17 @@ unsigned char * deserializeVectorOfConnections(unsigned char * buffer, Vector * 
 
 unsigned char * serializedVectorOfConnectionsDelimiter(unsigned char * buffer, Vector *connections);
 
-// Serialize/Deserialize Position information.
+// Serialize/Deserialize Snake information.
 
 unsigned char * serializedLinkedList(unsigned char * buffer, LinkedListPosition * linkedListPosition);
 
 unsigned char * serializedSnake(unsigned char * buffer, Snake * snake);
 
-unsigned char * serializedSnakeFromConnections(unsigned char * buffer, Vector * connections)
+unsigned char * serializedSnakeFromConnections(unsigned char * buffer, Vector * connections);
+
+unsigned char * deserializedSnake(unsigned char *buffer, Snake *snake, int size);
+
+unsigned char * deserializedNameAndSizeOfSnake(unsigned char * buffer, char * name, int * size);
 
 // Serialize/Deserialize Position information.
 

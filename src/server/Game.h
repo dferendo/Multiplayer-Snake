@@ -7,8 +7,6 @@
 
 #include "../utility/Vector.h"
 
-Vector * food;
-
 void gameInitialize();
 
 void sendInitialSnakeInformationToClients();

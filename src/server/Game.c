@@ -3,12 +3,11 @@
 //
 #include <pthread.h>
 #include <strings.h>
-#include "Game.h"
 #include "Server.h"
+#include "Game.h"
 #include "Food.h"
 #include "../utility/Serialize.h"
 #include <unistd.h>
-#include "Snake.h"
 
 Vector * connections;
 Vector * foods;
@@ -17,7 +16,7 @@ pthread_mutex_t lock;
 void gameInitialize() {
     pthread_t foodThread;
     // Where all the food will be placed.
-    food = initVector();
+    foods = initVector();
     // Send initial snake information
     sendInitialSnakeInformationToClients();
     // Create thread for food.
@@ -41,7 +40,7 @@ void sendInitialSnakeInformationToClients() {
 
     // Calculate the size of positions of the snake.
     for (int i = 0; i < connections->size; i++) {
-        size += (((Connection *) connections->data)->clientInfo->snake->size) *
+        size += (((Connection *) connections->data[i])->clientInfo->snake->size) *
                 POSITION_BYTES;
     }
 

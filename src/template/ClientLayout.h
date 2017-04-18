@@ -25,6 +25,8 @@
 
 #define SLEEP_WHEN_NO_HOST_QUEUE_SEC 2
 
+#define SNAKE_CHARACTER "#"
+
 extern const char * const MENU_ITEMS[MAIN_MENU_ITEMS];
 
 extern const char * const CREDITS;

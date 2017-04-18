@@ -125,8 +125,12 @@ bool printErrorAndOfferRetry(char *errorMessage) {
     wrefresh(window);
     int retry = getch();
     if (retry == 'Y' || retry == 'y') {
+        clearWindow(window);
+        delwin(window);
         return true;
     }
+    clearWindow(window);
+    delwin(window);
     return false;
 }
 
