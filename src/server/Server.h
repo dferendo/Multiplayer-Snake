@@ -9,6 +9,8 @@
 #include "../template/WindowProperties.h"
 #include "Snake.h"
 #include <stdbool.h>
+#include <netinet/in.h>
+
 
 typedef struct ClientInfo {
     char name[MAXIMUM_INPUT_STRING];
@@ -30,5 +32,9 @@ typedef struct CreateConnectThreadArguments {
 extern Vector * connections;
 // Contains the initial positions of all snakes.
 extern Vector * initialPositions;
+
+void serverInit(uint16_t portNumber);
+
+void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clientSize);
 
 #endif //SNAKES_SERVERLAUNCHER_H

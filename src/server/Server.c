@@ -3,8 +3,6 @@
 //
 #include "Server.h"
 #include <pthread.h>
-#include <stdio.h>
-#include <netinet/in.h>
 #include <unistd.h>
 #include <strings.h>
 #include "QueueToPlay.h"
@@ -13,15 +11,21 @@ Vector * connections;
 Vector * initialPositions;
 
 int main(int argc, char *argv[]) {
-    // Variables needed
-    int sockFd, newSockFd;
-    uint16_t portNumber;
+    if (argc < 2) {
+        printf("Port number was not passed");
+        exit(1);
+    }
+
+    serverInit((uint16_t) atoi(argv[1]));
+}
+
+void serverInit(uint16_t portNumber) {
+    int sockFd;
     struct sockaddr_in serverAddress, clientAddress;
     socklen_t clientSize;
-    pthread_t clientThread;
+    // Vectors needed
     connections = initVector();
     initialPositions = initVector();
-    bool hostEstablish = false;
     // Create socket
     sockFd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -31,11 +35,6 @@ int main(int argc, char *argv[]) {
     }
 
     bzero((char *) &serverAddress, sizeof(serverAddress));
-    if (argc < 2) {
-        printf("Port number was not passed");
-        exit(1);
-    }
-    portNumber = (uint16_t) atoi(argv[1]);
     serverAddress.sin_family = AF_INET;
     // Accepts any addresses
     serverAddress.sin_addr.s_addr = INADDR_ANY;
@@ -49,15 +48,22 @@ int main(int argc, char *argv[]) {
 
     listen(sockFd, 0);
     clientSize = sizeof(clientAddress);
+    acceptClients(sockFd, (struct sockaddr *) &clientAddress, &clientSize);
+}
+
+void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clientSize) {
+    bool hostEstablish = false;
+    int newSockFd;
+    pthread_t clientThread;
 
     // Wait for connections
     while (true) {
         // Accept connection
-        newSockFd = accept(sockFd, (struct sockaddr *) &clientAddress, &clientSize);
+        newSockFd = accept(sockFd, clientAddress, clientSize);
 
         // Failed connection, ignore client
         if (newSockFd == -1) {
-            perror("Error on client accept.");
+            perror("Error on client accept");
             continue;
         }
         CreateConnectThreadArguments * args = (CreateConnectThreadArguments *)
@@ -65,7 +71,7 @@ int main(int argc, char *argv[]) {
 
         // Failed connection, ignore client
         if (args == NULL) {
-            perror("Error on malloc arguments.");
+            perror("Error on malloc arguments");
             close(newSockFd);
             continue;
         }
@@ -84,5 +90,4 @@ int main(int argc, char *argv[]) {
             close(newSockFd);
         }
     }
-
 }
