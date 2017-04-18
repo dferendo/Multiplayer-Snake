@@ -34,8 +34,6 @@ unsigned char * serializeVectorOfConnections(unsigned char * buffer, Vector * co
 
 unsigned char * serializedVectorOfConnectionsDelimiter(unsigned char * buffer, Vector *connections);
 
-unsigned char * serializedPosition(unsigned char * buffer, Position * position);
-
 unsigned char * serializedLinkedList(unsigned char * buffer, LinkedListPosition * linkedListPosition);
 
 unsigned char * serializedSnake(unsigned char * buffer, Snake * snake);
@@ -52,10 +50,16 @@ unsigned char * deserializeConnection(unsigned char * buffer, Connection * conne
 
 unsigned char * deserializeVectorOfConnections(unsigned char * buffer, Vector * connections, int size);
 
-/**
- * Serialize Food information.
- */
+// Serialize/Deserialize Position information.
 
-unsigned char * serializedVectorOfFoods(unsigned char * buffer, Vector * foods);
+unsigned char * serializedPosition(unsigned char * buffer, Position * position);
+
+unsigned char * deserializedPosition(unsigned char * buffer, Position * position);
+
+// Serialize/Deserialize Food information.
+
+unsigned char * serializedVectorOfFoodsWithDelimiter(unsigned char * buffer, Vector * foods);
+
+unsigned char * deserializedVectorOfFoods(unsigned char * buffer, Vector * foods, int size);
 
 #endif //SNAKES_SERIALIZE_H

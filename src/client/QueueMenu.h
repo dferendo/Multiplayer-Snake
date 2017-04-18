@@ -31,6 +31,6 @@ void waitUntilHostStartsGame(WINDOW * window, int * sockFd, char * playerId);
 
 void writeStartGameToSocket(int * sockFd);
 
-int readDelimiter(int *sockFd);
+int readDelimiterQueue(int *sockFd);
 
 #endif //SNAKES_STARTGAME_H

@@ -5,10 +5,20 @@
 #ifndef SNAKES_SNAKESGAME_H
 #define SNAKES_SNAKESGAME_H
 
+#include <ncurses.h>
 #include "../utility/Vector.h"
 
-void gameInit(Vector * connections);
+void gameInit(Vector * connections, int sockFd);
 
-void sendAllSnakeDataToAllConnections(Vector * connections);
+void gameRunning(Vector * connections, Vector * foods, int sockFd);
+
+int readDelimiterSnakes(int socketFd);
+
+Vector * readFoodsFromSocket(int socketFileDescriptor);
+
+void clearFoodsVector(Vector * foods);
+
+WINDOW * displayNewData(Vector * foods, Vector * connections);
+
 
 #endif //SNAKES_SNAKESGAME_H

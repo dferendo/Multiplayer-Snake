@@ -15,7 +15,7 @@ typedef struct Food {
     Type foodType;
 } Food;
 
-static const chtype stringFromFruit(Type type) {
+static const chtype stringFromFood(Type type) {
     const chtype TYPE_STRINGS[] = { 'o' };
     return TYPE_STRINGS[type];
 }

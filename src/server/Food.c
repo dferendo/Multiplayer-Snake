@@ -54,7 +54,7 @@ void writeFoodDataToClients(Vector * connections, Vector * foods) {
     unsigned char buffer[size];
     bzero(buffer, size);
 
-    serializedVectorOfFoods(buffer, foods);
+    serializedVectorOfFoodsWithDelimiter(buffer, foods);
 
     for (int i = 0; i < connections->size; i++) {
         Connection * temp = (Connection *) connections->data[i];

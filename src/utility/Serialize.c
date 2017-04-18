@@ -160,3 +160,36 @@ unsigned char *serializedVectorOfFoodsWithDelimiter(unsigned char *buffer, Vecto
     }
     return buffer;
 }
+
+unsigned char *deserializedPosition(unsigned char *buffer, Position *position) {
+    buffer = deserializeInt(buffer, &position->x);
+    buffer = deserializeInt(buffer, &position->y);
+    return buffer;
+}
+
+unsigned char * deserializedVectorOfFoods(unsigned char *buffer, Vector *foods, int size) {
+    Food * food;
+    Position * position;
+
+    for (int i = 0; i < size; i++) {
+        food = (Food *) malloc(sizeof(Food));
+
+        if (food == NULL) {
+            perror("Failed to allocate memory to Food");
+            return buffer;
+        }
+        position = (Position *) malloc(sizeof(Position));
+
+        if (position == NULL) {
+            perror("Failed to allocate memory to Position.");
+            free(food);
+            return buffer;
+        }
+
+        buffer = deserializedPosition(buffer, position);
+        buffer = deserializeInt(buffer, &food->foodType);
+        food->position = position;
+        addItemToVector(foods, food);
+    }
+    return buffer;
+}

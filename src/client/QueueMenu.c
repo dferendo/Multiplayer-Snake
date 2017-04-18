@@ -180,17 +180,6 @@ Vector * readConnectionsFromSocket(int socketFileDescriptor) {
     return connections;
 }
 
-void clearConnectionVector(Vector * oldVector) {
-
-    // ClientInfo will not be de-allocated by deleteVector().
-    for (int i = 0; i < oldVector->size; i++) {
-        Connection * temp = (Connection *) oldVector->data[i];
-        // Clear the Client.
-        free(temp->clientInfo);
-    }
-    deleteVector(oldVector);
-}
-
 void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
     Vector * connections = NULL;
     bool isHost = false;
@@ -199,12 +188,12 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
 
     while (true) {
 
-        int nextAction = readDelimiter(sockFd);
+        int nextAction = readDelimiterQueue(sockFd);
 
         if (nextAction == 1) {
             clearWindow(window);
             delwin(window);
-            gameInit(connections);
+            gameInit(connections, *sockFd);
         } else if (nextAction == 2) {
             if (connections != NULL) {
                 clearConnectionVector(connections);
@@ -223,7 +212,7 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
                 cbreak();
                 clearWindow(window);
                 delwin(window);
-                gameInit(connections);
+                gameInit(connections, *sockFd);
                 break;
             }
         } else {
@@ -247,7 +236,7 @@ void writeStartGameToSocket(int *sockFd) {
     }
 }
 
-int readDelimiter(int *sockFd) {
+int readDelimiterQueue(int *sockFd) {
     int response;
     unsigned char buffer[DELIMITERS_SIZE];
 
@@ -268,4 +257,15 @@ int readDelimiter(int *sockFd) {
     } else {
         return -2;
     }
+}
+
+void clearConnectionVector(Vector * oldVector) {
+
+    // ClientInfo will not be de-allocated by deleteVector().
+    for (int i = 0; i < oldVector->size; i++) {
+        Connection * temp = (Connection *) oldVector->data[i];
+        // Clear the Client.
+        free(temp->clientInfo);
+    }
+    deleteVector(oldVector);
 }
