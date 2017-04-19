@@ -29,8 +29,6 @@ void sendSnakeInformationToClients();
 
 void createSnakeWorkers();
 
-bool checkWinners();
-
 Position * moveHeadSnake(Direction direction, Position *position);
 
 void * snakeAction(void * args);

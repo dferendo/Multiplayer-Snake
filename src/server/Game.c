@@ -31,10 +31,8 @@ void gameInitialize() {
         usleep(GAME_UPDATE_RATE_US);
         // Create threads and wait for them to finish.
         createSnakeWorkers();
-        // Check winners
-        if (checkWinners()) {
-            return;
-        }
+        // Send new information.
+        sendSnakeInformationToClients();
     }
 }
 
@@ -75,6 +73,7 @@ void createSnakeWorkers() {
     pthread_t  snakesTIds[connections->size];
     // Create a thread for every Snake.
     SnakeWorkerParams snakeWorkerParams[connections->size];
+    SnakeWorkerReturn snakeWorkerReturn[connections->size];
 
     for (int i = 0; i < connections->size; i++) {
         snake = ((Connection *) connections->data[i])->clientInfo->snake;
@@ -134,7 +133,7 @@ bool checkHeadCollision(Snake * snake, Vector * connections) {
     nextPositionOfSelectedSnake = moveHeadSnake(snake->direction, snake->positions->position);
     // Check if two heads of snake collide, if they do they both die.
     for (int i = 0; i < connections->size; i++) {
-        tempSnake = ((Connection *) connections->data)->clientInfo->snake;
+        tempSnake = ((Connection *) connections->data[i])->clientInfo->snake;
         // Skips if same snake
         if (tempSnake == snake) {
             continue;
@@ -185,16 +184,6 @@ Position * moveHeadSnake(Direction direction, Position *position) {
     return tempPosition;
 }
 
-bool checkWinners() {
-//    Connection * connection;
-//    for (int i = 0; i < connections->size; i++) {
-//        connection = (Connection *) connections->data[i];
-//
-//        if ()
-//    }
-    return 0;
-}
-
 void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
     Position * nextPositionOfSelectedSnake, * eatenPosition;
     Food * food;
@@ -240,7 +229,7 @@ bool checkIfNextPositionIsCollision(Snake *snake, Vector *connections) {
     // Check if collision with other snake
     for (int i = 0; i < connections->size; i++) {
         exists = false;
-        nextSnake = ((Connection *) connections->data)->clientInfo->snake;
+        nextSnake = ((Connection *) connections->data[i])->clientInfo->snake;
         positionExistsLinkedList(nextSnake->positions, nextPositionOfSelectedSnake->x,
                                  nextPositionOfSelectedSnake->y, &exists);
         // If true, there is a collision.
@@ -265,7 +254,10 @@ bool checkIfNextPositionIsCollision(Snake *snake, Vector *connections) {
 void snakeMove(Snake *snake) {
     LinkedListPosition * currentHead = snake->positions->next;
     Position * previousPosition = snake->positions->position, * currentPosition,
-            * lastElement, * nextPositionOfSelectedSnake;
+             * lastElement, * nextPositionOfSelectedSnake;
+
+    nextPositionOfSelectedSnake = moveHeadSnake(snake->direction, snake->positions->position);
+
     // Last element is useless and thus freed.
     lastElement = getLastElementLinkedList(snake->positions);
     free (lastElement);
@@ -277,6 +269,5 @@ void snakeMove(Snake *snake) {
         previousPosition = currentPosition;
     }
     // The head still needs to be updated.
-    nextPositionOfSelectedSnake = moveHeadSnake(snake->direction, snake->positions->position);
     snake->positions->position = nextPositionOfSelectedSnake;
 }

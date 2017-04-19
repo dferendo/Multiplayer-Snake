@@ -13,6 +13,7 @@ Vector * foods;
 pthread_mutex_t lock;
 
 int main(int argc, char *argv[]) {
+    srand((unsigned int) time(NULL));
     if (argc < 2) {
         printf("Port number was not passed");
         exit(1);
