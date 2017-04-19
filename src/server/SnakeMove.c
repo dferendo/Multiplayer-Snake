@@ -82,13 +82,13 @@ Position * moveHeadSnake(Direction direction, Position *position) {
             tempPosition->y -= 1;
             break;
         case D_LEFT:
-            tempPosition->x += 1;
+            tempPosition->x -= 1;
             break;
         case D_DOWN:
             tempPosition->y += 1;
             break;
         case D_RIGHT:
-            tempPosition->x -= 1;
+            tempPosition->x += 1;
             break;
     }
     return tempPosition;
@@ -103,7 +103,7 @@ void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
     // Snakes can move before any foods spawning.
     if (foods != NULL) {
         for (int i = 0; i < foods->size; i++) {
-            food = (Food *) foods->data;
+            food = (Food *) foods->data[i];
             // If they are equal, increase the size of snake.
             if (checkIfPositionsAreEqual(nextPositionOfSelectedSnake, food->position)) {
                 eatenPosition = (Position *) malloc(sizeof(Position));
@@ -116,7 +116,10 @@ void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
                 addPosition(snake->positions, eatenPosition);
                 snake->size++;
                 free(nextPositionOfSelectedSnake);
-                break;
+                // Remove the eaten food.
+                free(food->position);
+                deleteItemFromVector(foods, food);
+                return;
             }
         }
     }

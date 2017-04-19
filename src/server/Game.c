@@ -8,7 +8,6 @@
 #include "Food.h"
 #include "../utility/Serialize.h"
 #include "../utility/General.h"
-#include "Snake.h"
 #include <unistd.h>
 #include <strings.h>
 #include <memory.h>
