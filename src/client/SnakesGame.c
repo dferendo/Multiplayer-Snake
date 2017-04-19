@@ -10,9 +10,24 @@
 #include <strings.h>
 #include <unistd.h>
 #include <memory.h>
+#include <pthread.h>
 
 void gameInit(Vector * connections, int sockFd) {
     Vector * foods = NULL;
+    pthread_t characterReaderTId;
+
+    ReadUserInputThreadParams * inputThreadParams =
+            (ReadUserInputThreadParams *) malloc(sizeof(ReadUserInputThreadParams));
+
+    if (inputThreadParams == NULL) {
+        return;
+    }
+    inputThreadParams->sockFd = sockFd;
+    // Create a thread that reads user input.
+    if (pthread_create(&characterReaderTId, NULL, readDirectionFromUser, inputThreadParams) != 0) {
+        perror("Could not create a snake thread.");
+        return;
+    }
 
     gameRunning(connections, foods, sockFd);
 }
@@ -194,4 +209,56 @@ Snake * clearPreviousSnakeForNewerSnake(Vector *connections, char *name) {
         }
     }
     return NULL;
+}
+
+void *readDirectionFromUser(void *args) {
+    int sockFd = ((ReadUserInputThreadParams *) args)->sockFd;
+    int character, previousChar = DEFAULT_START_DIRECTION;
+
+    while (true) {
+        character = getch();
+        switch (character) {
+            case 'w':
+                // If snake allowed to go opposite side, it would mean he is dead.
+                if (previousChar != D_DOWN) {
+                    sendUserDirection(sockFd, D_UP);
+                    previousChar = character;
+                }
+                break;
+            case 'a':
+                if (previousChar != D_RIGHT) {
+                    sendUserDirection(sockFd, D_LEFT);
+                    previousChar = character;
+                }
+                break;
+            case 'd':
+                if (previousChar != D_LEFT) {
+                    sendUserDirection(sockFd, D_RIGHT);
+                    previousChar = character;
+                }
+                break;
+            case 'x':
+                if (previousChar != D_UP) {
+                    sendUserDirection(sockFd, D_DOWN);
+                    previousChar = character;
+                }
+            default:
+                continue;
+        }
+    }
+}
+
+void sendUserDirection(int sockFd, int direction) {
+    int response;
+    size_t size = DELIMITERS_SIZE + INTEGER_BYTES;
+    unsigned char buffer[size];
+
+    serializedSnakeDirectionWithDelimiter(buffer, direction);
+
+    response = (int) write(sockFd, buffer, size);
+
+    if (response == -1) {
+        perror("Failed to write to the socket");
+        close(sockFd);
+    }
 }

@@ -8,6 +8,9 @@
 #include <ncurses.h>
 #include "../utility/Vector.h"
 #include "../server/Snake.h"
+typedef struct ReadUserInputThreadParams {
+    int sockFd;
+} ReadUserInputThreadParams;
 
 void gameInit(Vector * connections, int sockFd);
 
@@ -25,5 +28,8 @@ void clearFoodsVector(Vector * foods);
 
 WINDOW * displayNewData(Vector * foods, Vector * connections);
 
+void * readDirectionFromUser(void *args);
+
+void sendUserDirection(int sockFd, int direction);
 
 #endif //SNAKES_SNAKESGAME_H

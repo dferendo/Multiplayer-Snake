@@ -25,20 +25,10 @@ typedef struct SnakeWorkerReturn {
 
 void gameInitialize();
 
+void gameLoop();
+
 void sendSnakeInformationToClients();
 
 void createSnakeWorkers();
-
-Position * moveHeadSnake(Direction direction, Position *position);
-
-void * snakeAction(void * args);
-
-bool checkHeadCollision(Snake * snake, Vector * connections);
-
-void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods);
-
-bool checkIfNextPositionIsCollision(Snake * snake, Vector * connections);
-
-void snakeMove(Snake * snake);
 
 #endif //SNAKES_GAME_H

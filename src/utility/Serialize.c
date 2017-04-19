@@ -236,3 +236,9 @@ unsigned char * deserializedNameAndSizeOfSnake(unsigned char *buffer, char *name
     buffer = deserializeInt(buffer, size);
     return buffer;
 }
+
+unsigned char *serializedSnakeDirectionWithDelimiter(unsigned char *buffer, int direction) {
+    buffer = serializeCharArray(buffer, CHANGE_DIRECTION_DELIMITER, DELIMITERS_SIZE);
+    buffer = serializeInt(buffer, direction);
+    return buffer;
+}

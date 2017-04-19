@@ -12,7 +12,7 @@
 
 #define MAXIMUM_FOOD_INTERVAL_SECS_US 3000000
 #define MINIMUM_FOOD_INTERVAL_SECS_US 1000000
-// Set NULL for no limit
+// Set 0 for no limit
 #define MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN 20
 
 #define FOOD_TO_WIN 15

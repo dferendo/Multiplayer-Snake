@@ -21,7 +21,7 @@ void * generateFood(void * arg) {
 
     while (true) {
 
-        if (MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN == NULL ||
+        if (MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN == 0 ||
                 foods->size <= MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN) {
             pthread_mutex_lock(&lock);
 

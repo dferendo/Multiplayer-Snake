@@ -8,6 +8,7 @@
 #include "../server/Server.h"
 
 #define INTEGER_BYTES 4
+#define CHARACTER_BYTES 1
 #define CONNECTION_BYTES_NO_SNAKE 26
 #define POSITION_BYTES 8
 #define FOOD_BYTES_SIZE 12
@@ -17,7 +18,9 @@
 #define SNAKE_DETAILS_DELIMITER "/S"
 #define HOST_STARTS_GAME_DELIMITER "/M"
 #define VECTOR_OF_FOOD_DELIMITER "/F"
-#define CHANGE_DIRECTION_DELIMITER "/W"
+#define CHANGE_DIRECTION_DELIMITER "/A"
+#define WINNER_DELIMITER "/W"
+#define LOSS_DELIMITER "/L"
 
 // General serialize.
 
@@ -74,5 +77,9 @@ unsigned char * deserializedPosition(unsigned char * buffer, Position * position
 unsigned char * serializedVectorOfFoodsWithDelimiter(unsigned char * buffer, Vector * foods);
 
 unsigned char * deserializedVectorOfFoods(unsigned char * buffer, Vector * foods, int size);
+
+// Serialize/Deserialize Direction information.
+
+unsigned char * serializedSnakeDirectionWithDelimiter(unsigned char * buffer, int direction);
 
 #endif //SNAKES_SERIALIZE_H
