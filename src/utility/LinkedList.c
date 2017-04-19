@@ -48,3 +48,10 @@ void positionExistsLinkedList(LinkedListPosition *head, int x, int y, bool *exis
         positionExistsLinkedList(head->next, x, y, exists);
     }
 }
+
+Position *getLastElementLinkedList(LinkedListPosition *head) {
+    while (head->next != NULL) {
+        head = head->next;
+    }
+    return head->position;
+}

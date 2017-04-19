@@ -21,8 +21,8 @@ void * generateFood(void * arg) {
 
     while (true) {
 
-        if (MAXIMUM_AMOUNT_OF_FOOD == NULL ||
-                foods->size <= MAXIMUM_AMOUNT_OF_FOOD) {
+        if (MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN == NULL ||
+                foods->size <= MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN) {
             pthread_mutex_lock(&lock);
 
             position = createFoodPosition(connections, foods);

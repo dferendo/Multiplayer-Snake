@@ -69,7 +69,6 @@ int deleteItemFromVector(Vector *vector, void *item) {
     }
 
     if (index == -1) {
-        // Food not found.
         return -1;
     }
     // Free the searched item

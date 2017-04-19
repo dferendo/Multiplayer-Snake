@@ -22,4 +22,6 @@ void deleteLinkedListPosition(LinkedListPosition * head);
 
 void positionExistsLinkedList(LinkedListPosition *head, int x, int y, bool *exist);
 
+Position * getLastElementLinkedList(LinkedListPosition * head);
+
 #endif //SNAKES_LINKEDLIST_H

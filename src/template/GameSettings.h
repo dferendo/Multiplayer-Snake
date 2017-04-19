@@ -13,5 +13,16 @@
 #define MAXIMUM_FOOD_INTERVAL_SECS_US 3000000
 #define MINIMUM_FOOD_INTERVAL_SECS_US 1000000
 // Set NULL for no limit
-#define MAXIMUM_AMOUNT_OF_FOOD 20
+#define MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN 20
+
+#define FOOD_TO_WIN 15
+
+#define GAME_UPDATE_RATE_US 2000000
+
+// All consoles will have the same size of the map
+#define MAIN_WINDOW_ROW 24
+#define MAIN_WINDOW_COLUMN 89
+
+#define MAXIMUM_INPUT_STRING 20
+
 #endif //SNAKES_GAMESETTINGS_H

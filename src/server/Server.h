@@ -6,8 +6,8 @@
 #define SNAKES_SERVERLAUNCHER_H
 
 #include "../utility/Vector.h"
-#include "../template/WindowProperties.h"
 #include "Snake.h"
+#include "../template/GameSettings.h"
 #include <stdbool.h>
 #include <netinet/in.h>
 

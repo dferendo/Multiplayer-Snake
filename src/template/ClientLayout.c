@@ -3,7 +3,7 @@
 //
 #include "ClientLayout.h"
 #include "../utility/General.h"
-#include "WindowProperties.h"
+#include "GameSettings.h"
 #include "../server/Server.h"
 
 void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool isHost) {
@@ -29,7 +29,7 @@ void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool
 WINDOW *generatePlayingWindow() {
     WINDOW * window;
     // Creating playing window without borders.
-    window = newwin(ROW - 2, COLUMN - 2, 1, 1);
+    window = newwin(MAIN_WINDOW_ROW - 2, MAIN_WINDOW_COLUMN - 2, 1, 1);
     return window;
 }
 

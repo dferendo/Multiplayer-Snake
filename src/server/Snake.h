@@ -29,4 +29,6 @@ typedef struct {
 
 Snake * createSnake(Vector * initialPositions);
 
+bool checkIfPositionsAreEqual(Position * position1, Position * position2);
+
 #endif //SNAKES_SNAKE_H

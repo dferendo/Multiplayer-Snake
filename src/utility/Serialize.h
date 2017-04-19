@@ -17,6 +17,7 @@
 #define SNAKE_DETAILS_DELIMITER "/S"
 #define HOST_STARTS_GAME_DELIMITER "/M"
 #define VECTOR_OF_FOOD_DELIMITER "/F"
+#define CHANGE_DIRECTION_DELIMITER "/W"
 
 // General serialize.
 

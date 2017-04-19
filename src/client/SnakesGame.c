@@ -7,7 +7,6 @@
 #include "../utility/Serialize.h"
 #include "../utility/General.h"
 #include "../server/Food.h"
-#include "../server/Snake.h"
 #include <strings.h>
 #include <unistd.h>
 #include <memory.h>

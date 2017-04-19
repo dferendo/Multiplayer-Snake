@@ -2,7 +2,7 @@
 #include "Client.h"
 #include <stdio.h>
 #include "../template/ClientLayout.h"
-#include "../template/WindowProperties.h"
+#include "../template/GameSettings.h"
 #include "QueueMenu.h"
 
 const char * const MENU_ITEMS[MAIN_MENU_ITEMS] = {
@@ -32,14 +32,14 @@ int main(int argc, char *argv[]) {
 void createOutsideBorder() {
     // Characters will be added to the main window.
     // Draw top and bottom borders.
-    for(int x = 0; x < COLUMN; x++) {
+    for(int x = 0; x < MAIN_WINDOW_COLUMN; x++) {
         mvaddch(0, x, MAIN_MENU_BORDER_CHARACTER);
-        mvaddch(ROW, x, MAIN_MENU_BORDER_CHARACTER);
+        mvaddch(MAIN_WINDOW_ROW, x, MAIN_MENU_BORDER_CHARACTER);
     }
     // Draw left and right borders.
-    for(int y = 0; y <= ROW; y++) {
+    for(int y = 0; y <= MAIN_WINDOW_ROW; y++) {
         mvaddch(y, 0, MAIN_MENU_BORDER_CHARACTER);
-        mvaddch(y, COLUMN, MAIN_MENU_BORDER_CHARACTER);
+        mvaddch(y, MAIN_WINDOW_COLUMN, MAIN_MENU_BORDER_CHARACTER);
     }
 }
 
@@ -78,7 +78,7 @@ void mainMenu() {
 }
 
 WINDOW * createMainMenuWindow() {
-    int windowStartingX = COLUMN / 4, windowStartingY = ROW / 4, height = ROW / 2, width = COLUMN / 2;
+    int windowStartingX = MAIN_WINDOW_COLUMN / 4, windowStartingY = MAIN_WINDOW_ROW / 4, height = MAIN_WINDOW_ROW / 2, width = MAIN_WINDOW_COLUMN / 2;
 
     WINDOW * menuWindow;
     // Create new window where main menu will be placed.

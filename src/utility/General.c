@@ -3,13 +3,13 @@
 //
 #include <string.h>
 #include "General.h"
-#include "../template/WindowProperties.h"
+#include "../template/GameSettings.h"
 #include "../server/Server.h"
 
 WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width) {
     WINDOW * tempWindow;
     // StartingX and Y put in centre (Approx)
-    int startingX = (COLUMN / 2) - (width / 2), startingY = (ROW / 2) - height;
+    int startingX = (MAIN_WINDOW_COLUMN / 2) - (width / 2), startingY = (MAIN_WINDOW_ROW / 2) - height;
     // Create new window where main menu will be placed.
     tempWindow = newwin(height, width, startingY, startingX);
     return tempWindow;

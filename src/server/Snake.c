@@ -20,3 +20,10 @@ Snake *createSnake(Vector *initialPositions) {
     snake->direction = DEFAULT_START_DIRECTION;
     return snake;
 }
+
+bool checkIfPositionsAreEqual(Position *position1, Position *position2) {
+    if (position1->x == position2->x && position1->y == position2->y) {
+        return true;
+    }
+    return false;
+}

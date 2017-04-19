@@ -3,7 +3,7 @@
 //
 
 #include "RandomUtility.h"
-#include "../template/WindowProperties.h"
+#include "../template/GameSettings.h"
 #include "../server/Food.h"
 #include "../server/Server.h"
 #include "../server/Snake.h"
@@ -13,8 +13,8 @@ Position * createInitialSnakeRandomPosition(Vector *positionsTaken) {
 
     while (true) {
         // There is a border hence the -1.
-        x = rand() % (COLUMN - 1);
-        y = rand() % (ROW - 1);
+        x = rand() % (MAIN_WINDOW_COLUMN - 1);
+        y = rand() % (MAIN_WINDOW_ROW - 1);
 
         // Check if position is taken.
         for (int i = 0; i < positionsTaken->size; i++) {
@@ -45,8 +45,8 @@ Position * createFoodPosition(Vector *positionsOfSnakes, Vector * foodLocations)
 
     while (true) {
         // There is a border hence the -1.
-        x = rand() % (COLUMN - 1);
-        y = rand() % (ROW - 1);
+        x = rand() % (MAIN_WINDOW_COLUMN - 1);
+        y = rand() % (MAIN_WINDOW_ROW - 1);
 
         // Check if position is taken.
         for (int i = 0; i < foodLocations->size; i++) {
