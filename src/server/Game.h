@@ -31,4 +31,6 @@ void sendSnakeInformationToClients();
 
 void createSnakeWorkers();
 
+void * checkForChangeOfDirections(void * args);
+
 #endif //SNAKES_GAME_H

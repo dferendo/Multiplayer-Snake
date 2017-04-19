@@ -39,4 +39,6 @@ WINDOW * generatePlayingWindow();
 
 void clearWindow(WINDOW *window);
 
+WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width);
+
 #endif //SNAKES_CLIENTLAYOUT_H

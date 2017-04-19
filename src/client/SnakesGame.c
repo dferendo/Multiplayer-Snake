@@ -250,7 +250,7 @@ void *readDirectionFromUser(void *args) {
 
 void sendUserDirection(int sockFd, int direction) {
     int response;
-    size_t size = DELIMITERS_SIZE + INTEGER_BYTES;
+    size_t size = DELIMITERS_SIZE + INTEGER_BYTES + MAXIMUM_INPUT_STRING;
     unsigned char buffer[size];
 
     serializedSnakeDirectionWithDelimiter(buffer, direction);

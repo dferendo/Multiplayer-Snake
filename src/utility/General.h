@@ -9,8 +9,6 @@
 #include "Vector.h"
 #include <fcntl.h>
 
-WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width);
-
 bool checkIfHost(Vector * connections, char * playerID);
 
 /**

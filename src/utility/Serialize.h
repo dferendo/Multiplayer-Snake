@@ -8,7 +8,6 @@
 #include "../server/Server.h"
 
 #define INTEGER_BYTES 4
-#define CHARACTER_BYTES 1
 #define CONNECTION_BYTES_NO_SNAKE 26
 #define POSITION_BYTES 8
 #define FOOD_BYTES_SIZE 12

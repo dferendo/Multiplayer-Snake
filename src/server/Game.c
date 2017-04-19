@@ -7,8 +7,11 @@
 #include "SnakeMove.h"
 #include "Food.h"
 #include "../utility/Serialize.h"
+#include "../utility/General.h"
+#include "Snake.h"
 #include <unistd.h>
 #include <strings.h>
+#include <memory.h>
 
 Vector * connections;
 Vector * foods;
@@ -16,6 +19,7 @@ pthread_mutex_t lock;
 
 void gameInitialize() {
     pthread_t foodThread;
+    pthread_t changeDirectionThread;
     // Where all the food will be placed.
     foods = initVector();
     // Send initial snake information
@@ -25,7 +29,11 @@ void gameInitialize() {
         perror("Could not create a food thread");
         return;
     }
-
+    // Create Thread that listens to user change of direction.
+    if (pthread_create(&changeDirectionThread, NULL, checkForChangeOfDirections, NULL) != 0) {
+        perror("Could not create a Change direction thread");
+        return;
+    }
     gameLoop();
 }
 
@@ -103,4 +111,40 @@ void createSnakeWorkers() {
         snakeWorkerReturn[i].status = ((SnakeWorkerReturn *) threadReturn)->status;
     }
 
+}
+
+void *checkForChangeOfDirections(void *args) {
+    Connection * connection;
+    int response;
+    unsigned char buffer[DELIMITERS_SIZE], directionBuffer[INTEGER_BYTES];
+
+    while (true) {
+        for (int i = 0; i < connections->size; i++) {
+            // Read if delimiter was passed.
+            connection = ((Connection *) connections->data[i]);
+            bzero(buffer, DELIMITERS_SIZE);
+
+            // Set to non blocking so that others can also change
+            setSocketBlockingEnabled(connection->sockFd, false);
+            response = (int) read(connection->sockFd, buffer, DELIMITERS_SIZE);
+            setSocketBlockingEnabled(connection->sockFd, true);
+
+            if (response < 0) {
+                continue;
+            }
+            if (strncmp((const char *) buffer, CHANGE_DIRECTION_DELIMITER, DELIMITERS_SIZE) != 0) {
+                continue;
+            }
+            // Read the actual change of direction.
+
+            response = (int) read(connection->sockFd, directionBuffer, INTEGER_BYTES);
+
+            if (response < 0) {
+                continue;
+            }
+            pthread_mutex_lock(&lock);
+            deserializeInt(directionBuffer, &connection->clientInfo->snake->direction);
+            pthread_mutex_unlock(&lock);
+        }
+    }
 }
