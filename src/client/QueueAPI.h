@@ -7,6 +7,8 @@
 
 void writeNameToSocket(int socketFileDescriptor, char * name);
 
+bool checkIfNameWasAccepted(int sockFileDescriptor);
+
 void writeStartGameToSocket(int * sockFd);
 
 int readDelimiterQueue(int *sockFd);

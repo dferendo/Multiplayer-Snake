@@ -25,6 +25,30 @@ void writeNameToSocket(int socketFileDescriptor, char * name) {
     }
 }
 
+bool checkIfNameWasAccepted(int sockFileDescriptor) {
+    int response;
+    unsigned char buffer[DELIMITERS_SIZE];
+
+    bzero(buffer, DELIMITERS_SIZE);
+
+    response = (int) read(sockFileDescriptor, buffer, DELIMITERS_SIZE);
+
+    if (response < 0) {
+        perror("Error when reading from file");
+        exit(1);
+    }
+    // Check if name was accepted.
+    if (strncmp((const char *) buffer, NAME_ACCEPTED, DELIMITERS_SIZE) == 0) {
+        return true;
+    } else if (strncmp((const char *) buffer, NAME_NOT_ACCEPTED, DELIMITERS_SIZE) == 0) {
+        false;
+    } else {
+        perror("Wrong data read, problem with parallelism from server and client.");
+        exit(1);
+    }
+    return false;
+}
+
 void writeStartGameToSocket(int *sockFd) {
     int response;
     unsigned char buffer[DELIMITERS_SIZE];

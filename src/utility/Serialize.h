@@ -20,6 +20,8 @@
 #define CHANGE_DIRECTION_DELIMITER "/A"
 #define WINNER_DELIMITER "/W"
 #define LOSE_DELIMITER "/L"
+#define NAME_ACCEPTED "/Q"
+#define NAME_NOT_ACCEPTED "/E"
 
 // General serialize.
 

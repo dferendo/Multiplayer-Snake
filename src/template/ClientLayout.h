@@ -18,6 +18,7 @@
 
 #define ERROR_NO_HOST "Error, no such host!"
 #define ERROR_CONNECTION_FAILED "Error, connection failed!"
+#define ERROR_NAME_INVALID "Error, name is invalid!"
 
 // Wait 2 seconds when using half delay since it waits n tenths
 // of a second.

@@ -13,13 +13,25 @@ void serverConnection() {
     int sockFd;
     char playerName[MAXIMUM_INPUT_STRING];
 
-    // Connection failed.
-    if (!connectToServer(&sockFd, playerName)) {
-        return;
+    while (true) {
+        // Connection failed.
+        if (!connectToServer(&sockFd, playerName)) {
+            return;
+        }
+        // Send Name To server
+        writeNameToSocket(sockFd, playerName);
+
+        // Check if name is not duplicate. If so offer to re-try.
+        if (checkIfNameWasAccepted(sockFd)) {
+            break;
+        } else {
+            if (printErrorAndOfferRetry(ERROR_NAME_INVALID)) {
+                continue;
+            } else {
+                return;
+            }
+        }
     }
-    // TODO: check if name is unique.
-    // Send Name To server
-    writeNameToSocket(sockFd, playerName);
     // Continue updating the queue players until host starts game.
     waitUntilHostStartsGame(&sockFd, playerName);
 }
