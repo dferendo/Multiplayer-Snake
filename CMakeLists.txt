@@ -20,7 +20,7 @@ set(CLIENT_FILES
         src/client/SnakesGame.c
         src/template/GameSettings.h
         src/utility/LinkedList.c
-        src/utility/LinkedList.h)
+        src/utility/LinkedList.h src/client/QueueAPI.h src/client/QueueAPI.c)
 
 set(SERVER_FILES
         src/utility/Vector.c

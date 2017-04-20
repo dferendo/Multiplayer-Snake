@@ -4,11 +4,10 @@
 #include "QueueMenu.h"
 #include "../template/ClientLayout.h"
 #include "../utility/General.h"
-#include "../utility/Serialize.h"
 #include "SnakesGame.h"
+#include "QueueAPI.h"
 #include <unistd.h>
 #include <strings.h>
-#include <string.h>
 
 void serverConnection() {
     int sockFd;
@@ -18,7 +17,7 @@ void serverConnection() {
     if (!connectToServer(&sockFd, playerName)) {
         return;
     }
-
+    // TODO: check if name is unique.
     // Send Name To server
     writeNameToSocket(sockFd, playerName);
     // Continue updating the queue players until host starts game.
@@ -39,11 +38,6 @@ bool connectToServer(int * sockFd, char * playerName) {
         getInput(playerName, serverName, port);
         // Connect to server
         portNumber = atoi(port);
-        // AF_INET address family that is used to designate the type
-        // of addresses. (IP v4 addresses)
-        // SOCK_STREAM Provides sequenced, reliable, bidirectional, connection-mode byte streams, and may provide a
-        // transmission mechanism for out-of-band data.
-        // Default protocol.
         *sockFd = socket(AF_INET, SOCK_STREAM, 0);
 
         if (*sockFd == -1) {
@@ -83,73 +77,6 @@ bool connectToServer(int * sockFd, char * playerName) {
     }
     // If while break, that means the user does not want to re-try thus go back to main screen.
     return false;
-}
-
-bool printErrorAndOfferRetry(char *errorMessage) {
-    WINDOW * window = createWindowAtTheCenterOfTheScreen(2, 20);
-
-    mvwprintw(window, 0, 0, errorMessage);
-    mvwprintw(window, 1, 0, "Retry? (Y/n)");
-    wrefresh(window);
-    int retry = getch();
-    if (retry == 'Y' || retry == 'y') {
-        deleteWindow(window);
-        delwin(window);
-        return true;
-    }
-    deleteWindow(window);
-    delwin(window);
-    return false;
-}
-
-void writeNameToSocket(int socketFileDescriptor, char * name) {
-    int response;
-    unsigned char buffer[MAXIMUM_INPUT_STRING];
-    bzero(buffer, MAXIMUM_INPUT_STRING);
-
-    serializeCharArray(buffer, name, MAXIMUM_INPUT_STRING);
-    response = (int) write(socketFileDescriptor, buffer, MAXIMUM_INPUT_STRING);
-
-    if (response == -1) {
-        perror("Error reading from socket");
-        close(socketFileDescriptor);
-        exit(1);
-    }
-}
-
-Vector * readConnectionsFromSocket(int socketFileDescriptor) {
-    int response;
-    int amountOfConnections;
-    size_t connectionsSize;
-    unsigned char bufferInteger[INTEGER_BYTES];
-    bzero(bufferInteger, INTEGER_BYTES);
-    Vector * connections = initVector();
-
-    response = (int) read(socketFileDescriptor, bufferInteger, INTEGER_BYTES);
-
-    if (response == -1) {
-        perror("Error when reading from socket");
-        close(socketFileDescriptor);
-        return NULL;
-    }
-
-    deserializeInt(bufferInteger, &amountOfConnections);
-    connectionsSize = (size_t) (amountOfConnections * CONNECTION_BYTES_NO_SNAKE);
-
-    unsigned char buffer[connectionsSize];
-    bzero(buffer, connectionsSize);
-
-    response = (int) read(socketFileDescriptor, buffer, connectionsSize);
-
-    if (response == -1) {
-        perror("Error when reading from socket");
-        close(socketFileDescriptor);
-        exit(1);
-    }
-    // TODO: more efficient pls.
-    // De-serialize the connections and put them in a vector
-    deserializeVectorOfConnections(buffer, connections, amountOfConnections);
-    return connections;
 }
 
 void waitUntilHostStartsGame(int *sockFd, char * playerId) {
@@ -192,44 +119,6 @@ void waitUntilHostStartsGame(int *sockFd, char * playerId) {
         } else {
             sleep(SLEEP_WHEN_NO_HOST_QUEUE_SEC);
         }
-    }
-}
-
-void writeStartGameToSocket(int *sockFd) {
-    int response;
-    unsigned char buffer[DELIMITERS_SIZE];
-    bzero(buffer, DELIMITERS_SIZE);
-
-    serializeCharArray(buffer, HOST_STARTS_GAME_DELIMITER, DELIMITERS_SIZE);
-    response = (int) write(*sockFd, buffer, DELIMITERS_SIZE);
-
-    if (response == -1) {
-        perror("Error reading from socket");
-        close(*sockFd);
-        exit(1);
-    }
-}
-
-int readDelimiterQueue(int *sockFd) {
-    int response;
-    unsigned char buffer[DELIMITERS_SIZE];
-
-    bzero(buffer, DELIMITERS_SIZE);
-
-    setSocketBlockingEnabled(*sockFd, false);
-    response = (int) read(*sockFd, buffer, DELIMITERS_SIZE);
-    setSocketBlockingEnabled(*sockFd, true);
-
-    if (response < 0) {
-        return -1;
-    }
-
-    if (strncmp((const char *) buffer, HOST_STARTS_GAME_DELIMITER, DELIMITERS_SIZE) == 0) {
-        return 1;
-    } else if (strncmp((const char *) buffer, VECTOR_OF_CONNECTIONS_DELIMITER, DELIMITERS_SIZE) == 0) {
-        return 2;
-    } else {
-        return -2;
     }
 }
 

@@ -43,13 +43,15 @@ void aboutMenu();
 
 void getInput(char * name, char * serverName, char * port);
 
+bool printErrorAndOfferRetry(char *errorMessage);
+
 void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool isHost);
 
 WINDOW * generatePlayingWindow();
 
 void deleteWindow(WINDOW *window);
 
-WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width);
+WINDOW * createWindowAtTheCenterOfTheScreen(int height);
 
 void showWinnerScreen();
 

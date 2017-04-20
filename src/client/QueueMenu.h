@@ -17,18 +17,8 @@ void serverConnection();
 
 bool connectToServer(int * sockFd, char * playerName);
 
-void writeNameToSocket(int socketFileDescriptor, char * name);
-
 void clearConnectionVector(Vector * oldVector);
 
-Vector * readConnectionsFromSocket(int socketFileDescriptor);
-
-bool printErrorAndOfferRetry(char *errorMessage);
-
 void waitUntilHostStartsGame(int * sockFd, char * playerId);
-
-void writeStartGameToSocket(int * sockFd);
-
-int readDelimiterQueue(int *sockFd);
 
 #endif //SNAKES_STARTGAME_H
