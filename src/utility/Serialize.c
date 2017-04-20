@@ -182,6 +182,7 @@ unsigned char * deserializedPosition(unsigned char *buffer, Position *position) 
 unsigned char * deserializedVectorOfFoods(unsigned char *buffer, Vector *foods, int size) {
     Food * food;
     Position * position;
+    int type;
 
     for (int i = 0; i < size; i++) {
         food = (Food *) malloc(sizeof(Food));
@@ -199,7 +200,9 @@ unsigned char * deserializedVectorOfFoods(unsigned char *buffer, Vector *foods, 
         }
 
         buffer = deserializedPosition(buffer, position);
-        buffer = deserializeInt(buffer, &food->foodType);
+        type = (int) food->foodType;
+        buffer = deserializeInt(buffer, &type);
+        food->foodType = (Type) type;
         food->position = position;
         addItemToVector(foods, food);
     }
@@ -208,9 +211,11 @@ unsigned char * deserializedVectorOfFoods(unsigned char *buffer, Vector *foods, 
 
 unsigned char * deserializedSnake(unsigned char *buffer, Snake * snake, int size) {
     Position * position;
+    int direction;
 
     snake->size = size;
-    buffer = deserializeInt(buffer, &snake->direction);
+    buffer = deserializeInt(buffer, &direction);
+    snake->direction = (Direction) direction;
 
     // Deserialize positions of snakes
     for (int i = 0; i < size; i++) {

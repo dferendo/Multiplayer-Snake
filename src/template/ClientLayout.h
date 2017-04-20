@@ -7,6 +7,7 @@
 
 #include <ncurses.h>
 #include "../utility/Vector.h"
+#include "../server/Food.h"
 
 #define MAIN_MENU_BORDER_CHARACTER '+'
 #define MAIN_MENU_DIVIDER '-'
@@ -44,5 +45,7 @@ WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width);
 void showWinnerScreen();
 
 void showDeadScreen();
+
+char * foodType(Food * type);
 
 #endif //SNAKES_CLIENTLAYOUT_H

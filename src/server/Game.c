@@ -145,7 +145,7 @@ bool createSnakeWorkers() {
 
 void *checkForChangeOfDirections(void * args) {
     Connection * connection;
-    int response;
+    int response, direction;
     unsigned char buffer[DELIMITERS_SIZE], directionBuffer[INTEGER_BYTES];
 
     while (true) {
@@ -173,7 +173,9 @@ void *checkForChangeOfDirections(void * args) {
                 continue;
             }
             pthread_mutex_lock(&lock);
-            deserializeInt(directionBuffer, &connection->clientInfo->snake->direction);
+            direction = (int) connection->clientInfo->snake->direction;
+            deserializeInt(directionBuffer, &direction);
+            connection->clientInfo->snake->direction = (Direction) direction;
             pthread_mutex_unlock(&lock);
         }
     }

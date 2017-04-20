@@ -6,7 +6,7 @@
 
 #include "Snake.h"
 
-typedef enum {
+typedef enum Type {
     F_NORMAL = 0
 } Type;
 
@@ -14,11 +14,6 @@ typedef struct Food {
     Position * position;
     Type foodType;
 } Food;
-
-static const chtype stringFromFood(Type type) {
-    const chtype TYPE_STRINGS[] = { 'o' };
-    return TYPE_STRINGS[type];
-}
 
 void * generateFood(void * arg);
 

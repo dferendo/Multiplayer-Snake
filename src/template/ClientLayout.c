@@ -64,3 +64,8 @@ void showDeadScreen() {
     clearWindow(tempWindow);
     delwin(tempWindow);
 }
+
+char * foodType(Food * type) {
+    char *foodTypes[] = {"o"};
+    return foodTypes[type->foodType];
+}

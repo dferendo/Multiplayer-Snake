@@ -22,7 +22,7 @@ void * generateFood(void * arg) {
     while (true) {
 
         if (MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN == 0 ||
-                foods->size <= MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN) {
+            foods->size <= MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN) {
             pthread_mutex_lock(&lock);
 
             position = createFoodPosition(connections, foods);
@@ -47,7 +47,7 @@ void * generateFood(void * arg) {
         }
         // Sleep thread
         nextFoodGenerator = rand() % (MAXIMUM_FOOD_INTERVAL_SECS_US + 1 -
-                MINIMUM_FOOD_INTERVAL_SECS_US) + MINIMUM_FOOD_INTERVAL_SECS_US;
+                                      MINIMUM_FOOD_INTERVAL_SECS_US) + MINIMUM_FOOD_INTERVAL_SECS_US;
         usleep((__useconds_t) nextFoodGenerator);
     }
 }

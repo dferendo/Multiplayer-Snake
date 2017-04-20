@@ -151,7 +151,8 @@ WINDOW *displayNewData(Vector *foods, Vector * connections) {
         // Display Foods.
         for (int i = 0; i < foods->size; i++) {
             food = (Food *) foods->data[i];
-            mvwprintw(window, food->position->y, food->position->x, "o");
+            mvwprintw(window, food->position->y, food->position->x,
+                      foodType(food));
         }
     }
 
