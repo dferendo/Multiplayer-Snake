@@ -208,6 +208,7 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
             clearWindow(window);
             generateWindowForWaitingInQueue(connections, window, isHost);
         } else if (isHost) {
+            noecho();
             int input = getch();
             // Start Game
             if (input == 'S') {

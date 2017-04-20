@@ -213,32 +213,32 @@ Snake * clearPreviousSnakeForNewerSnake(Vector *connections, char *name) {
 
 void *readDirectionFromUser(void *args) {
     int sockFd = ((ReadUserInputThreadParams *) args)->sockFd;
-    int character, previousChar = DEFAULT_START_DIRECTION;
+    int character, previousChar = DEFAULT_START_DIRECTION_KEY;
 
     while (true) {
         character = getch();
         switch (character) {
             case 'w':
                 // If snake allowed to go opposite side, it would mean he is dead.
-                if (previousChar != D_DOWN) {
+                if (previousChar != 'x') {
                     sendUserDirection(sockFd, D_UP);
                     previousChar = character;
                 }
                 break;
             case 'a':
-                if (previousChar != D_RIGHT) {
+                if (previousChar != 'd') {
                     sendUserDirection(sockFd, D_LEFT);
                     previousChar = character;
                 }
                 break;
             case 'd':
-                if (previousChar != D_LEFT) {
+                if (previousChar != 'a') {
                     sendUserDirection(sockFd, D_RIGHT);
                     previousChar = character;
                 }
                 break;
             case 'x':
-                if (previousChar != D_UP) {
+                if (previousChar != 'w') {
                     sendUserDirection(sockFd, D_DOWN);
                     previousChar = character;
                 }
