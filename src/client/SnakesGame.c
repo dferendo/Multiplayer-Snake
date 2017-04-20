@@ -47,17 +47,17 @@ void gameRunning(Vector *connections, Vector * foods, int sockFd) {
             window = displayNewData(foods, connections);
             wrefresh(window);
         } else if (nextCompute == 2) {
-            clearWindow(window);
+            deleteWindow(window);
             readSnakesFromSocket(connections, sockFd);
             window = displayNewData(foods, connections);
             wrefresh(window);
         } else if (nextCompute == 3) {
-            clearWindow(window);
+            deleteWindow(window);
             showWinnerScreen();
             // Stop loop
             break;
         } else if (nextCompute == 4) {
-            clearWindow(window);
+            deleteWindow(window);
             showDeadScreen();
             // Stop loop
             break;

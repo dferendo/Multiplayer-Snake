@@ -13,11 +13,9 @@
 #include <ncurses.h>
 #include "../server/Server.h"
 
-void queueConnectionManager(WINDOW *window);
+void serverConnection();
 
-bool connectToServer(WINDOW * window, int * sockFd, char * playerName);
-
-void getInput(char * name, char * serverName, char * port, WINDOW * window);
+bool connectToServer(int * sockFd, char * playerName);
 
 void writeNameToSocket(int socketFileDescriptor, char * name);
 
@@ -27,7 +25,7 @@ Vector * readConnectionsFromSocket(int socketFileDescriptor);
 
 bool printErrorAndOfferRetry(char *errorMessage);
 
-void waitUntilHostStartsGame(WINDOW * window, int * sockFd, char * playerId);
+void waitUntilHostStartsGame(int * sockFd, char * playerId);
 
 void writeStartGameToSocket(int * sockFd);
 

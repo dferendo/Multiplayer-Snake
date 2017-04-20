@@ -1,11 +1,22 @@
+#include <strings.h>
 #include "ClientLayout.h"
 #include "GameSettings.h"
 #include "../server/Server.h"
 #include "unistd.h"
 
-//
-// Created by dylan on 15/04/2017.
-//
+const char * const MENU_ITEMS[MAIN_MENU_ITEMS] = {
+        "1) Play",
+        "2) About",
+        "3) Exit"
+};
+
+const char * const SERVER_REQUIRED[PLAY_GAME_MENU_REQUIRED] = {
+        "Player Name: ",
+        "Server Name: ",
+        "Port Number: "
+};
+
+const char * const CREDITS = "Created by Dylan Frendo";
 
 void createOutsideBorder() {
     // Create border
@@ -66,7 +77,52 @@ void aboutMenu() {
 
     wrefresh(menuWindow);
     getch();
+    // Delete
     delwin(menuWindow);
+}
+
+void getInput(char * name, char * serverName, char * port) {
+    int windowStartingX = MAIN_WINDOW_COLUMN / 4, windowStartingY = MAIN_WINDOW_ROW / 4,
+            height = PLAY_GAME_MENU_REQUIRED + 4, width = MAIN_WINDOW_COLUMN / 2;
+
+    WINDOW * menuWindow;
+    // Create new window where main menu will be placed.
+    menuWindow = newwin(height, width, windowStartingY, windowStartingX);
+    // Draw border
+    wborder(menuWindow,
+            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
+            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
+            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
+            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER);
+
+    // Clear char
+    bzero(name, MAXIMUM_INPUT_STRING);
+    bzero(serverName, MAXIMUM_INPUT_STRING);
+    bzero(port, MAXIMUM_INPUT_STRING);
+    // Display Input name Window
+    for (int i = 0; i < PLAY_GAME_MENU_REQUIRED; i++) {
+        mvwprintw(menuWindow, i + 2, 3, SERVER_REQUIRED[i]);
+    }
+
+    wrefresh(menuWindow);
+    // Enable user to write on screen
+    echo();
+    // Show cursor
+    curs_set(1);
+    // Get name
+    wmove(menuWindow, 2, PLAY_GAME_MENU_LENGTH + 3);
+    wgetnstr(menuWindow, name, MAXIMUM_INPUT_STRING);
+    // Get Server name
+    wmove(menuWindow, 3, PLAY_GAME_MENU_LENGTH + 3);
+    wgetnstr(menuWindow, serverName, MAXIMUM_INPUT_STRING);
+    // Get port number
+    wmove(menuWindow, 4, PLAY_GAME_MENU_LENGTH + 3);
+    wgetnstr(menuWindow, port, MAXIMUM_INPUT_STRING);
+    // Disable cursor
+    curs_set(0);
+    // Disable user write on screen
+    noecho();
+    deleteWindow(menuWindow);
 }
 
 void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool isHost) {
@@ -96,9 +152,10 @@ WINDOW *generatePlayingWindow() {
     return window;
 }
 
-void clearWindow(WINDOW *window) {
+void deleteWindow(WINDOW *window) {
     wclear(window);
     wrefresh(window);
+    delwin(window);
 }
 
 WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width) {
@@ -115,7 +172,7 @@ void showWinnerScreen() {
     mvwprintw(tempWindow, 0, 0, "You Win!!");
     wrefresh(tempWindow);
     sleep(DEAD_WIN_SCREEN_DELAY_SEC);
-    clearWindow(tempWindow);
+    deleteWindow(tempWindow);
     delwin(tempWindow);
 }
 
@@ -124,7 +181,7 @@ void showDeadScreen() {
     mvwprintw(tempWindow, 0, 0, "You Died");
     wrefresh(tempWindow);
     sleep(DEAD_WIN_SCREEN_DELAY_SEC);
-    clearWindow(tempWindow);
+    deleteWindow(tempWindow);
     delwin(tempWindow);
 }
 

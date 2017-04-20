@@ -3,14 +3,6 @@
 #include "../template/ClientLayout.h"
 #include "QueueMenu.h"
 
-const char * const MENU_ITEMS[MAIN_MENU_ITEMS] = {
-        "1) Play",
-        "2) About",
-        "3) Exit"
-};
-
-const char * const CREDITS = "Created by Dylan Frendo";
-
 int main(int argc, char *argv[]) {
     initscr();
     // Check if terminal has colours
@@ -49,14 +41,15 @@ void mainMenu() {
 
         switch (charSelected) {
             case '1':
-                clearWindow(mainMenu);
-                queueConnectionManager(mainMenu);
+                deleteWindow(mainMenu);
+                serverConnection();
                 break;
             case '2':
-                delwin(mainMenu);
+                deleteWindow(mainMenu);
                 aboutMenu();
                 break;
             case '3':
+                deleteWindow(mainMenu);
                 delwin(mainMenu);
                 break;
             default:

@@ -10,29 +10,22 @@
 #include <strings.h>
 #include <string.h>
 
-const char * const SERVER_REQUIRED[PLAY_GAME_MENU_ITEMS] = {
-        "Player Name: ",
-        "Server Name: ",
-        "Port Number: "
-};
-
-void queueConnectionManager(WINDOW *window) {
-    // SockFd will be the unique identifier of the users.
+void serverConnection() {
     int sockFd;
     char playerName[MAXIMUM_INPUT_STRING];
 
     // Connection failed.
-    if (!connectToServer(window, &sockFd, playerName)) {
+    if (!connectToServer(&sockFd, playerName)) {
         return;
     }
 
     // Send Name To server
     writeNameToSocket(sockFd, playerName);
     // Continue updating the queue players until host starts game.
-    waitUntilHostStartsGame(window, &sockFd, playerName);
+    waitUntilHostStartsGame(&sockFd, playerName);
 }
 
-bool connectToServer(WINDOW *window, int * sockFd, char * playerName) {
+bool connectToServer(int * sockFd, char * playerName) {
     // User Inputs
     char serverName[MAXIMUM_INPUT_STRING],
             port[MAXIMUM_INPUT_STRING];
@@ -43,7 +36,7 @@ bool connectToServer(WINDOW *window, int * sockFd, char * playerName) {
 
     while (true) {
         // Asks for input and try to connect to the server.
-        getInput(playerName, serverName, port, window);
+        getInput(playerName, serverName, port);
         // Connect to server
         portNumber = atoi(port);
         // AF_INET address family that is used to designate the type
@@ -92,31 +85,6 @@ bool connectToServer(WINDOW *window, int * sockFd, char * playerName) {
     return false;
 }
 
-void getInput(char *name, char *serverName, char *port, WINDOW * window) {
-    bzero(name, MAXIMUM_INPUT_STRING);
-    bzero(serverName, MAXIMUM_INPUT_STRING);
-    bzero(port, MAXIMUM_INPUT_STRING);
-    // Display Input name Window
-    for (int i = 0; i < PLAY_GAME_MENU_ITEMS; i++) {
-        mvwprintw(window, i, 0, SERVER_REQUIRED[i]);
-    }
-
-    wrefresh(window);
-    // Enable user to write on screen
-    echo();
-    // Get name
-    wmove(window, 0, PLAY_GAME_MENU_LENGTH);
-    wgetstr(window, name);
-    name[MAXIMUM_INPUT_STRING - 1] = '\0';
-    // Get Server name
-    wmove(window, 1, PLAY_GAME_MENU_LENGTH);
-    wgetstr(window, serverName);
-    // Get port number
-    wmove(window, 2, PLAY_GAME_MENU_LENGTH);
-    wgetstr(window, port);
-    clearWindow(window);
-}
-
 bool printErrorAndOfferRetry(char *errorMessage) {
     WINDOW * window = createWindowAtTheCenterOfTheScreen(2, 20);
 
@@ -125,11 +93,11 @@ bool printErrorAndOfferRetry(char *errorMessage) {
     wrefresh(window);
     int retry = getch();
     if (retry == 'Y' || retry == 'y') {
-        clearWindow(window);
+        deleteWindow(window);
         delwin(window);
         return true;
     }
-    clearWindow(window);
+    deleteWindow(window);
     delwin(window);
     return false;
 }
@@ -184,7 +152,7 @@ Vector * readConnectionsFromSocket(int socketFileDescriptor) {
     return connections;
 }
 
-void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
+void waitUntilHostStartsGame(int *sockFd, char * playerId) {
     Vector * connections = NULL;
     bool isHost = false;
     // Set getCh delay.
@@ -195,8 +163,8 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
         int nextAction = readDelimiterQueue(sockFd);
 
         if (nextAction == 1) {
-            clearWindow(window);
-            delwin(window);
+//            deleteWindow(window);
+//            delwin(window);
             gameInit(connections, *sockFd);
             break;
         } else if (nextAction == 2) {
@@ -206,8 +174,8 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
             // Get connections the server has
             connections = readConnectionsFromSocket(*sockFd);
             isHost = checkIfHost(connections, playerId);
-            clearWindow(window);
-            generateWindowForWaitingInQueue(connections, window, isHost);
+//            deleteWindow(window);
+//            generateWindowForWaitingInQueue(connections, window, isHost);
         } else if (isHost) {
             noecho();
             int input = getch();
@@ -216,8 +184,8 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
                 writeStartGameToSocket(sockFd);
                 // Remove delay from char.
                 cbreak();
-                clearWindow(window);
-                delwin(window);
+//                deleteWindow(window);
+//                delwin(window);
                 gameInit(connections, *sockFd);
                 break;
             }
