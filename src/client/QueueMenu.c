@@ -198,6 +198,7 @@ void waitUntilHostStartsGame(WINDOW *window, int *sockFd, char * playerId) {
             clearWindow(window);
             delwin(window);
             gameInit(connections, *sockFd);
+            break;
         } else if (nextAction == 2) {
             if (connections != NULL) {
                 clearConnectionVector(connections);

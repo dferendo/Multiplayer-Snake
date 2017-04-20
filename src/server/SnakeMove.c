@@ -134,8 +134,8 @@ bool checkIfNextPositionIsCollision(Snake *snake, Vector *connections) {
     nextPositionOfSelectedSnake = moveHeadSnake(snake->direction, snake->positions->position);
 
     // The only border is the outside border.
-    if (nextPositionOfSelectedSnake->x < 0 || nextPositionOfSelectedSnake->x >= MAIN_WINDOW_COLUMN ||
-        nextPositionOfSelectedSnake->y < 0 ||nextPositionOfSelectedSnake->y >= MAIN_WINDOW_ROW) {
+    if (nextPositionOfSelectedSnake->x < 0 || nextPositionOfSelectedSnake->x >= MAIN_WINDOW_COLUMN - 1 ||
+        nextPositionOfSelectedSnake->y < 0 ||nextPositionOfSelectedSnake->y >= MAIN_WINDOW_ROW - 1) {
         free(nextPositionOfSelectedSnake);
         return true;
     }

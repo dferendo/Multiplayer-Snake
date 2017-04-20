@@ -54,9 +54,13 @@ void gameRunning(Vector *connections, Vector * foods, int sockFd) {
         } else if (nextCompute == 3) {
             clearWindow(window);
             showWinnerScreen();
+            // Stop loop
+            break;
         } else if (nextCompute == 4) {
             clearWindow(window);
             showDeadScreen();
+            // Stop loop
+            break;
         }
     }
 }

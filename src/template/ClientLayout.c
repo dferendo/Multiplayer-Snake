@@ -29,7 +29,7 @@ void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool
 WINDOW *generatePlayingWindow() {
     WINDOW * window;
     // Creating playing window without borders.
-    window = newwin(MAIN_WINDOW_ROW - 2, MAIN_WINDOW_COLUMN - 2, 1, 1);
+    window = newwin(MAIN_WINDOW_ROW - 1, MAIN_WINDOW_COLUMN - 1, 1, 1);
     return window;
 }
 
