@@ -7,6 +7,7 @@
 
 #include <ncurses.h>
 #include "Vector.h"
+#include "../server/Server.h"
 #include <fcntl.h>
 
 bool checkIfHost(Vector * connections, char * playerID);
@@ -17,5 +18,9 @@ bool checkIfHost(Vector * connections, char * playerID);
  * for the help.
  */
 bool setSocketBlockingEnabled(int sockFd, bool blocking);
+
+void freeConnection(Connection * connection);
+
+void freeConnectionNoSnake(Connection * connection);
 
 #endif //SNAKES_GENERAL_H

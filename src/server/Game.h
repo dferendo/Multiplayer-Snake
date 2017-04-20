@@ -36,6 +36,4 @@ void * checkForChangeOfDirections(void * args);
 
 void sendEndGameToClients(int sockFd, SnakeStatus status);
 
-void freeConnection(Connection * connection);
-
 #endif //SNAKES_GAME_H

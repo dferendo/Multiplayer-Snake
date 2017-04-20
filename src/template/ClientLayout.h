@@ -46,7 +46,7 @@ void getInput(char * name, char * serverName, char * port);
 
 bool printErrorAndOfferRetry(char *errorMessage);
 
-void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool isHost);
+WINDOW * generateWindowForWaitingInQueue(Vector * connections, bool isHost);
 
 WINDOW * generatePlayingWindow();
 

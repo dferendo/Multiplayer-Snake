@@ -1,10 +1,9 @@
 //
 // Created by dylan on 15/04/2017.
 //
-#include <string.h>
 #include "General.h"
-#include "../template/GameSettings.h"
-#include "../server/Server.h"
+#include <string.h>
+#include <unistd.h>
 
 bool checkIfHost(Vector *connections, char *playerID) {
 
@@ -31,4 +30,22 @@ bool setSocketBlockingEnabled(int sockFd, bool blocking) {
     }
     flags = blocking ? (flags&~O_NONBLOCK) : (flags|O_NONBLOCK);
     return (fcntl(sockFd, F_SETFL, flags) == 0) ? true : false;
+}
+
+void freeConnection(Connection *connection) {
+    // Delete linked list with all the positions
+    deleteLinkedListPosition(connection->clientInfo->snake->positions);
+    // Free Snake
+    free(connection->clientInfo->snake);
+    // Free Client
+    free(connection->clientInfo);
+    // Close socket
+    close(connection->sockFd);
+}
+
+void freeConnectionNoSnake(Connection * connection) {
+    // Free Client
+    free(connection->clientInfo);
+    // Close socket
+    close(connection->sockFd);
 }

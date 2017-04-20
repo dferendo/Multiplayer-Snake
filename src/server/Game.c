@@ -198,14 +198,3 @@ void sendEndGameToClients(int sockFd, SnakeStatus status) {
         close(sockFd);
     }
 }
-
-void freeConnection(Connection *connection) {
-    // Delete linked list with all the positions
-    deleteLinkedListPosition(connection->clientInfo->snake->positions);
-    // Free Snake
-    free(connection->clientInfo->snake);
-    // Free Client
-    free(connection->clientInfo);
-    // Close socket
-    close(connection->sockFd);
-}

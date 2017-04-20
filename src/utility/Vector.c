@@ -48,10 +48,6 @@ int addItemToVector(Vector *vector, void *item) {
 }
 
 void deleteVector(Vector * vector) {
-    // Free the array of pointers to food.
-    for (int i = 0; i < vector->size; i++) {
-        free(vector->data[i]);
-    }
     // Free the array.
     free(vector->data);
     // Free the struct.

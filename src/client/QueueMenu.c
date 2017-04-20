@@ -53,12 +53,12 @@ bool connectToServer(int * sockFd, char * playerName) {
         *sockFd = socket(AF_INET, SOCK_STREAM, 0);
 
         if (*sockFd == -1) {
-            perror("Error encountered when opening the socket.");
+            perror("Error encountered when opening the socket");
             exit(1);
         }
         // Get the server name
         server = gethostbyname(serverName);
-        if (!server) {
+        if (server == NULL) {
             // Check if user wants to re-try.
             if (printErrorAndOfferRetry(ERROR_NO_HOST)) {
                 continue;
@@ -94,37 +94,37 @@ bool connectToServer(int * sockFd, char * playerName) {
 void waitUntilHostStartsGame(int *sockFd, char * playerId) {
     Vector * connections = NULL;
     bool isHost = false;
+    WINDOW * window = generateWindowForWaitingInQueue(connections, isHost);
     // Set getCh delay.
     halfdelay(WAIT_INPUT_TIME_FOR_HOST_TO_START_GAME);
 
     while (true) {
-
+        // Read next action
         int nextAction = readDelimiterQueue(sockFd);
 
         if (nextAction == 1) {
-//            deleteWindow(window);
-//            delwin(window);
+            deleteWindow(window);
             gameInit(connections, *sockFd);
             break;
         } else if (nextAction == 2) {
             if (connections != NULL) {
+                // Clear previous connections are taken the new connections
                 clearConnectionVector(connections);
             }
             // Get connections the server has
             connections = readConnectionsFromSocket(*sockFd);
             isHost = checkIfHost(connections, playerId);
-//            deleteWindow(window);
-//            generateWindowForWaitingInQueue(connections, window, isHost);
+            // Delete window
+            deleteWindow(window);
+            window = generateWindowForWaitingInQueue(connections, isHost);
         } else if (isHost) {
-            noecho();
             int input = getch();
             // Start Game
             if (input == 'S') {
                 writeStartGameToSocket(sockFd);
                 // Remove delay from char.
                 cbreak();
-//                deleteWindow(window);
-//                delwin(window);
+                deleteWindow(window);
                 gameInit(connections, *sockFd);
                 break;
             }
@@ -136,11 +136,9 @@ void waitUntilHostStartsGame(int *sockFd, char * playerId) {
 
 void clearConnectionVector(Vector * oldVector) {
 
-    // ClientInfo will not be de-allocated by deleteVector().
+    // Currently, user has no information on Snake.
     for (int i = 0; i < oldVector->size; i++) {
-        Connection * temp = (Connection *) oldVector->data[i];
-        // Clear the Client.
-        free(temp->clientInfo);
+        freeConnectionNoSnake((Connection *) oldVector->data[i]);
     }
     deleteVector(oldVector);
 }

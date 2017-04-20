@@ -75,6 +75,7 @@ int readDelimiterQueue(int *sockFd) {
     setSocketBlockingEnabled(*sockFd, true);
 
     if (response < 0) {
+        // TODO check
         return -1;
     }
 

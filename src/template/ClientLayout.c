@@ -101,17 +101,26 @@ bool printErrorAndOfferRetry(char *errorMessage) {
     int retry = getch();
     if (retry == 'Y' || retry == 'y') {
         deleteWindow(window);
-        delwin(window);
         return true;
     }
     deleteWindow(window);
-    delwin(window);
     return false;
 }
 
-void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool isHost) {
+WINDOW * generateWindowForWaitingInQueue(Vector * connections, bool isHost) {
+    WINDOW * window;
 
-    mvwprintw(window, 0, 0, "Players waiting: ");
+    if (connections == NULL) {
+        window = createWindowAtTheCenterOfTheScreen(1);
+        mvwprintw(window, 2, 3, "Generating Queue.....");
+        wrefresh(window);
+        return window;
+    }
+    // + 3 since hosts get special command and players waiting.
+    window = createWindowAtTheCenterOfTheScreen((int) connections->size + 3);
+
+    mvwprintw(window, 2, 3, "Players waiting: ");
+
     for (int i = 0; i < connections->size; i++) {
         char str[MAXIMUM_INPUT_STRING + 10];
         Connection * nextConnection = (Connection *) connections->data[i];
@@ -121,12 +130,13 @@ void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool
         } else {
             sprintf(str, "%d) %s", i + 1, nextConnection->clientInfo->name);
         }
-        mvwprintw(window, i + 1, 0, str);
+        mvwprintw(window, i + 3, 3, str);
     }
     if (isHost) {
-        mvwprintw(window, (int) (connections->size + 2), 0, HOST_GAME_START);
+        mvwprintw(window, (int) (connections->size + 4), 3, HOST_GAME_START);
     }
     wrefresh(window);
+    return window;
 }
 
 WINDOW *generatePlayingWindow() {
