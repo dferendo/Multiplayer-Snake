@@ -7,7 +7,7 @@
 
 #include "../utility/Vector.h"
 #include "Snake.h"
-#include "../template/GameSettings.h"
+#include "../settings/GameSettings.h"
 #include <stdbool.h>
 #include <netinet/in.h>
 

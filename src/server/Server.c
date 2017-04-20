@@ -75,11 +75,11 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
         CreateConnectThreadArguments * args = (CreateConnectThreadArguments *)
                 malloc(sizeof(CreateConnectThreadArguments));
 
-        // Failed connection, ignore client
+        // Failed malloc, ignore client
         if (args == NULL) {
             perror("Error on malloc arguments");
             close(newSockFd);
-            continue;
+            exit(1);
         }
 
         args->sockFd = newSockFd;
@@ -95,6 +95,7 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
             perror("Could not create a worker thread.");
             free(args);
             close(newSockFd);
+            exit(1);
         }
     }
 }

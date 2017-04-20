@@ -1,6 +1,6 @@
 
 #include "Client.h"
-#include "../template/ClientLayout.h"
+#include "template/ClientLayout.h"
 #include "QueueMenu.h"
 
 int main(int argc, char *argv[]) {

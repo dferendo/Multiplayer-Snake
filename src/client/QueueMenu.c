@@ -2,10 +2,10 @@
 // Created by dylan on 14/04/2017.
 //
 #include "QueueMenu.h"
-#include "../template/ClientLayout.h"
+#include "template/ClientLayout.h"
 #include "../utility/General.h"
 #include "SnakesGame.h"
-#include "QueueAPI.h"
+#include "API/QueueAPI.h"
 #include <unistd.h>
 #include <strings.h>
 

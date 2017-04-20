@@ -6,8 +6,8 @@
 #define SNAKES_CLIENTLAYOUT_H
 
 #include <ncurses.h>
-#include "../utility/Vector.h"
-#include "../server/Food.h"
+#include "../../utility/Vector.h"
+#include "../../server/Food.h"
 
 // Put 0 for clean border
 #define MAIN_MENU_BORDER_CHARACTER '+'

@@ -3,7 +3,7 @@
 //
 #include "SnakesGame.h"
 #include "../server/Server.h"
-#include "../template/ClientLayout.h"
+#include "template/ClientLayout.h"
 #include "../utility/Serialize.h"
 #include "../utility/General.h"
 #include "../server/Food.h"

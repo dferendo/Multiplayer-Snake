@@ -12,12 +12,4 @@ void * initNewConnection(void *arg);
 
 Connection * createConnection(short isHost, char * name, int socketFileDescriptor);
 
-void readNameFromSocket(int socketFileDescriptor, char * name);
-
-void writeConnectionsToSockets(Vector *connections);
-
-void readStartGameFromHost(int socketFileDescriptor);
-
-void writeStartingGameToConnectionsExceptHost(Vector * connections);
-
 #endif //SNAKES_QUEUETOPLAY_H

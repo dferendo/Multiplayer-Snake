@@ -1,7 +1,7 @@
 #include <strings.h>
 #include "ClientLayout.h"
-#include "GameSettings.h"
-#include "../server/Server.h"
+#include "../../settings/GameSettings.h"
+#include "../../server/Server.h"
 #include "unistd.h"
 
 const char * const MENU_ITEMS[MAIN_MENU_ITEMS] = {

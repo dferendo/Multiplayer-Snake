@@ -6,9 +6,9 @@
 #include <unistd.h>
 #include <memory.h>
 #include <errno.h>
-#include "../template/GameSettings.h"
-#include "../utility/Serialize.h"
-#include "../utility/General.h"
+#include "../../settings/GameSettings.h"
+#include "../../utility/Serialize.h"
+#include "../../utility/General.h"
 
 
 void writeNameToSocket(int socketFileDescriptor, char * name) {
