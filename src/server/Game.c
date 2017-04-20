@@ -5,9 +5,9 @@
 #include "Server.h"
 #include "Game.h"
 #include "SnakeMove.h"
-#include "Food.h"
 #include "../utility/Serialize.h"
 #include "../utility/General.h"
+#include "Food.h"
 #include <unistd.h>
 #include <strings.h>
 #include <memory.h>
@@ -43,7 +43,9 @@ void gameLoop() {
         // Lock so that food is not generated when finding the new location.
         pthread_mutex_lock(&lock);
         // Create thread workers.
-        createSnakeWorkers();
+        if (createSnakeWorkers()) {
+            break;
+        }
         // Send new information.
         sendSnakeInformationToClients();
         pthread_mutex_unlock(&lock);
@@ -82,9 +84,11 @@ void sendSnakeInformationToClients() {
     }
 }
 
-void createSnakeWorkers() {
+bool createSnakeWorkers() {
     Snake * snake;
+    bool thereAreWinners = false;
     pthread_t  snakesTIds[connections->size];
+    Connection * connection;
     // Create a thread for every Snake.
     SnakeWorkerParams snakeWorkerParams[connections->size];
     SnakeWorkerReturn snakeWorkerReturn[connections->size];
@@ -99,7 +103,7 @@ void createSnakeWorkers() {
         // Every thread can modify the snake since they are different.
         if (pthread_create(&snakesTIds[i], NULL, snakeAction, snakeWorkerParams + i) != 0) {
             perror("Could not create a snake thread.");
-            return;
+            return true;
         }
     }
     // Wait for threads
@@ -108,11 +112,38 @@ void createSnakeWorkers() {
         void * threadReturn;
         pthread_join(snakesTIds[i], &threadReturn);
         snakeWorkerReturn[i].status = ((SnakeWorkerReturn *) threadReturn)->status;
+        // Check for winners.
+        if (snakeWorkerReturn[i].status == WINNER) {
+            thereAreWinners = true;
+        }
     }
-
+    // If there is a winner tell non-winners they lost.
+    // Multiple winners are possible.
+    if (thereAreWinners) {
+        for (int i = 0; i < connections->size; i++) {
+            connection = (Connection *)connections->data[i];
+            if (snakeWorkerReturn[i].status == WINNER) {
+                sendEndGameToClients(connection->sockFd, WINNER);
+            } else {
+                sendEndGameToClients(connection->sockFd, DIED);
+            }
+        }
+    }
+    // Check if snakes died.
+    for (int i = 0; i < connections->size; i++) {
+        connection = (Connection *)connections->data[i];
+        if (snakeWorkerReturn[i].status == DIED) {
+            sendEndGameToClients(connection->sockFd, DIED);
+            // Clear snake.
+            freeConnection(connection);
+            deleteItemFromVector(connections, connection);
+        }
+    }
+    // If no connections, stop game.
+    return thereAreWinners || (connections->size == 0);
 }
 
-void *checkForChangeOfDirections(void *args) {
+void *checkForChangeOfDirections(void * args) {
     Connection * connection;
     int response;
     unsigned char buffer[DELIMITERS_SIZE], directionBuffer[INTEGER_BYTES];
@@ -146,4 +177,33 @@ void *checkForChangeOfDirections(void *args) {
             pthread_mutex_unlock(&lock);
         }
     }
+}
+
+void sendEndGameToClients(int sockFd, SnakeStatus status) {
+    int response;
+    unsigned char buffer[DELIMITERS_SIZE];
+    bzero(buffer, DELIMITERS_SIZE);
+
+    if (status == WINNER) {
+        serializeCharArray(buffer, WINNER_DELIMITER, DELIMITERS_SIZE);
+    } else {
+        serializeCharArray(buffer, LOSS_DELIMITER, DELIMITERS_SIZE);
+    }
+    response = (int) write(sockFd, buffer, DELIMITERS_SIZE);
+
+    if (response < 0) {
+        perror("Error writing to socket");
+        close(sockFd);
+    }
+}
+
+void freeConnection(Connection *connection) {
+    // Delete linked list with all the positions
+    deleteLinkedListPosition(connection->clientInfo->snake->positions);
+    // Free Snake
+    free(connection->clientInfo->snake);
+    // Free Client
+    free(connection->clientInfo);
+    // Close socket
+    close(connection->sockFd);
 }

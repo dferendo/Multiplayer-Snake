@@ -16,7 +16,6 @@ set(CLIENT_FILES
         src/template/ClientLayout.h
         src/client/Client.h
         src/client/QueueMenu.h
-        src/template/WindowProperties.h
         src/client/SnakesGame.h
         src/client/SnakesGame.c
         src/template/GameSettings.h
@@ -39,10 +38,14 @@ set(SERVER_FILES
         src/utility/RandomUtility.h
         src/utility/LinkedList.c
         src/utility/LinkedList.h
+        src/utility/General.c
+        src/utility/General.h
         src/server/Game.h
         src/server/Game.c
         src/server/Food.h
-        src/server/Food.c)
+        src/server/Food.c
+        src/server/SnakeMove.h
+        src/server/SnakeMove.c)
 
 add_executable(Client ${CLIENT_FILES})
 add_executable(Server ${SERVER_FILES})
