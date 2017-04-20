@@ -187,7 +187,7 @@ void sendEndGameToClients(int sockFd, SnakeStatus status) {
     if (status == WINNER) {
         serializeCharArray(buffer, WINNER_DELIMITER, DELIMITERS_SIZE);
     } else {
-        serializeCharArray(buffer, LOSS_DELIMITER, DELIMITERS_SIZE);
+        serializeCharArray(buffer, LOSE_DELIMITER, DELIMITERS_SIZE);
     }
     response = (int) write(sockFd, buffer, DELIMITERS_SIZE);
 

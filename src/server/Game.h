@@ -6,6 +6,7 @@
 #define SNAKES_GAME_H
 
 #include "../utility/Vector.h"
+#include "../server/Server.h"
 
 typedef struct SnakeWorkerParams {
     Vector * connections;

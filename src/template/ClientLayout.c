@@ -2,9 +2,9 @@
 // Created by dylan on 15/04/2017.
 //
 #include "ClientLayout.h"
-#include "../utility/General.h"
 #include "GameSettings.h"
 #include "../server/Server.h"
+#include "unistd.h"
 
 void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool isHost) {
 
@@ -45,4 +45,22 @@ WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width) {
     // Create new window where main menu will be placed.
     tempWindow = newwin(height, width, startingY, startingX);
     return tempWindow;
+}
+
+void showWinnerScreen() {
+    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1, 10);
+    mvwprintw(tempWindow, 0, 0, "You Win!!");
+    wrefresh(tempWindow);
+    sleep(DEAD_WIN_SCREEN_DELAY_SEC);
+    clearWindow(tempWindow);
+    delwin(tempWindow);
+}
+
+void showDeadScreen() {
+    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1, 10);
+    mvwprintw(tempWindow, 0, 0, "You Died");
+    wrefresh(tempWindow);
+    sleep(DEAD_WIN_SCREEN_DELAY_SEC);
+    clearWindow(tempWindow);
+    delwin(tempWindow);
 }

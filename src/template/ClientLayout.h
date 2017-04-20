@@ -41,4 +41,8 @@ void clearWindow(WINDOW *window);
 
 WINDOW * createWindowAtTheCenterOfTheScreen(int height, int width);
 
+void showWinnerScreen();
+
+void showDeadScreen();
+
 #endif //SNAKES_CLIENTLAYOUT_H

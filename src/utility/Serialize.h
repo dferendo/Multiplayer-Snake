@@ -19,7 +19,7 @@
 #define VECTOR_OF_FOOD_DELIMITER "/F"
 #define CHANGE_DIRECTION_DELIMITER "/A"
 #define WINNER_DELIMITER "/W"
-#define LOSS_DELIMITER "/L"
+#define LOSE_DELIMITER "/L"
 
 // General serialize.
 
