@@ -1,8 +1,6 @@
 
 #include "Client.h"
-#include <stdio.h>
 #include "../template/ClientLayout.h"
-#include "../template/GameSettings.h"
 #include "QueueMenu.h"
 
 const char * const MENU_ITEMS[MAIN_MENU_ITEMS] = {
@@ -15,7 +13,17 @@ const char * const CREDITS = "Created by Dylan Frendo";
 
 int main(int argc, char *argv[]) {
     initscr();
-    // Allows more control for the input.
+    // Check if terminal has colours
+    if (has_colors() == FALSE) {
+        endwin();
+        printf("Terminal does not support colors!!\n");
+        exit(1);
+    }
+    // Start the colours
+    start_color();
+    // Set cursor to invisible
+    curs_set(0);
+    // Allows more control for the input
     cbreak();
     // Do not display inserted keys to the screen.
     noecho();
@@ -27,20 +35,6 @@ int main(int argc, char *argv[]) {
     // Stop display.
     endwin();
     return 0;
-}
-
-void createOutsideBorder() {
-    // Characters will be added to the main window.
-    // Draw top and bottom borders.
-    for(int x = 0; x < MAIN_WINDOW_COLUMN; x++) {
-        mvaddch(0, x, MAIN_MENU_BORDER_CHARACTER);
-        mvaddch(MAIN_WINDOW_ROW, x, MAIN_MENU_BORDER_CHARACTER);
-    }
-    // Draw left and right borders.
-    for(int y = 0; y <= MAIN_WINDOW_ROW; y++) {
-        mvaddch(y, 0, MAIN_MENU_BORDER_CHARACTER);
-        mvaddch(y, MAIN_WINDOW_COLUMN, MAIN_MENU_BORDER_CHARACTER);
-    }
 }
 
 void mainMenu() {
@@ -60,6 +54,7 @@ void mainMenu() {
                 break;
             case '2':
                 delwin(mainMenu);
+                aboutMenu();
                 break;
             case '3':
                 delwin(mainMenu);
@@ -75,32 +70,4 @@ void mainMenu() {
             wrefresh(mainMenu);
         }
     }
-}
-
-WINDOW * createMainMenuWindow() {
-    int windowStartingX = MAIN_WINDOW_COLUMN / 4, windowStartingY = MAIN_WINDOW_ROW / 4, height = MAIN_WINDOW_ROW / 2, width = MAIN_WINDOW_COLUMN / 2;
-
-    WINDOW * menuWindow;
-    // Create new window where main menu will be placed.
-    menuWindow = newwin(height, width, windowStartingY, windowStartingX);
-
-    // Draw top and bottom borders and the divisor line.
-    for(int x = 0; x < width; x++) {
-        mvwaddch(menuWindow, 0, x, MAIN_MENU_BORDER_CHARACTER);
-        mvwaddch(menuWindow, height - 1, x, MAIN_MENU_BORDER_CHARACTER);
-        // Add the divisor line
-        mvwaddch(menuWindow, height - 3, x, MAIN_MENU_DIVIDER);
-    }
-    // Draw left and right borders.
-    for(int y = 0; y <= height; y++) {
-        mvwaddch(menuWindow, y, 0, MAIN_MENU_BORDER_CHARACTER);
-        mvwaddch(menuWindow, y, width - 1, MAIN_MENU_BORDER_CHARACTER);
-    }
-    // Print menu items.
-    for (int i = 0; i < MAIN_MENU_ITEMS; i++) {
-        mvwprintw(menuWindow, 1 + i, 2, MENU_ITEMS[i]);
-    }
-    // Add Credits
-    mvwprintw(menuWindow, height - 2, 2, CREDITS);
-    return menuWindow;
 }

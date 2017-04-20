@@ -9,6 +9,7 @@
 #include "../utility/Vector.h"
 #include "../server/Food.h"
 
+// Put 0 for clean border
 #define MAIN_MENU_BORDER_CHARACTER '+'
 #define MAIN_MENU_DIVIDER '-'
 #define MAIN_MENU_ITEMS 3
@@ -18,7 +19,7 @@
 #define ERROR_NO_HOST "Error, no such host!"
 #define ERROR_CONNECTION_FAILED "Error, connection failed!"
 
-// wait 2 seconds when using half delay since it waits n tenths
+// Wait 2 seconds when using half delay since it waits n tenths
 // of a second.
 #define WAIT_INPUT_TIME_FOR_HOST_TO_START_GAME 20
 
@@ -34,6 +35,12 @@ extern const char * const CREDITS;
 
 extern const char * const SERVER_REQUIRED[PLAY_GAME_MENU_ITEMS];
 
+void createOutsideBorder();
+
+WINDOW * createMainMenuWindow();
+
+void aboutMenu();
+
 void generateWindowForWaitingInQueue(Vector * connections, WINDOW * window, bool isHost);
 
 WINDOW * generatePlayingWindow();
@@ -46,6 +53,6 @@ void showWinnerScreen();
 
 void showDeadScreen();
 
-char * foodType(Food * type);
+const chtype foodType(Food * type);
 
 #endif //SNAKES_CLIENTLAYOUT_H

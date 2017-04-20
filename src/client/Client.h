@@ -7,10 +7,8 @@
 
 #include <ncurses.h>
 
-void createOutsideBorder();
+int main(int argc, char *argv[]);
 
 void mainMenu();
-
-WINDOW * createMainMenuWindow();
 
 #endif //SNAKES_CLIENT_H
