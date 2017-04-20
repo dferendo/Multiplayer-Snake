@@ -7,7 +7,7 @@
 
 #include "../server/Snake.h"
 
-Position * createInitialSnakeRandomPosition(Vector *positionsTaken);
+Position * createInitialSnakeRandomPosition(Vector * connections, Vector * foods);
 
 Position * createFoodPosition(Vector * positionsOfSnakes, Vector * foodLocations);
 

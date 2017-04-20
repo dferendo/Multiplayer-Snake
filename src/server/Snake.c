@@ -3,18 +3,29 @@
 //
 #include "Snake.h"
 #include "../utility/RandomUtility.h"
-#include "../template/GameSettings.h"
+#include "../settings/GameSettings.h"
 
-Snake *createSnake(Vector *initialPositions) {
-    Position * position = createInitialSnakeRandomPosition(initialPositions);
+Snake *createSnake(Vector * connections, Vector * foods) {
+    Snake * snake;
+    Position * position = createInitialSnakeRandomPosition(connections, foods);
+
+    if (position == NULL) {
+        return NULL;
+    }
+
     LinkedListPosition * linkedListPosition = initLinkedListPosition(position);
 
-    Snake * snake = (Snake *) malloc(sizeof(Snake));
+    if (linkedListPosition == NULL) {
+        return NULL;
+    }
+
+    snake = (Snake *) malloc(sizeof(Snake));
 
     if (snake == NULL) {
         perror("Failed to allocate memory to Snake");
         return NULL;
     }
+    // TODO: do 3 sizes.
     snake->size = DEFAULT_START_SIZE;
     snake->positions = linkedListPosition;
     snake->direction = DEFAULT_START_DIRECTION;

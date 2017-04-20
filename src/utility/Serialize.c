@@ -1,5 +1,6 @@
 #include "Serialize.h"
 #include "../server/Food.h"
+#include "../server/Snake.h"
 #include <strings.h>
 //
 // Created by dylan on 15/04/2017.
@@ -143,17 +144,17 @@ unsigned char * serializedPosition(unsigned char *buffer, Position *position) {
     return buffer;
 }
 
-unsigned char * serializedSnakeFromConnections(unsigned char *buffer, Vector *connections) {
+unsigned char * serializedSnakesFromConnections(unsigned char *buffer, Vector *connections) {
     Connection * connection;
     // Add delimiter
     buffer = serializeCharArray(buffer, SNAKE_DETAILS_DELIMITER, DELIMITERS_SIZE);
 
+    // After the delimiter there will be the size of the first snake. This will help calculate
+    // the next position of the size of the next snake.
     for (int i = 0; i < connections->size; i++) {
         connection = (Connection *) connections->data[i];
-        // Send the owner of the snake before.
-        buffer = serializeCharArray(buffer, connection->clientInfo->name, MAXIMUM_INPUT_STRING);
-        buffer = serializeInt(buffer, connection->clientInfo->snake->size);
-        buffer = serializedSnake(buffer, connection->clientInfo->snake);
+        buffer = serializeInt(buffer, connection->snake->size);
+        buffer = serializedSnake(buffer, connection->snake);
     }
     return buffer;
 }

@@ -21,13 +21,13 @@ typedef struct Position {
     int y;
 } Position;
 
-typedef struct {
+typedef struct Snake {
     Direction direction;
     int size;
     LinkedListPosition * positions;
 } Snake;
 
-Snake * createSnake(Vector * initialPositions);
+Snake * createSnake(Vector * connections, Vector * foods);
 
 bool checkIfPositionsAreEqual(Position * position1, Position * position2);
 

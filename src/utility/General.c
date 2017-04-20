@@ -2,6 +2,7 @@
 // Created by dylan on 15/04/2017.
 //
 #include "General.h"
+#include "LinkedList.h"
 #include <string.h>
 #include <unistd.h>
 
@@ -34,18 +35,9 @@ bool setSocketBlockingEnabled(int sockFd, bool blocking) {
 
 void freeConnection(Connection *connection) {
     // Delete linked list with all the positions
-    deleteLinkedListPosition(connection->clientInfo->snake->positions);
+    deleteLinkedListPosition(connection->snake->positions);
     // Free Snake
-    free(connection->clientInfo->snake);
-    // Free Client
-    free(connection->clientInfo);
-    // Close socket
-    close(connection->sockFd);
-}
-
-void freeConnectionNoSnake(Connection * connection) {
-    // Free Client
-    free(connection->clientInfo);
+    free(connection->snake);
     // Close socket
     close(connection->sockFd);
 }

@@ -7,6 +7,7 @@
 
 #include "../utility/Vector.h"
 #include "../server/Server.h"
+#include "Snake.h"
 
 typedef struct SnakeWorkerParams {
     Vector * connections;

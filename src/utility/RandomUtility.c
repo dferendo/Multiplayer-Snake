@@ -3,28 +3,39 @@
 //
 
 #include "RandomUtility.h"
-#include "../template/GameSettings.h"
+#include "../settings/GameSettings.h"
 #include "../server/Food.h"
 #include "../server/Server.h"
 #include "../server/Snake.h"
 
-Position * createInitialSnakeRandomPosition(Vector *positionsTaken) {
+Position * createInitialSnakeRandomPosition(Vector * connections, Vector * foods) {
     int x, y;
+    bool exists;
+    Connection * connection;
+    Food * food;
+    Position * position;
 
     while (true) {
         // There is a border hence the -1.
         x = rand() % (MAIN_WINDOW_COLUMN - 1);
         y = rand() % (MAIN_WINDOW_ROW - 1);
+        exists = false;
 
-        // Check if position is taken.
-        for (int i = 0; i < positionsTaken->size; i++) {
-            Position * temp = (Position *) positionsTaken->data[i];
-            if (temp->x == x && temp->y == y) {
-                continue;
+        // Check if position is taken by other snakes.
+        for (int i = 0; i < connections->size; i++) {
+            connection = (Connection *) connections->data[i];
+            positionExistsLinkedList(connection->snake->positions, x, y, &exists);
+            // Position is already taken by another snake.
+            if (exists) {
+                break;
             }
         }
+        // Position is already taken by another snake thus re-generate number
+        if (exists) {
+            continue;
+        }
 
-        Position * position = (Position *) malloc(sizeof(Position));
+        position = (Position *) malloc(sizeof(Position));
 
         if (position == NULL) {
             perror("Failed to allocate memory to Position of Food.");
@@ -32,8 +43,21 @@ Position * createInitialSnakeRandomPosition(Vector *positionsTaken) {
         }
         position->x = x;
         position->y = y;
-        // Add new position to vector.
-        addItemToVector(positionsTaken, position);
+
+        // Check if position is taken by a food.
+        for (int i = 0; i < foods->size; i++) {
+            food = (Food *) foods->data[i];
+            if (checkIfPositionsAreEqual(food->position, position)) {
+                exists = true;
+                break;
+            }
+        }
+        // Position is taken by a food, re-generate
+        if (exists) {
+            free(position);
+            continue;
+        }
+
         return position;
     }
 }

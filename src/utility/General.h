@@ -21,6 +21,4 @@ bool setSocketBlockingEnabled(int sockFd, bool blocking);
 
 void freeConnection(Connection * connection);
 
-void freeConnectionNoSnake(Connection * connection);
-
 #endif //SNAKES_GENERAL_H
