@@ -30,6 +30,7 @@ void serverInit(uint16_t portNumber) {
     connections = initVector();
     initialPositions = initVector();
     foods = initVector();
+
     pthread_mutex_init(&lock, NULL);
     // Create socket
     sockFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -80,6 +81,7 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
             close(newSockFd);
             continue;
         }
+
         args->sockFd = newSockFd;
 
         if (!hostEstablish) {

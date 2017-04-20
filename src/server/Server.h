@@ -11,7 +11,6 @@
 #include <stdbool.h>
 #include <netinet/in.h>
 
-
 typedef struct ClientInfo {
     char name[MAXIMUM_INPUT_STRING];
     short isHost;
@@ -36,6 +35,8 @@ extern Vector * foods;
 extern pthread_mutex_t lock;
 // Contains the initial positions of all snakes.
 extern Vector * initialPositions;
+
+int main(int argc, char *argv[]);
 
 void serverInit(uint16_t portNumber);
 

@@ -5,6 +5,7 @@
 #include <strings.h>
 #include <unistd.h>
 #include <memory.h>
+#include <errno.h>
 #include "../template/GameSettings.h"
 #include "../utility/Serialize.h"
 #include "../utility/General.h"
@@ -75,8 +76,12 @@ int readDelimiterQueue(int *sockFd) {
     setSocketBlockingEnabled(*sockFd, true);
 
     if (response < 0) {
-        // TODO check
-        return -1;
+        // Since not blocking ignore this error
+        if (errno == EAGAIN) {
+            return 0;
+        }
+        perror("Error reading to socket");
+        exit(1);
     }
 
     if (strncmp((const char *) buffer, HOST_STARTS_GAME_DELIMITER, DELIMITERS_SIZE) == 0) {
@@ -117,7 +122,6 @@ Vector * readConnectionsFromSocket(int socketFileDescriptor) {
         close(socketFileDescriptor);
         exit(1);
     }
-    // TODO: more efficient pls.
     // De-serialize the connections and put them in a vector
     deserializeVectorOfConnections(buffer, connections, amountOfConnections);
     return connections;
