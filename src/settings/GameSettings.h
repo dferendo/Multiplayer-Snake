@@ -16,7 +16,7 @@
 
 #define FOOD_TO_WIN 15
 
-#define GAME_UPDATE_RATE_US 200000
+#define GAME_UPDATE_RATE_US 500000
 
 // All consoles will have the same size of the map
 #define MAIN_WINDOW_ROW 24
@@ -25,6 +25,8 @@
 #define MAXIMUM_INPUT_STRING 20
 
 #define DEAD_WIN_SCREEN_DELAY_SEC 3
+
+#define PROMPTY_SCREEN_DELAY 3
 
 #define HALF_DELAY_GET_CHAR 5
 #endif //SNAKES_GAMESETTINGS_H

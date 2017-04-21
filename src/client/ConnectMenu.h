@@ -13,8 +13,8 @@
 #include <ncurses.h>
 #include "../server/Server.h"
 
-void serverConnection();
+void serverConnection(int portNumber, char * hostName);
 
-bool connectToServer(int * sockFd);
+bool connectToServer(int * sockFd, int portNumber, char * hostName);
 
 #endif //SNAKES_STARTGAME_H

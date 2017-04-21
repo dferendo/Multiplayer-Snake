@@ -9,66 +9,46 @@
 #include <unistd.h>
 #include <strings.h>
 
-void serverConnection() {
+void serverConnection(int portNumber, char * hostName) {
     int sockFd;
 
-    if (!connectToServer(&sockFd)) {
+    if (!connectToServer(&sockFd, portNumber, hostName)) {
         return;
     }
 
     gameManager(sockFd);
 }
 
-bool connectToServer(int * sockFd) {
-    // User Inputs
-    char serverName[MAXIMUM_INPUT_STRING],
-            port[MAXIMUM_INPUT_STRING];
-    // Variables needed to connect to server
-    int portNumber;
+bool connectToServer(int * sockFd, int portNumber, char * hostName) {
     struct sockaddr_in serverAddress;
     struct hostent * server;
 
-    while (true) {
-        // Asks for input and try to connect to the server.
-        getInput(serverName, port);
-        // Connect to server
-        portNumber = atoi(port);
-        *sockFd = socket(AF_INET, SOCK_STREAM, 0);
+    // Connect to server
+    *sockFd = socket(AF_INET, SOCK_STREAM, 0);
 
-        if (*sockFd == -1) {
-            perror("Error encountered when opening the socket");
-            exit(1);
-        }
-        // Get the server name
-        server = gethostbyname(serverName);
-        if (server == NULL) {
-            // Check if user wants to re-try.
-            if (printErrorAndOfferRetry(ERROR_NO_HOST)) {
-                continue;
-            } else {
-                break;
-            }
-        }
-
-        // Populate serverAddress structure
-        bzero((char *) &serverAddress, sizeof(serverAddress));
-        serverAddress.sin_family = AF_INET;
-        bcopy(server->h_addr,
-              (char *) &serverAddress.sin_addr.s_addr,
-              (size_t) server->h_length);
-        serverAddress.sin_port = htons((uint16_t) portNumber);
-
-        // Connect to server
-        if (connect(*sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
-            // Check if user wants to re-try.
-            if (printErrorAndOfferRetry(ERROR_CONNECTION_FAILED)) {
-                continue;
-            } else {
-                break;
-            }
-        } else {
-            return true;
-        }
+    if (*sockFd == -1) {
+        perror("Error encountered when opening the socket");
+        exit(1);
     }
-    return false;
+    // Get the server name
+    server = gethostbyname(hostName);
+    if (server == NULL) {
+        printError(ERROR_NO_HOST);
+        return false;
+    }
+
+    // Populate serverAddress structure
+    bzero((char *) &serverAddress, sizeof(serverAddress));
+    serverAddress.sin_family = AF_INET;
+    bcopy(server->h_addr,
+          (char *) &serverAddress.sin_addr.s_addr,
+          (size_t) server->h_length);
+    serverAddress.sin_port = htons((uint16_t) portNumber);
+
+    // Connect to server
+    if (connect(*sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
+        printError(ERROR_CONNECTION_FAILED);
+        return false;
+    }
+    return true;
 }
