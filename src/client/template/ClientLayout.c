@@ -75,10 +75,10 @@ void getInput(char * serverName, char * port) {
     // Show cursor
     curs_set(1);
     // Get Server name
-    wmove(menuWindow, 3, PLAY_GAME_MENU_LENGTH + 3);
+    wmove(menuWindow, 2, PLAY_GAME_MENU_LENGTH + 3);
     wgetnstr(menuWindow, serverName, MAXIMUM_INPUT_STRING);
     // Get port number
-    wmove(menuWindow, 4, PLAY_GAME_MENU_LENGTH + 3);
+    wmove(menuWindow, 3, PLAY_GAME_MENU_LENGTH + 3);
     wgetnstr(menuWindow, port, MAXIMUM_INPUT_STRING);
     // Disable cursor
     curs_set(0);

@@ -5,6 +5,7 @@
 #include "template/ClientLayout.h"
 #include "../settings/GameSettings.h"
 #include "API/ClientAPI.h"
+#include "../utility/General.h"
 #include <pthread.h>
 
 void gameInit(int sockFd) {
@@ -39,12 +40,28 @@ void gameRunning(int sockFd) {
             if (foods != NULL) {
                 clearFoodsVector(foods);
             }
+            deleteWindow(window);
             foods = readFoodsFromSocket(sockFd);
+            // Error with foods
+            if (foods == NULL) {
+                deleteWindow(window);
+                serverErrorScreen();
+                break;
+            }
             window = displayNewData(foods, snakes);
             wrefresh(window);
         } else if (nextCompute == 2) {
+            if (foods != NULL) {
+                clearSnakeVector(foods);
+            }
+
             deleteWindow(window);
-            readSnakesFromSocket(snakes, sockFd);
+            // Error with snakes
+            if (!readSnakesFromSocket(snakes, sockFd)) {
+                deleteWindow(window);
+                serverErrorScreen();
+                break;
+            }
             window = displayNewData(foods, snakes);
             wrefresh(window);
         } else if (nextCompute == 3) {
@@ -158,5 +175,14 @@ void *readDirectionFromUser(void *args) {
             default:
                 continue;
         }
+    }
+}
+
+void clearSnakeVector(Vector *snakes) {
+    Snake * snake;
+
+    for (int i = 0; i < snakes->size; i++) {
+        snake = (Snake *) snakes->data[i];
+        freeSnake(snake);
     }
 }

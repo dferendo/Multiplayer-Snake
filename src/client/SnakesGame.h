@@ -18,6 +18,8 @@ void gameRunning(int sockFd);
 
 void clearFoodsVector(Vector * foods);
 
+void clearSnakeVector(Vector * snakes);
+
 WINDOW * displayNewData(Vector * foods, Vector * connections);
 
 void * readDirectionFromUser(void *args);

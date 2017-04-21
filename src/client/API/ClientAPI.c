@@ -6,6 +6,7 @@
 #include "../../utility/General.h"
 #include <unistd.h>
 #include <memory.h>
+#include <errno.h>
 
 int readDelimiterSnakes(int socketFd) {
     int response;
@@ -41,7 +42,7 @@ int readDelimiterSnakes(int socketFd) {
     }
 }
 
-Vector *readFoodsFromSocket(int socketFileDescriptor) {
+Vector * readFoodsFromSocket(int socketFileDescriptor) {
     int response, amountOfFood;
     size_t foodSize;
     // First read the amount of Food.
@@ -78,6 +79,8 @@ Vector *readFoodsFromSocket(int socketFileDescriptor) {
 }
 
 bool readSnakesFromSocket(Vector * snakes, int sockFd) {
+    // Init Vector
+    snakes = initVector();
     Snake * snake;
     int response, amountOfSnakes, sizeOfSnake;
     // Reading the amount of snakes.
