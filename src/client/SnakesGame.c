@@ -49,6 +49,7 @@ void gameManager(int sockFd) {
     // Clear Vectors
     clearSnakeVector(snakes);
     clearFoodsVector(foods);
+    free(keepAlive);
 
     if (gameStatus == 1) {
         showWinnerScreen();
