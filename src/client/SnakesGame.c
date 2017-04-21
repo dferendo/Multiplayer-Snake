@@ -37,33 +37,12 @@ void gameRunning(int sockFd) {
         nextCompute = readDelimiterSnakes(sockFd);
 
         if (nextCompute == 1) {
-            if (foods != NULL) {
-                clearFoodsVector(foods);
-            }
-            deleteWindow(window);
-            foods = readFoodsFromSocket(sockFd);
-            // Error with foods
-            if (foods == NULL) {
-                deleteWindow(window);
-                serverErrorScreen();
+            if (!foodHandler(sockFd, foods, snakes, window)) {
+                // There was an error which cannot be fixed, stop game.
                 break;
             }
-            window = displayNewData(foods, snakes);
-            wrefresh(window);
         } else if (nextCompute == 2) {
-            if (foods != NULL) {
-                clearSnakeVector(foods);
-            }
-
-            deleteWindow(window);
-            // Error with snakes
-            if (!readSnakesFromSocket(snakes, sockFd)) {
-                deleteWindow(window);
-                serverErrorScreen();
-                break;
-            }
-            window = displayNewData(foods, snakes);
-            wrefresh(window);
+            snakeHandler(sockFd, foods, snakes, window);
         } else if (nextCompute == 3) {
             deleteWindow(window);
             showWinnerScreen();
@@ -74,6 +53,9 @@ void gameRunning(int sockFd) {
             showDeadScreen();
             // Stop loop
             break;
+        } else if (nextCompute == 0) {
+            // There was no reading
+            continue;
         } else {
             // Error has occurred.
             deleteWindow(window);
@@ -85,6 +67,9 @@ void gameRunning(int sockFd) {
 
 void clearFoodsVector(Vector *foods) {
     Food * food;
+    if (foods == NULL) {
+        return;
+    }
 
     for (int i = 0; i < foods->size; i++) {
         food = (Food *) foods->data[i];
@@ -94,31 +79,48 @@ void clearFoodsVector(Vector *foods) {
     deleteVector(foods);
 }
 
-WINDOW *displayNewData(Vector *foods, Vector * connections) {
-    WINDOW *window = generatePlayingWindow();
-    Food * food;
-    LinkedListPosition * snake;
+void clearSnakeVector(Vector *snakes) {
+    Snake * snake;
 
-    // There could be some connections but no food yet.
-    if (foods != NULL) {
-        // Display Foods.
-        for (int i = 0; i < foods->size; i++) {
-            food = (Food *) foods->data[i];
-            mvwaddch(window, food->position->y, food->position->x,
-                      foodType(food));
-        }
+    if (snakes == NULL) {
+        return;
     }
 
-    // Display Snakes for every connection
-    for (int i = 0; i < connections->size; i++) {
-        snake = ((Snake *) connections->data[i])->positions;
-        // Display snake.
-        do {
-            mvwprintw(window, snake->position->y, snake->position->x, SNAKE_CHARACTER);
-            snake = snake->next;
-        } while(snake != NULL);
+    for (int i = 0; i < snakes->size; i++) {
+        snake = (Snake *) snakes->data[i];
+        freeSnake(snake);
     }
-    return window;
+}
+
+bool foodHandler(int sockFd, Vector *foods, Vector * snakes,  WINDOW * window) {
+    clearFoodsVector(foods);
+    deleteWindow(window);
+    foods = readFoodsFromSocket(sockFd);
+    // Error with foods
+    if (foods == NULL) {
+        deleteWindow(window);
+        serverErrorScreen();
+        return false;
+    }
+    window = displayNewData(foods, snakes);
+    wrefresh(window);
+    return true;
+}
+
+bool snakeHandler(int sockFd, Vector *foods, Vector *snakes, WINDOW *window) {
+    clearSnakeVector(snakes);
+    deleteWindow(window);
+
+    snakes = readSnakesFromSocket(sockFd);
+    // Error with snakes
+    if (snakes == NULL) {
+        deleteWindow(window);
+        serverErrorScreen();
+        return false;
+    }
+    window = displayNewData(foods, snakes);
+    wrefresh(window);
+    return true;
 }
 
 void *readDirectionFromUser(void *args) {
@@ -175,14 +177,5 @@ void *readDirectionFromUser(void *args) {
             default:
                 continue;
         }
-    }
-}
-
-void clearSnakeVector(Vector *snakes) {
-    Snake * snake;
-
-    for (int i = 0; i < snakes->size; i++) {
-        snake = (Snake *) snakes->data[i];
-        freeSnake(snake);
     }
 }

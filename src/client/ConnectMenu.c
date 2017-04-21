@@ -70,6 +70,5 @@ bool connectToServer(int * sockFd) {
             return true;
         }
     }
-    // If while break, that means the user does not want to re-try thus go back to main screen.
     return false;
 }

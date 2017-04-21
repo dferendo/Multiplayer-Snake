@@ -16,11 +16,13 @@ void gameInit(int sockFd);
 
 void gameRunning(int sockFd);
 
+bool foodHandler(int sockFd, Vector * foods, Vector * snakes, WINDOW * window);
+
+bool snakeHandler(int sockFd, Vector * foods, Vector * snakes, WINDOW * window);
+
 void clearFoodsVector(Vector * foods);
 
 void clearSnakeVector(Vector * snakes);
-
-WINDOW * displayNewData(Vector * foods, Vector * connections);
 
 void * readDirectionFromUser(void *args);
 

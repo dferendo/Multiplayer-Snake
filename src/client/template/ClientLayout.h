@@ -18,15 +18,6 @@
 
 #define ERROR_NO_HOST "Error, no such host!"
 #define ERROR_CONNECTION_FAILED "Error, connection failed!"
-#define ERROR_NAME_INVALID "Error, name is invalid!"
-
-// Wait 2 seconds when using half delay since it waits n tenths
-// of a second.
-#define WAIT_INPUT_TIME_FOR_HOST_TO_START_GAME 20
-
-#define HOST_GAME_START "Press 'S' to start Game!"
-
-#define SLEEP_WHEN_NO_HOST_QUEUE_SEC 2
 
 #define SNAKE_CHARACTER "#"
 
@@ -59,5 +50,7 @@ void showDeadScreen();
 void serverErrorScreen();
 
 const chtype foodType(Food * type);
+
+WINDOW * displayNewData(Vector * foods, Vector * connections);
 
 #endif //SNAKES_CLIENTLAYOUT_H

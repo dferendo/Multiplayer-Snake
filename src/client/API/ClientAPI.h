@@ -12,7 +12,7 @@ int readDelimiterSnakes(int socketFd);
 
 Vector * readFoodsFromSocket(int socketFileDescriptor);
 
-bool readSnakesFromSocket(Vector * snakes, int sockFd);
+Vector * readSnakesFromSocket(int sockFd);
 
 bool sendUserDirection(int sockFd, int direction);
 

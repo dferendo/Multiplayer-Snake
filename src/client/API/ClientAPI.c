@@ -78,9 +78,9 @@ Vector * readFoodsFromSocket(int socketFileDescriptor) {
     return foods;
 }
 
-bool readSnakesFromSocket(Vector * snakes, int sockFd) {
+Vector * readSnakesFromSocket(int sockFd) {
     // Init Vector
-    snakes = initVector();
+    Vector * snakes = initVector();
     Snake * snake;
     int response, amountOfSnakes, sizeOfSnake;
     // Reading the amount of snakes.
@@ -94,7 +94,7 @@ bool readSnakesFromSocket(Vector * snakes, int sockFd) {
     if (response < 0) {
         perror("Failed to read from socket");
         close(sockFd);
-        return false;
+        return NULL;
     }
 
     // Get the amount of snakes.
@@ -110,7 +110,7 @@ bool readSnakesFromSocket(Vector * snakes, int sockFd) {
         if (response < 0) {
             perror("Failed to read from socket");
             close(sockFd);
-            return false;
+            return NULL;
         }
 
         deserializeInt(bufferSizeOfSnake, &sizeOfSnake);
@@ -125,7 +125,7 @@ bool readSnakesFromSocket(Vector * snakes, int sockFd) {
         if (response < 0) {
             perror("Failed to read from socket");
             close(sockFd);
-            return false;
+            return NULL;
         }
         // Malloc snake
         snake = (Snake *) malloc(sizeof(Snake));
@@ -133,7 +133,7 @@ bool readSnakesFromSocket(Vector * snakes, int sockFd) {
         if (snake == NULL) {
             perror("Failed to allocate memory to snake");
             close(sockFd);
-            return false;
+            return NULL;
         }
 
         // Put the new snake to the data.
@@ -143,10 +143,10 @@ bool readSnakesFromSocket(Vector * snakes, int sockFd) {
         if (addItemToVector(snakes, snake) < 0) {
             freeSnake(snake);
             close(sockFd);
-            return false;
+            return NULL;
         }
     }
-    return true;
+    return snakes;
 }
 
 bool sendUserDirection(int sockFd, int direction) {

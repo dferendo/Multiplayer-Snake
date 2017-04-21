@@ -156,9 +156,39 @@ WINDOW * createWindowAtTheCenterOfTheScreen(int height) {
 
 void serverErrorScreen() {
     WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
-    mvwprintw(tempWindow, 0, 0, "Connection Lost!");
+    mvwprintw(tempWindow, 2, 3, ERROR_CONNECTION_FAILED);
     wrefresh(tempWindow);
     sleep(DEAD_WIN_SCREEN_DELAY_SEC);
     deleteWindow(tempWindow);
     delwin(tempWindow);
+}
+
+WINDOW *displayNewData(Vector *foods, Vector * snakes) {
+    WINDOW *window = generatePlayingWindow();
+    Food * food;
+    LinkedListPosition * snake;
+
+    // There could be some connections but no food yet.
+    if (foods != NULL) {
+        // Display Foods.
+        for (int i = 0; i < foods->size; i++) {
+            food = (Food *) foods->data[i];
+            mvwaddch(window, food->position->y, food->position->x,
+                     foodType(food));
+        }
+    }
+
+    // Food can be generated before snakes
+    if (snakes != NULL) {
+        // Display Snakes for every connection
+        for (int i = 0; i < snakes->size; i++) {
+            snake = ((Snake *) snakes->data[i])->positions;
+            // Display snake.
+            do {
+                mvwprintw(window, snake->position->y, snake->position->x, SNAKE_CHARACTER);
+                snake = snake->next;
+            } while (snake != NULL);
+        }
+    }
+    return window;
 }
