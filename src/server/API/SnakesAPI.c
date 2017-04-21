@@ -6,7 +6,6 @@
 #include "../../utility/Vector.h"
 #include "../../utility/Serialize.h"
 #include "../../utility/General.h"
-#include "../ServerHandle.h"
 #include "../Game.h"
 #include "../../settings/GameSettings.h"
 #include <unistd.h>
@@ -74,9 +73,9 @@ void * checkForChangeOfDirections(void * args) {
     Connection * connection;
     int response, direction;
     unsigned char buffer[DELIMITERS_SIZE], directionBuffer[INTEGER_BYTES];
-    bool connectionsLost = false;
 
     while (true) {
+        pthread_mutex_lock(&lock);
         for (int i = 0; i < connections->size; i++) {
             // Read if delimiter was passed.
             connection = (Connection *) connections->data[i];
@@ -93,9 +92,12 @@ void * checkForChangeOfDirections(void * args) {
                 if (errno == EAGAIN) {
                     continue;
                 }
-                // Connection lost
-                connectionsLost = true;
-                break;
+                freeConnection(connection);
+                deleteItemFromVector(connections, connection);
+                // Delete the connection and since the vectors shifts the elements,
+                // decrement the counter
+                i--;
+                continue;
             }
             if (strncmp((const char *) buffer, CHANGE_DIRECTION_DELIMITER, DELIMITERS_SIZE) != 0) {
                 continue;
@@ -105,18 +107,18 @@ void * checkForChangeOfDirections(void * args) {
             response = (int) read(connection->sockFd, directionBuffer, INTEGER_BYTES);
 
             if (response < 0) {
-                connectionsLost = true;
+                freeConnection(connection);
+                deleteItemFromVector(connections, connection);
+                // Delete the connection and since the vectors shifts the elements,
+                // decrement the counter
+                i--;
+                continue;
             }
-            pthread_mutex_lock(&lock);
             direction = (int) connection->snake->direction;
             deserializeInt(directionBuffer, &direction);
             connection->snake->direction = (Direction) direction;
-            pthread_mutex_unlock(&lock);
         }
-
-        if (connectionsLost) {
-            break;
-        }
+        pthread_mutex_unlock(&lock);
+        usleep(GAME_UPDATE_RATE_US);
     }
-    pthread_exit(NULL);
 }

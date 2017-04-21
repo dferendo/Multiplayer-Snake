@@ -9,8 +9,6 @@
 #define DEFAULT_START_DIRECTION_KEY 'w'
 #define DEFAULT_START_SIZE 1
 
-#define HOST_START_GAME_DELAY 2000000
-
 #define MAXIMUM_FOOD_INTERVAL_SECS_US 3000000
 #define MINIMUM_FOOD_INTERVAL_SECS_US 1000000
 // Set 0 for no limit
@@ -19,8 +17,6 @@
 #define FOOD_TO_WIN 15
 
 #define GAME_UPDATE_RATE_US 200000
-
-#define READ_CHARACTER_INPUT_DELAY_US 500000
 
 // All consoles will have the same size of the map
 #define MAIN_WINDOW_ROW 24

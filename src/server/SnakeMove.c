@@ -2,43 +2,32 @@
 // Created by dylan on 19/04/2017.
 //
 #include "SnakeMove.h"
-#include "Game.h"
 #include "Food.h"
-#include "Server.h"
 #include "../settings/GameSettings.h"
 #include "ServerHandle.h"
 
-void * snakeAction(void *args) {
-    Snake * snake = ((SnakeWorkerParams *) args)->snake;
-    Vector * allFoods = ((SnakeWorkerParams *) args)->foods;
-    Vector * allConnections = ((SnakeWorkerParams *) args)->connections;
-    // For return purposes
-    SnakeWorkerReturn * status = (SnakeWorkerReturn *) malloc(sizeof(SnakeWorkerReturn));
+SnakeStatus snakeAction(Snake * snake, Vector * foods, Vector * connections) {
 
     // Check Head collisions
-    if (checkHeadCollision(snake, allConnections)) {
-        status->status = DIED;
-        return (void *) status;
-    } else if (checkIfNextPositionIsCollision(snake, allConnections)) {
-        status->status = DIED;
-        return (void *) status;
+    if (checkHeadCollision(snake, connections)) {
+        return DIED;
+    } else if (checkIfNextPositionIsCollision(snake, connections)) {
+        return DIED;
     }
     // Check if next position is food and grow if so
-    if (checkIfNextPositionIsFoodAndGrow(snake, allFoods)) {
+    if (checkIfNextPositionIsFoodAndGrow(snake, foods)) {
         // Food was eaten, re-send food data
-        writeFoodDataToClients(allConnections, allFoods);
+        writeFoodDataToClients(connections, foods);
     }
 
     if (snake->size == FOOD_TO_WIN) {
-        status->status = WINNER;
-        return (void *) status;
+        return WINNER;
     }
     // Move
     snakeMove(snake);
 
     // Snake just moved
-    status->status = NORMAL;
-    return (void *) status;
+    return NORMAL;
 }
 
 bool checkHeadCollision(Snake * snake, Vector * connections) {

@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     void * gameReturn, * serverReturn;
-//    pthread_join(gameThread, &gameReturn);
+    pthread_join(gameThread, &gameReturn);
     pthread_join(serverThread, &serverReturn);
 
     return 0;

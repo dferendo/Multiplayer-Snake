@@ -20,26 +20,16 @@ typedef struct FoodGeneratorParams {
     pthread_mutex_t lock;
 } FoodGeneratorParams;
 
-typedef struct SnakeWorkerParams {
-    Vector * connections;
-    Vector * foods;
-    Snake * snake;
-} SnakeWorkerParams;
-
 typedef enum {
     WINNER = 0,
     DIED = 1,
     NORMAL = 2
 } SnakeStatus;
 
-typedef struct SnakeWorkerReturn {
-    SnakeStatus status;
-} SnakeWorkerReturn;
-
 void * gameInitialize(void *);
 
 void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock);
 
-bool createSnakeWorkers(Vector *connections, Vector *foods);
+bool moveSnakes(Vector *connections, Vector *foods);
 
 #endif //SNAKES_GAME_H

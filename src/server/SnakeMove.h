@@ -6,10 +6,11 @@
 #define SNAKES_SNAKEMOVE_H
 
 #include "Snake.h"
+#include "Game.h"
 
 Position * moveHeadSnake(Direction direction, Position *position);
 
-void * snakeAction(void * args);
+SnakeStatus snakeAction(Snake * snake, Vector * foods, Vector * connections);
 
 bool checkHeadCollision(Snake * snake, Vector * connections);
 
