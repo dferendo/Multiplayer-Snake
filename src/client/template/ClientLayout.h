@@ -47,7 +47,7 @@ void showWinnerScreen();
 
 void showDeadScreen();
 
-void serverErrorScreen();
+void showServerErrorScreen();
 
 const chtype foodType(Food * type);
 

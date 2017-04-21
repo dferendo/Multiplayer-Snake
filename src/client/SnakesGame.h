@@ -10,11 +10,12 @@
 #include "../server/Snake.h"
 typedef struct ReadUserInputThreadParams {
     int sockFd;
+    bool * keepAlive;
 } ReadUserInputThreadParams;
 
-void gameInit(int sockFd);
+void gameManager(int sockFd);
 
-void gameRunning(int sockFd);
+int gameRunning(int sockFd);
 
 bool foodHandler(int sockFd);
 

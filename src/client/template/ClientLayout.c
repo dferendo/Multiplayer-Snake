@@ -154,7 +154,7 @@ WINDOW * createWindowAtTheCenterOfTheScreen(int height) {
     return menuWindow;
 }
 
-void serverErrorScreen() {
+void showServerErrorScreen() {
     WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
     mvwprintw(tempWindow, 2, 3, ERROR_CONNECTION_FAILED);
     wrefresh(tempWindow);

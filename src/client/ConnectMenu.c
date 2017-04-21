@@ -16,7 +16,7 @@ void serverConnection() {
         return;
     }
 
-    gameInit(sockFd);
+    gameManager(sockFd);
 }
 
 bool connectToServer(int * sockFd) {

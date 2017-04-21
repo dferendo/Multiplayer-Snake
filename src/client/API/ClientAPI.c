@@ -4,6 +4,7 @@
 #include "ClientAPI.h"
 #include "../../utility/Serialize.h"
 #include "../../utility/General.h"
+#include "../SnakesGame.h"
 #include <unistd.h>
 #include <memory.h>
 #include <errno.h>
@@ -25,7 +26,6 @@ int readDelimiterSnakes(int socketFd) {
         if (errno == EAGAIN) {
             return 0;
         }
-        close(socketFd);
         return -1;
     }
 
@@ -54,7 +54,8 @@ Vector * readFoodsFromSocket(int socketFileDescriptor) {
 
     if (response == -1) {
         perror("Error when reading from socket");
-        close(socketFileDescriptor);
+        // Deallocate foods.
+        clearFoodsVector(foods);
         return NULL;
     }
 
@@ -69,8 +70,8 @@ Vector * readFoodsFromSocket(int socketFileDescriptor) {
 
     if (response == -1) {
         perror("Error when reading from socket");
-        close(socketFileDescriptor);
-        exit(1);
+        clearFoodsVector(foods);
+        return NULL;
     }
 
     // De-serialize foods and put them in a vector
@@ -93,7 +94,7 @@ Vector * readSnakesFromSocket(int sockFd) {
 
     if (response < 0) {
         perror("Failed to read from socket");
-        close(sockFd);
+        clearSnakeVector(snakes);
         return NULL;
     }
 
@@ -109,7 +110,7 @@ Vector * readSnakesFromSocket(int sockFd) {
 
         if (response < 0) {
             perror("Failed to read from socket");
-            close(sockFd);
+            clearSnakeVector(snakes);
             return NULL;
         }
 
@@ -124,7 +125,7 @@ Vector * readSnakesFromSocket(int sockFd) {
 
         if (response < 0) {
             perror("Failed to read from socket");
-            close(sockFd);
+            clearSnakeVector(snakes);
             return NULL;
         }
         // Malloc snake
@@ -132,7 +133,7 @@ Vector * readSnakesFromSocket(int sockFd) {
 
         if (snake == NULL) {
             perror("Failed to allocate memory to snake");
-            close(sockFd);
+            clearSnakeVector(snakes);
             return NULL;
         }
 
@@ -142,7 +143,7 @@ Vector * readSnakesFromSocket(int sockFd) {
         // Add snake to the vector
         if (addItemToVector(snakes, snake) < 0) {
             freeSnake(snake);
-            close(sockFd);
+            clearSnakeVector(snakes);
             return NULL;
         }
     }
@@ -160,7 +161,7 @@ bool sendUserDirection(int sockFd, int direction) {
 
     if (response == -1) {
         perror("Failed to write to the socket");
-        close(sockFd);
+        // Do not close socket, it will be handled by the main thread.
         return false;
     }
     return true;
