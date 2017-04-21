@@ -1,7 +1,7 @@
 
 #include "Client.h"
 #include "template/ClientLayout.h"
-#include "QueueMenu.h"
+#include "ConnectMenu.h"
 
 int main(int argc, char *argv[]) {
     initscr();

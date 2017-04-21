@@ -16,8 +16,10 @@
 bool sendSnakeDataToClients(Vector * connections) {
     int response;
     Connection * connection;
-    // For every snake send the direction, size as Int and every position for every snake.
-    size_t size = DELIMITERS_SIZE + (connections->size * (INTEGER_BYTES * 2));
+    // For every snake send the direction, its size as Int and every position for every snake.
+    // Also send the amount of snakes.
+    size_t size = DELIMITERS_SIZE + INTEGER_BYTES +
+            (connections->size * (INTEGER_BYTES * 2));
 
     // Calculate the size of positions of the snake.
     for (int i = 0; i < connections->size; i++) {

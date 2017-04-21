@@ -29,3 +29,10 @@ void freeConnection(Connection *connection) {
     // Close socket
     close(connection->sockFd);
 }
+
+void freeSnake(Snake * snake) {
+    // Delete linked list with all the positions
+    deleteLinkedListPosition(snake->positions);
+    // Free Snake
+    free(snake);
+}

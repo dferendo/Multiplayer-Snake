@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
     serverArgs->connections = connections;
     serverArgs->foods = foods;
     serverArgs->lock = lock;
-    serverArgs->portNumber = (uint16_t) atoi(argv[2]);
+    serverArgs->portNumber = (uint16_t) atoi(argv[1]);
 
     // Create Threads
 
@@ -82,6 +82,9 @@ int main(int argc, char *argv[]) {
         deleteVector(connections);
         exit(1);
     }
+    void * gameReturn, * serverReturn;
+    pthread_join(gameThread, &gameReturn);
+    pthread_join(serverThread, &serverReturn);
 
     return 0;
 }

@@ -15,10 +15,6 @@
 
 void serverConnection();
 
-bool connectToServer(int * sockFd, char * playerName);
-
-void clearConnectionVector(Vector * oldVector);
-
-void waitUntilHostStartsGame(int * sockFd, char * playerId);
+bool connectToServer(int * sockFd);
 
 #endif //SNAKES_STARTGAME_H

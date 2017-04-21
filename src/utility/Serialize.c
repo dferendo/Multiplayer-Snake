@@ -167,6 +167,8 @@ unsigned char * serializedSnakesFromConnections(unsigned char *buffer, Vector *c
     Connection * connection;
     // Add delimiter
     buffer = serializeCharArray(buffer, SNAKE_DETAILS_DELIMITER, DELIMITERS_SIZE);
+    // Send the amount of snakes
+    buffer = serializeInt(buffer, (int) connections->size);
 
     // After the delimiter there will be the size of the first snake. This will help calculate
     // the next position of the size of the next snake.

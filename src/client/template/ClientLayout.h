@@ -13,7 +13,7 @@
 #define MAIN_MENU_BORDER_CHARACTER '+'
 #define MAIN_MENU_DIVIDER '-'
 #define MAIN_MENU_ITEMS 3
-#define PLAY_GAME_MENU_REQUIRED 3
+#define PLAY_GAME_MENU_REQUIRED 2
 #define PLAY_GAME_MENU_LENGTH 13
 
 #define ERROR_NO_HOST "Error, no such host!"
@@ -42,11 +42,9 @@ WINDOW * createMainMenuWindow();
 
 void aboutMenu();
 
-void getInput(char * name, char * serverName, char * port);
+void getInput(char * serverName, char * port);
 
 bool printErrorAndOfferRetry(char *errorMessage);
-
-WINDOW * generateWindowForWaitingInQueue(Vector * connections, bool isHost);
 
 WINDOW * generatePlayingWindow();
 
@@ -57,6 +55,8 @@ WINDOW * createWindowAtTheCenterOfTheScreen(int height);
 void showWinnerScreen();
 
 void showDeadScreen();
+
+void serverErrorScreen();
 
 const chtype foodType(Food * type);
 

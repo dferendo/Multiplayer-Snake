@@ -11,7 +11,6 @@ const char * const MENU_ITEMS[MAIN_MENU_ITEMS] = {
 };
 
 const char * const SERVER_REQUIRED[PLAY_GAME_MENU_REQUIRED] = {
-        "Player Name: ",
         "Server Name: ",
         "Port Number: "
 };
@@ -59,11 +58,10 @@ void aboutMenu() {
     delwin(menuWindow);
 }
 
-void getInput(char * name, char * serverName, char * port) {
-    WINDOW * menuWindow = createWindowAtTheCenterOfTheScreen(3);
+void getInput(char * serverName, char * port) {
+    WINDOW * menuWindow = createWindowAtTheCenterOfTheScreen(PLAY_GAME_MENU_REQUIRED);
 
     // Clear char
-    bzero(name, MAXIMUM_INPUT_STRING);
     bzero(serverName, MAXIMUM_INPUT_STRING);
     bzero(port, MAXIMUM_INPUT_STRING);
     // Display Input name Window
@@ -76,9 +74,6 @@ void getInput(char * name, char * serverName, char * port) {
     echo();
     // Show cursor
     curs_set(1);
-    // Get name
-    wmove(menuWindow, 2, PLAY_GAME_MENU_LENGTH + 3);
-    wgetnstr(menuWindow, name, MAXIMUM_INPUT_STRING);
     // Get Server name
     wmove(menuWindow, 3, PLAY_GAME_MENU_LENGTH + 3);
     wgetnstr(menuWindow, serverName, MAXIMUM_INPUT_STRING);
@@ -105,38 +100,6 @@ bool printErrorAndOfferRetry(char *errorMessage) {
     }
     deleteWindow(window);
     return false;
-}
-
-WINDOW * generateWindowForWaitingInQueue(Vector * connections, bool isHost) {
-    WINDOW * window;
-
-    if (connections == NULL) {
-        window = createWindowAtTheCenterOfTheScreen(1);
-        mvwprintw(window, 2, 3, "Generating Queue.....");
-        wrefresh(window);
-        return window;
-    }
-    // + 3 since hosts get special command and players waiting.
-    window = createWindowAtTheCenterOfTheScreen((int) connections->size + 3);
-
-    mvwprintw(window, 2, 3, "Players waiting: ");
-
-    for (int i = 0; i < connections->size; i++) {
-        char str[MAXIMUM_INPUT_STRING + 10];
-        Connection * nextConnection = (Connection *) connections->data[i];
-
-        if (nextConnection->clientInfo->isHost) {
-            sprintf(str, "%d) %s (H)", i + 1, nextConnection->clientInfo->name);
-        } else {
-            sprintf(str, "%d) %s", i + 1, nextConnection->clientInfo->name);
-        }
-        mvwprintw(window, i + 3, 3, str);
-    }
-    if (isHost) {
-        mvwprintw(window, (int) (connections->size + 4), 3, HOST_GAME_START);
-    }
-    wrefresh(window);
-    return window;
 }
 
 WINDOW *generatePlayingWindow() {
@@ -189,4 +152,13 @@ WINDOW * createWindowAtTheCenterOfTheScreen(int height) {
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER);
     return menuWindow;
+}
+
+void serverErrorScreen() {
+    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
+    mvwprintw(tempWindow, 0, 0, "Connection Lost!");
+    wrefresh(tempWindow);
+    sleep(DEAD_WIN_SCREEN_DELAY_SEC);
+    deleteWindow(tempWindow);
+    delwin(tempWindow);
 }

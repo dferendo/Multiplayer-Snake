@@ -20,4 +20,6 @@ bool setSocketBlockingEnabled(int sockFd, bool blocking);
 
 void freeConnection(Connection * connection);
 
+void freeSnake(Snake * snake);
+
 #endif //SNAKES_GENERAL_H
