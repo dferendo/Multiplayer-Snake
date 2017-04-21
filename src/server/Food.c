@@ -23,38 +23,32 @@ void * generateFood(void * arg) {
 
     while (true) {
 
-        if (connections->size != 0) {
-            if (MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN == 0 ||
-                foods->size <= MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN) {
-                pthread_mutex_lock(&lock);
+        if (MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN == 0 ||
+            foods->size <= MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN) {
+            pthread_mutex_lock(&lock);
 
-                position = createFoodPosition(connections, foods);
+            position = createFoodPosition(connections, foods);
 
-                food = (Food *) malloc(sizeof(Food));
+            food = (Food *) malloc(sizeof(Food));
 
-                if (food == NULL) {
-                    perror("Failed to allocate memory to Food");
-                    free(position);
-                    continue;
-                }
-
-                food->position = position;
-                food->foodType = F_NORMAL;
-
-                addItemToVector(foods, food);
-
-                // Write to clients about the foods.
-                do {
-                    // Send data again, if a connection is lost re-send the data.
-                    error = writeFoodDataToClients(connections, foods);;
-
-                    if (connections->size == 0) {
-                        pthread_exit(NULL);
-                    }
-                } while (!error);
-
-                pthread_mutex_unlock(&lock);
+            if (food == NULL) {
+                perror("Failed to allocate memory to Food");
+                free(position);
+                continue;
             }
+
+            food->position = position;
+            food->foodType = F_NORMAL;
+
+            addItemToVector(foods, food);
+
+            // Write to clients about the foods.
+            do {
+                // Send data again, if a connection is lost re-send the data.
+                error = writeFoodDataToClients(connections, foods);;
+            } while (!error);
+
+            pthread_mutex_unlock(&lock);
         }
         // Sleep thread
         nextFoodGenerator = rand() % (MAXIMUM_FOOD_INTERVAL_SECS_US + 1 -

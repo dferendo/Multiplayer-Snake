@@ -51,15 +51,15 @@ void * gameInitialize(void * args) {
         pthread_exit(NULL);
     }
     // Create Thread that listens to user change of direction.
-    if (pthread_create(&changeDirectionThread, NULL, checkForChangeOfDirections,
-                       changeDirectionParams) != 0) {
-        perror("Could not create a Change direction thread");
-        free(args);
-        free(changeDirectionParams);
-        free(foodGeneratorParams);
-        pthread_exit(NULL);
-    }
-    gameLoop(connections, foods, lock);
+//    if (pthread_create(&changeDirectionThread, NULL, checkForChangeOfDirections,
+//                       changeDirectionParams) != 0) {
+//        perror("Could not create a Change direction thread");
+//        free(args);
+//        free(changeDirectionParams);
+//        free(foodGeneratorParams);
+//        pthread_exit(NULL);
+//    }
+//    gameLoop(connections, foods, lock);
     free(args);
     pthread_exit(NULL);
 }

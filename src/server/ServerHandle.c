@@ -6,8 +6,8 @@
 #include "ServerHandle.h"
 #include "../utility/General.h"
 #include "API/SnakesAPI.h"
+#include "Food.h"
 #include <unistd.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 
 void * serverInit(void * args) {
@@ -113,10 +113,8 @@ void * initNewConnection(void *arg) {
     do {
         // Send data again, if a connection is lost re-send the data.
         error = sendSnakeDataToClients(connections);
-
-        if (connections->size == 0) {
-            pthread_exit(NULL);
-        }
+        // Send Food data as well
+        error |= writeFoodDataToClients(connections, foods);;
     } while (!error);
 
     // Unlock since connections no longer used.
