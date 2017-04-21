@@ -164,7 +164,7 @@ void serverErrorScreen() {
 }
 
 WINDOW *displayNewData(Vector *foods, Vector * snakes) {
-    WINDOW *window = generatePlayingWindow();
+    WINDOW * window = generatePlayingWindow();
     Food * food;
     LinkedListPosition * snake;
 

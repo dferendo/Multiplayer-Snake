@@ -16,6 +16,7 @@ Vector * initVector() {
     }
     // No elements are in the vector yet.
     newVector->size = 0;
+    newVector->data = NULL;
     return newVector;
 }
 

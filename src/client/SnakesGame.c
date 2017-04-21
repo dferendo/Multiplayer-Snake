@@ -8,6 +8,8 @@
 #include "../utility/General.h"
 #include <pthread.h>
 
+WINDOW * window;
+
 void gameInit(int sockFd) {
     pthread_t characterReaderTId;
 
@@ -37,12 +39,12 @@ void gameRunning(int sockFd) {
         nextCompute = readDelimiterSnakes(sockFd);
 
         if (nextCompute == 1) {
-            if (!foodHandler(sockFd, foods, snakes, window)) {
+            if (!foodHandler(sockFd, foods, snakes)) {
                 // There was an error which cannot be fixed, stop game.
                 break;
             }
         } else if (nextCompute == 2) {
-            snakeHandler(sockFd, foods, snakes, window);
+            snakeHandler(sockFd, foods, snakes);
         } else if (nextCompute == 3) {
             deleteWindow(window);
             showWinnerScreen();
@@ -92,7 +94,7 @@ void clearSnakeVector(Vector *snakes) {
     }
 }
 
-bool foodHandler(int sockFd, Vector *foods, Vector * snakes,  WINDOW * window) {
+bool foodHandler(int sockFd, Vector *foods, Vector * snakes) {
     clearFoodsVector(foods);
     deleteWindow(window);
     foods = readFoodsFromSocket(sockFd);
@@ -107,7 +109,7 @@ bool foodHandler(int sockFd, Vector *foods, Vector * snakes,  WINDOW * window) {
     return true;
 }
 
-bool snakeHandler(int sockFd, Vector *foods, Vector *snakes, WINDOW *window) {
+bool snakeHandler(int sockFd, Vector *foods, Vector *snakes) {
     clearSnakeVector(snakes);
     deleteWindow(window);
 
