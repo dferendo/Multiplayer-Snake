@@ -4,15 +4,15 @@
 
 #include <strings.h>
 #include "../../utility/Vector.h"
-#include "../Server.h"
 #include "../../utility/Serialize.h"
 #include "../../utility/General.h"
 #include "../ServerHandle.h"
+#include "../Game.h"
 #include <unistd.h>
-#include <stdio.h>
 
 bool sendSnakeDataToClients(Vector * connections) {
     int response;
+    Connection * connection;
     // For every snake send the direction, size as Int and every position for every snake.
     size_t size = DELIMITERS_SIZE + (connections->size * (INTEGER_BYTES * 2));
 
@@ -42,4 +42,63 @@ bool sendSnakeDataToClients(Vector * connections) {
         }
     }
     return true;
+}
+
+void sendEndGameToClients(int sockFd, SnakeStatus status) {
+    int response;
+    unsigned char buffer[DELIMITERS_SIZE];
+    bzero(buffer, DELIMITERS_SIZE);
+
+    if (status == WINNER) {
+        serializeCharArray(buffer, WINNER_DELIMITER, DELIMITERS_SIZE);
+    } else {
+        serializeCharArray(buffer, LOSE_DELIMITER, DELIMITERS_SIZE);
+    }
+    response = (int) write(sockFd, buffer, DELIMITERS_SIZE);
+
+    if (response < 0) {
+        perror("Error writing to socket");
+        close(sockFd);
+    }
+}
+
+void * checkForChangeOfDirections(void * args) {
+    Vector * connections = ((ChangeDirectionParams *) args)->connections;
+    pthread_mutex_t lock = ((ChangeDirectionParams *) args)->lock;
+    Connection * connection;
+    int response, direction;
+    unsigned char buffer[DELIMITERS_SIZE], directionBuffer[INTEGER_BYTES];
+
+    while (true) {
+        for (int i = 0; i < connections->size; i++) {
+            // Read if delimiter was passed.
+            connection = ((Connection *) connections->data[i]);
+            bzero(buffer, DELIMITERS_SIZE);
+
+            // Set to non blocking so that others can also change
+            setSocketBlockingEnabled(connection->sockFd, false);
+            response = (int) read(connection->sockFd, buffer, DELIMITERS_SIZE);
+            setSocketBlockingEnabled(connection->sockFd, true);
+
+            if (response < 0) {
+                continue;
+            }
+            if (strncmp((const char *) buffer, CHANGE_DIRECTION_DELIMITER, DELIMITERS_SIZE) != 0) {
+                continue;
+            }
+            // Read the actual change of direction.
+
+            response = (int) read(connection->sockFd, directionBuffer, INTEGER_BYTES);
+
+            if (response < 0) {
+                continue;
+            }
+            pthread_mutex_lock(&lock);
+            direction = (int) connection->snake->direction;
+            deserializeInt(directionBuffer, &direction);
+            connection->snake->direction = (Direction) direction;
+            pthread_mutex_unlock(&lock);
+        }
+        sleep(CHARACTER_CHANGE_DIRECTION_TIME_US);
+    }
 }

@@ -4,6 +4,7 @@
 #include "Server.h"
 #include "../utility/General.h"
 #include "ServerHandle.h"
+#include "Game.h"
 #include <pthread.h>
 
 int main(int argc, char *argv[]) {
@@ -62,7 +63,18 @@ int main(int argc, char *argv[]) {
     serverArgs->portNumber = (uint16_t) atoi(argv[2]);
 
     // Create Threads
+
+    // Server Thread
     if (pthread_create(&serverThread, NULL, serverInit, serverArgs) != 0) {
+        perror("Could not create a worker thread.");
+        free(serverArgs);
+        free(gameArgs);
+        deleteVector(foods);
+        deleteVector(connections);
+        exit(1);
+    }
+    // Game Thread
+    if (pthread_create(&serverThread, NULL, gameInitialize, gameArgs) != 0) {
         perror("Could not create a worker thread.");
         free(serverArgs);
         free(gameArgs);

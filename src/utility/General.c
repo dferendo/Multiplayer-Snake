@@ -3,6 +3,7 @@
 //
 #include "General.h"
 #include "LinkedList.h"
+#include "../server/ServerHandle.h"
 #include <string.h>
 #include <unistd.h>
 

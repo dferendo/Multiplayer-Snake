@@ -9,6 +9,17 @@
 #include "../server/Server.h"
 #include "Snake.h"
 
+typedef struct ChangeDirectionParams {
+    Vector * connections;
+    pthread_mutex_t lock;
+} ChangeDirectionParams;
+
+typedef struct FoodGeneratorParams {
+    Vector * foods;
+    Vector * connections;
+    pthread_mutex_t lock;
+} FoodGeneratorParams;
+
 typedef struct SnakeWorkerParams {
     Vector * connections;
     Vector * foods;
@@ -25,16 +36,10 @@ typedef struct SnakeWorkerReturn {
     SnakeStatus status;
 } SnakeWorkerReturn;
 
-void gameInitialize();
+void * gameInitialize(void *);
 
-void gameLoop();
+void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock);
 
-void sendSnakeInformationToClients();
-
-bool createSnakeWorkers();
-
-void * checkForChangeOfDirections(void * args);
-
-void sendEndGameToClients(int sockFd, SnakeStatus status);
+bool createSnakeWorkers(Vector *connections, Vector *foods);
 
 #endif //SNAKES_GAME_H

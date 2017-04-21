@@ -5,19 +5,21 @@
 #include <unistd.h>
 #include <strings.h>
 #include "Food.h"
-#include "Server.h"
-#include "../template/GameSettings.h"
+#include "Game.h"
+#include "../settings/GameSettings.h"
 #include "../utility/RandomUtility.h"
 #include "../utility/Serialize.h"
-
-Vector * foods;
-Vector * connections;
-pthread_mutex_t lock;
+#include "ServerHandle.h"
+#include "../utility/General.h"
 
 void * generateFood(void * arg) {
+    Vector * foods = ((FoodGeneratorParams *) arg)->foods;
+    Vector * connections = ((FoodGeneratorParams *) arg)->connections;
+    pthread_mutex_t lock = ((FoodGeneratorParams *) arg)->lock;
     Food * food;
     Position * position;
     int nextFoodGenerator;
+    bool error;
 
     while (true) {
 
@@ -41,7 +43,14 @@ void * generateFood(void * arg) {
             addItemToVector(foods, food);
 
             // Write to clients about the foods.
-            writeFoodDataToClients(connections, foods);
+            do {
+                // Send data again, if a connection is lost re-send the data.
+                error = writeFoodDataToClients(connections, foods);;
+
+                if (connections->size == 0) {
+                    pthread_exit(NULL);
+                }
+            } while (!error);
 
             pthread_mutex_unlock(&lock);
         }
@@ -52,8 +61,9 @@ void * generateFood(void * arg) {
     }
 }
 
-void writeFoodDataToClients(Vector * connections, Vector * foods) {
+bool writeFoodDataToClients(Vector * connections, Vector * foods) {
     int response;
+    Connection * connection;
     size_t size = DELIMITERS_SIZE + INTEGER_BYTES + (FOOD_BYTES_SIZE * foods->size);
     unsigned char buffer[size];
     bzero(buffer, size);
@@ -61,13 +71,18 @@ void writeFoodDataToClients(Vector * connections, Vector * foods) {
     serializedVectorOfFoodsWithDelimiter(buffer, foods);
 
     for (int i = 0; i < connections->size; i++) {
-        Connection * temp = (Connection *) connections->data[i];
+        connection = (Connection *) connections->data[i];
 
-        response = (int) write(temp->sockFd, buffer, size);
+        response = (int) write(connection->sockFd, buffer, size);
 
         if (response < 0) {
             perror("Error writing to socket");
-            close(temp->sockFd);
+            // Error, close socket, delete connection and indicate the server to
+            // resend the data.
+            freeConnection(connection);
+            deleteItemFromVector(connections, connection);
+            return false;
         }
     }
+    return true;
 }
