@@ -24,7 +24,10 @@ void * snakeAction(void *args) {
         return (void *) status;
     }
     // Check if next position is food and grow if so
-    checkIfNextPositionIsFoodAndGrow(snake, allFoods);
+    if (checkIfNextPositionIsFoodAndGrow(snake, allFoods)) {
+        // Food was eaten, re-send food data
+        writeFoodDataToClients(allConnections, allFoods);
+    }
 
     if (snake->size == FOOD_TO_WIN) {
         status->status = WINNER;
@@ -96,7 +99,7 @@ Position * moveHeadSnake(Direction direction, Position *position) {
     return tempPosition;
 }
 
-void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
+bool checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
     Position * nextPositionOfSelectedSnake, * eatenPosition;
     Food * food;
     // Get the next position of this snake
@@ -109,10 +112,9 @@ void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
             // If they are equal, increase the size of snake.
             if (checkIfPositionsAreEqual(nextPositionOfSelectedSnake, food->position)) {
                 eatenPosition = (Position *) malloc(sizeof(Position));
-
                 if (eatenPosition == NULL) {
                     perror("Failed to allocate memory to Position");
-                    return;
+                    return false;
                 }
                 // The position does not care since it will handled by move.
                 addPosition(snake->positions, eatenPosition);
@@ -121,11 +123,12 @@ void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
                 // Remove the eaten food.
                 free(food->position);
                 deleteItemFromVector(foods, food);
-                return;
+                return true;
             }
         }
     }
     free(nextPositionOfSelectedSnake);
+    return false;
 }
 
 bool checkIfNextPositionIsCollision(Snake *snake, Vector *connections) {

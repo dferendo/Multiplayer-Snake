@@ -13,7 +13,7 @@ void * snakeAction(void * args);
 
 bool checkHeadCollision(Snake * snake, Vector * connections);
 
-void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods);
+bool checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods);
 
 bool checkIfNextPositionIsCollision(Snake * snake, Vector * connections);
 

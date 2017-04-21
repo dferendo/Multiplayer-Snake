@@ -117,7 +117,7 @@ void deleteWindow(WINDOW *window) {
 
 void showWinnerScreen() {
     WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
-    mvwprintw(tempWindow, 0, 0, "You Win!!");
+    mvwprintw(tempWindow, 2, 3, "You Win!!");
     wrefresh(tempWindow);
     sleep(DEAD_WIN_SCREEN_DELAY_SEC);
     deleteWindow(tempWindow);
@@ -126,7 +126,7 @@ void showWinnerScreen() {
 
 void showDeadScreen() {
     WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
-    mvwprintw(tempWindow, 0, 0, "You Died");
+    mvwprintw(tempWindow, 2, 3, "You Died");
     wrefresh(tempWindow);
     sleep(DEAD_WIN_SCREEN_DELAY_SEC);
     deleteWindow(tempWindow);
