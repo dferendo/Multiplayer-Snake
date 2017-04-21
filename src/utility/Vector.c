@@ -23,20 +23,19 @@ Vector * initVector() {
 int addItemToVector(Vector *vector, void *item) {
     // Realloc needs to have previous memory allocated to it to be used.
     if (vector->size == 0) {
-        vector->size++;
-        vector->data = (void **) malloc(vector->size * sizeof(*vector->data));
+        vector->data = (void **) malloc((vector->size + 1)* sizeof(*vector->data));
         if (vector->data == NULL) {
             perror("Failed to allocate memory to Food in vector.");
             return -1;
         }
         // Add properties to the new allocated memory.
         vector->data[0] = item;
+        vector->size++;
         return 1;
     }
 
-    vector->size++;
     void ** temp;
-    temp = (void **) realloc(vector->data, vector->size * sizeof(*vector->data));
+    temp = (void **) realloc(vector->data, (vector->size + 1) * sizeof(*vector->data));
 
     if (temp == NULL) {
         perror("Failed to re-allocate memory to Food in vector.");
@@ -44,7 +43,8 @@ int addItemToVector(Vector *vector, void *item) {
         return -2;
     }
     vector->data = temp;
-    vector->data[vector->size - 1] = item;
+    vector->data[vector->size] = item;
+    vector->size++;
     return 1;
 }
 

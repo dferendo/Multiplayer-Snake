@@ -16,9 +16,9 @@ void gameInit(int sockFd);
 
 void gameRunning(int sockFd);
 
-bool foodHandler(int sockFd, Vector * foods, Vector * snakes);
+bool foodHandler(int sockFd);
 
-bool snakeHandler(int sockFd, Vector * foods, Vector * snakes);
+bool snakeHandler(int sockFd);
 
 void clearFoodsVector(Vector * foods);
 

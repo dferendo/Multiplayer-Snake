@@ -9,6 +9,8 @@
 #include <pthread.h>
 
 WINDOW * window;
+Vector * foods = NULL;
+Vector * snakes = NULL;
 
 void gameInit(int sockFd) {
     pthread_t characterReaderTId;
@@ -30,8 +32,6 @@ void gameInit(int sockFd) {
 }
 
 void gameRunning(int sockFd) {
-    Vector * foods = NULL;
-    Vector * snakes = NULL;
     int nextCompute;
     WINDOW * window = generatePlayingWindow();
 
@@ -39,12 +39,15 @@ void gameRunning(int sockFd) {
         nextCompute = readDelimiterSnakes(sockFd);
 
         if (nextCompute == 1) {
-            if (!foodHandler(sockFd, foods, snakes)) {
+            if (!foodHandler(sockFd)) {
                 // There was an error which cannot be fixed, stop game.
                 break;
             }
         } else if (nextCompute == 2) {
-            snakeHandler(sockFd, foods, snakes);
+            if (!snakeHandler(sockFd)) {
+                // There was an error which cannot be fixed, stop game.
+                break;
+            }
         } else if (nextCompute == 3) {
             deleteWindow(window);
             showWinnerScreen();
@@ -94,7 +97,7 @@ void clearSnakeVector(Vector *snakes) {
     }
 }
 
-bool foodHandler(int sockFd, Vector *foods, Vector * snakes) {
+bool foodHandler(int sockFd) {
     clearFoodsVector(foods);
     deleteWindow(window);
     foods = readFoodsFromSocket(sockFd);
@@ -109,7 +112,7 @@ bool foodHandler(int sockFd, Vector *foods, Vector * snakes) {
     return true;
 }
 
-bool snakeHandler(int sockFd, Vector *foods, Vector *snakes) {
+bool snakeHandler(int sockFd) {
     clearSnakeVector(snakes);
     deleteWindow(window);
 
@@ -134,7 +137,7 @@ void *readDirectionFromUser(void *args) {
         switch (character) {
             case 'w':
                 // If snake allowed to go opposite side, it would mean he is dead.
-                if (previousChar != 'x') {
+                if (previousChar != 'x' && previousChar != 'w') {
                     if (sendUserDirection(sockFd, D_UP)) {
                         previousChar = character;
                     } else {
@@ -145,7 +148,7 @@ void *readDirectionFromUser(void *args) {
                 }
                 break;
             case 'a':
-                if (previousChar != 'd') {
+                if (previousChar != 'd' && previousChar != 'a') {
                     if (sendUserDirection(sockFd, D_LEFT)) {
                         previousChar = character;
                     } else {
@@ -156,7 +159,7 @@ void *readDirectionFromUser(void *args) {
                 }
                 break;
             case 'd':
-                if (previousChar != 'a') {
+                if (previousChar != 'a' && previousChar != 'd') {
                     if (sendUserDirection(sockFd, D_RIGHT)) {
                         previousChar = character;
                     } else {
@@ -167,7 +170,7 @@ void *readDirectionFromUser(void *args) {
                 }
                 break;
             case 'x':
-                if (previousChar != 'w') {
+                if (previousChar != 'w' && previousChar != 'x') {
                     if (sendUserDirection(sockFd, D_DOWN)) {
                         previousChar = character;
                     } else {

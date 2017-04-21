@@ -68,15 +68,15 @@ void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock) {
 
     while (true) {
         // Lock so that food is not generated when finding the new location.
-//        pthread_mutex_lock(&lock);
-//         Create thread workers.
-//        if (createSnakeWorkers(connections, foods)) {
-//            break;
-//        }
-//         Send new information.
-//        sendSnakeDataToClients(connections);
-//        pthread_mutex_unlock(&lock);
-//        usleep(GAME_UPDATE_RATE_US);
+        pthread_mutex_lock(&lock);
+        // Create thread workers.
+        if (createSnakeWorkers(connections, foods)) {
+            break;
+        }
+        // Send new information.
+        sendSnakeDataToClients(connections);
+        pthread_mutex_unlock(&lock);
+        usleep(GAME_UPDATE_RATE_US);
     }
 }
 

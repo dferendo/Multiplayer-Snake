@@ -4,16 +4,18 @@
 #include "Snake.h"
 #include "../utility/RandomUtility.h"
 #include "../settings/GameSettings.h"
+#include "SnakeMove.h"
 
 Snake *createSnake(Vector * connections, Vector * foods) {
+    Position * allPositions[DEFAULT_START_SIZE];
     Snake * snake;
-    Position * position = createInitialSnakeRandomPosition(connections, foods);
+    allPositions[0] = createInitialSnakeRandomPosition(connections, foods);
 
-    if (position == NULL) {
+    if (allPositions[0] == NULL) {
         return NULL;
     }
 
-    LinkedListPosition * linkedListPosition = initLinkedListPosition(position);
+    LinkedListPosition * linkedListPosition = initLinkedListPosition(allPositions[0]);
 
     if (linkedListPosition == NULL) {
         return NULL;
@@ -25,7 +27,7 @@ Snake *createSnake(Vector * connections, Vector * foods) {
         perror("Failed to allocate memory to Snake");
         return NULL;
     }
-    // TODO: do 3 sizes.
+
     snake->size = DEFAULT_START_SIZE;
     snake->positions = linkedListPosition;
     snake->direction = DEFAULT_START_DIRECTION;

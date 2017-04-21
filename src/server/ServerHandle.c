@@ -74,9 +74,6 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
         args->connections = serverParams->connections;
         args->foods = serverParams->foods;
 
-        // Main param is no longer needed
-        free(serverParams);
-
         if (pthread_create(&clientThread, NULL, initNewConnection, args) != 0) {
             perror("Could not create a worker thread.");
             free(args);

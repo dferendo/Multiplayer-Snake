@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <memory.h>
+#include <errno.h>
 
 bool sendSnakeDataToClients(Vector * connections) {
     int response;
@@ -73,12 +74,14 @@ void * checkForChangeOfDirections(void * args) {
     Connection * connection;
     int response, direction;
     unsigned char buffer[DELIMITERS_SIZE], directionBuffer[INTEGER_BYTES];
+    bool connectionsLost = false;
 
     while (true) {
         for (int i = 0; i < connections->size; i++) {
             // Read if delimiter was passed.
-            connection = ((Connection *) connections->data[i]);
+            connection = (Connection *) connections->data[i];
             bzero(buffer, DELIMITERS_SIZE);
+            bzero(directionBuffer, INTEGER_BYTES);
 
             // Set to non blocking so that others can also change
             setSocketBlockingEnabled(connection->sockFd, false);
@@ -86,7 +89,13 @@ void * checkForChangeOfDirections(void * args) {
             setSocketBlockingEnabled(connection->sockFd, true);
 
             if (response < 0) {
-                continue;
+                // Read nothing, ignore
+                if (errno == EAGAIN) {
+                    continue;
+                }
+                // Connection lost
+                connectionsLost = true;
+                break;
             }
             if (strncmp((const char *) buffer, CHANGE_DIRECTION_DELIMITER, DELIMITERS_SIZE) != 0) {
                 continue;
@@ -96,7 +105,7 @@ void * checkForChangeOfDirections(void * args) {
             response = (int) read(connection->sockFd, directionBuffer, INTEGER_BYTES);
 
             if (response < 0) {
-                continue;
+                connectionsLost = true;
             }
             pthread_mutex_lock(&lock);
             direction = (int) connection->snake->direction;
@@ -104,7 +113,10 @@ void * checkForChangeOfDirections(void * args) {
             connection->snake->direction = (Direction) direction;
             pthread_mutex_unlock(&lock);
         }
-        sleep(CHARACTER_CHANGE_DIRECTION_TIME_US);
+
+        if (connectionsLost) {
+            break;
+        }
     }
     pthread_exit(NULL);
 }
