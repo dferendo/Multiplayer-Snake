@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     // Game Thread
-    if (pthread_create(&serverThread, NULL, gameInitialize, gameArgs) != 0) {
+    if (pthread_create(&gameThread, NULL, gameInitialize, gameArgs) != 0) {
         perror("Could not create a worker thread.");
         free(serverArgs);
         free(gameArgs);

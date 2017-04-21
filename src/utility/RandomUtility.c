@@ -7,6 +7,7 @@
 #include "../server/Food.h"
 #include "../server/Server.h"
 #include "../server/Snake.h"
+#include "../server/ServerHandle.h"
 
 Position * createInitialSnakeRandomPosition(Vector * connections, Vector * foods) {
     int x, y;
@@ -83,7 +84,7 @@ Position * createFoodPosition(Vector *positionsOfSnakes, Vector * foodLocations)
         // Check if position is taken by a snake
         for (int i = 0; i < positionsOfSnakes->size; i++) {
             positionExists = false;
-            Snake * snake = ((Connection *) positionsOfSnakes->data[i])->clientInfo->snake;
+            Snake * snake = ((Connection *) positionsOfSnakes->data[i])->snake;
             if (snake != NULL) {
                 positionExistsLinkedList(snake->positions, x, y, &positionExists);
                 if (positionExists) {

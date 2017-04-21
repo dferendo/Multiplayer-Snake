@@ -6,6 +6,8 @@
 #define SNAKES_SERIALIZE_H
 
 #include "../server/Server.h"
+#include "LinkedList.h"
+#include "../server/Snake.h"
 
 #define INTEGER_BYTES 4
 #define POSITION_BYTES 8
@@ -35,35 +37,13 @@ unsigned char * serializeCharArray(unsigned char * buffer, char * value, int siz
 
 unsigned char * deserializeCharArray(unsigned char * buffer, char * value, int size);
 
-// Serialize/Deserialize Client information.
-
-unsigned char * serializeClientInfo(unsigned char * buffer, ClientInfo * clientInfo);
-
-unsigned char * deserializeClientInfo(unsigned char *buffer, ClientInfo *clientInfo);
-
-// Serialize/Deserialize Connection information.
-
-unsigned char * serializeConnection(unsigned char * buffer, Connection * connection);
-
-unsigned char * deserializeConnection(unsigned char * buffer, Connection * connection);
-
-unsigned char * serializeVectorOfConnections(unsigned char * buffer, Vector * connections);
-
-unsigned char * deserializeVectorOfConnections(unsigned char * buffer, Vector * connections, int size);
-
-unsigned char * serializedVectorOfConnectionsDelimiter(unsigned char * buffer, Vector *connections);
-
 // Serialize/Deserialize Snake information.
 
 unsigned char * serializedLinkedList(unsigned char * buffer, LinkedListPosition * linkedListPosition);
 
 unsigned char * serializedSnake(unsigned char * buffer, Snake * snake);
 
-unsigned char * serializedSnakesFromConnections(unsigned char *buffer, Vector *connections);
-
 unsigned char * deserializedSnake(unsigned char *buffer, Snake *snake, int size);
-
-unsigned char * deserializedNameAndSizeOfSnake(unsigned char * buffer, char * name, int * size);
 
 // Serialize/Deserialize Position information.
 
@@ -81,8 +61,6 @@ unsigned char * deserializedVectorOfFoods(unsigned char * buffer, Vector * foods
 
 unsigned char * serializedSnakeDirectionWithDelimiter(unsigned char * buffer, int direction);
 
-// Serialize/Deserialize Connection
-
-unsigned char * serializedAddConnection(unsigned char *buffer, Connection *connection);
+unsigned char * serializedSnakesFromConnections(unsigned char *buffer, Vector *connections);
 
 #endif //SNAKES_SERIALIZE_H

@@ -5,6 +5,8 @@
 #include "Game.h"
 #include "Food.h"
 #include "Server.h"
+#include "../settings/GameSettings.h"
+#include "ServerHandle.h"
 
 void * snakeAction(void *args) {
     Snake * snake = ((SnakeWorkerParams *) args)->snake;
@@ -43,7 +45,7 @@ bool checkHeadCollision(Snake * snake, Vector * connections) {
     nextPositionOfSelectedSnake = moveHeadSnake(snake->direction, snake->positions->position);
     // Check if two heads of snake collide, if they do they both die.
     for (int i = 0; i < connections->size; i++) {
-        tempSnake = ((Connection *) connections->data[i])->clientInfo->snake;
+        tempSnake = ((Connection *) connections->data[i])->snake;
         // Skips if same snake
         if (tempSnake == snake) {
             continue;
@@ -142,7 +144,7 @@ bool checkIfNextPositionIsCollision(Snake *snake, Vector *connections) {
     // Check if collision with other snake
     for (int i = 0; i < connections->size; i++) {
         exists = false;
-        nextSnake = ((Connection *) connections->data[i])->clientInfo->snake;
+        nextSnake = ((Connection *) connections->data[i])->snake;
         positionExistsLinkedList(nextSnake->positions, nextPositionOfSelectedSnake->x,
                                  nextPositionOfSelectedSnake->y, &exists);
         // If true, there is a collision.

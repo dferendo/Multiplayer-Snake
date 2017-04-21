@@ -8,9 +8,8 @@
 #include <ncurses.h>
 #include "Vector.h"
 #include "../server/Server.h"
+#include "../server/ServerHandle.h"
 #include <fcntl.h>
-
-bool checkIfHost(Vector * connections, char * playerID);
 
 /**
  * Returns true on success, or false if there was an error.

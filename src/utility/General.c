@@ -7,19 +7,6 @@
 #include <string.h>
 #include <unistd.h>
 
-bool checkIfHost(Vector *connections, char *playerID) {
-
-    for (int i = 0; i < connections->size; i++) {
-        Connection * connection = (Connection *) connections->data[i];
-
-        if (strcmp(connection->clientInfo->name, playerID) == 0 &&
-            connection->clientInfo->isHost) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool setSocketBlockingEnabled(int sockFd, bool blocking) {
     int flags;
 

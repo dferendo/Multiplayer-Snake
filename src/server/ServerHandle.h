@@ -5,7 +5,7 @@
 #ifndef SNAKES_SERVERHANDLE_H
 #define SNAKES_SERVERHANDLE_H
 
-#include <bits/socket.h>
+#include <sys/socket.h>
 #include "Server.h"
 #include "Snake.h"
 

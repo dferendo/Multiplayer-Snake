@@ -8,7 +8,10 @@
 #include "../../utility/General.h"
 #include "../ServerHandle.h"
 #include "../Game.h"
+#include "../../settings/GameSettings.h"
 #include <unistd.h>
+#include <pthread.h>
+#include <memory.h>
 
 bool sendSnakeDataToClients(Vector * connections) {
     int response;
@@ -101,4 +104,5 @@ void * checkForChangeOfDirections(void * args) {
         }
         sleep(CHARACTER_CHANGE_DIRECTION_TIME_US);
     }
+    pthread_exit(NULL);
 }
