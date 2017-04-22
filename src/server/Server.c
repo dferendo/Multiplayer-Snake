@@ -42,6 +42,8 @@ int main(int argc, char *argv[]) {
         startGameThread(foods, connections);
         // Whenever a game ends, it will return.
         pthread_mutex_lock(&lock);
+        // Re-declare variables
+        foods = initVector();
         restartGame(foods, connections);
         pthread_mutex_unlock(&lock);
         // Give some time before starting new game.
@@ -52,8 +54,6 @@ int main(int argc, char *argv[]) {
 void restartGame(Vector * foods, Vector * connections) {
     Connection * connection;
     bool error;
-    // Re-declare variables
-    foods = initVector();
     // Give starting positions
     for (int i = 0; i < connections->size; i++) {
         connection = (Connection *) connections->data[i];
@@ -64,8 +64,6 @@ void restartGame(Vector * foods, Vector * connections) {
     do {
         // Send data again, if a connection is lost re-send the data.
         error = sendSnakeDataToClients(connections);
-        // Send Food data as well
-        error |= writeFoodDataToClients(connections, foods);;
     } while (!error);
 }
 
