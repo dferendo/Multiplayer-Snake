@@ -7,18 +7,17 @@
 
 #include <stdint.h>
 #include "../utility/Vector.h"
+extern pthread_mutex_t lock;
 
 typedef struct GameThreadParams {
     Vector * connections;
     Vector * foods;
-    pthread_mutex_t lock;
 } GameThreadParams;
 
 typedef struct ServerParams {
     Vector * connections;
     Vector * foods;
     uint16_t portNumber;
-    pthread_mutex_t lock;
 } ServerParams;
 
 int main(int argc, char *argv[]);

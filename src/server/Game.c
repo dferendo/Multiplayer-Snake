@@ -11,10 +11,11 @@
 #include "API/SnakesAPI.h"
 #include <unistd.h>
 
+pthread_mutex_t lock;
+
 void * gameInitialize(void * args) {
     Vector * connections = ((GameThreadParams *) args)->connections;
     Vector * foods = ((GameThreadParams *) args)->foods;
-    pthread_mutex_t lock = ((GameThreadParams *) args)->lock;
     pthread_t foodThread, changeDirectionThread;
 
     ChangeDirectionParams * changeDirectionParams =
@@ -25,7 +26,6 @@ void * gameInitialize(void * args) {
         free(args);
         pthread_exit(NULL);
     }
-    changeDirectionParams->lock = lock;
     changeDirectionParams->connections = connections;
 
     FoodGeneratorParams * foodGeneratorParams =
@@ -39,7 +39,6 @@ void * gameInitialize(void * args) {
     }
     foodGeneratorParams->foods = foods;
     foodGeneratorParams->connections = connections;
-    foodGeneratorParams->lock = lock;
 
     // Create thread for food.
     if (pthread_create(&foodThread, NULL, generateFood, foodGeneratorParams) != 0) {
@@ -68,10 +67,12 @@ void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock) {
     while (true) {
         // Lock so that food is not generated when finding the new location.
         pthread_mutex_lock(&lock);
-        // Move snakes
-        moveSnakes(connections, foods);
-        // Send new information.
-        sendSnakeDataToClients(connections);
+        if (connections != NULL) {
+            // Move snakes
+            moveSnakes(connections, foods);
+            // Send new information.
+            sendSnakeDataToClients(connections);
+        }
         pthread_mutex_unlock(&lock);
         usleep(GAME_UPDATE_RATE_US);
     }

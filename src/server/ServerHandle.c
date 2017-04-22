@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <netinet/in.h>
 
+pthread_mutex_t lock;
+
 void * serverInit(void * args) {
     ServerParams * serverParams = (ServerParams *) args;
     uint16_t portNumber = serverParams->portNumber;
@@ -70,7 +72,6 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
         }
 
         args->sockFd = newSockFd;
-        args->lock = serverParams->lock;
         args->connections = serverParams->connections;
         args->foods = serverParams->foods;
 
@@ -87,7 +88,6 @@ void * initNewConnection(void *arg) {
     Vector * connections = ((CreateConnectThreadArguments *) arg)->connections;
     Vector * foods = ((CreateConnectThreadArguments *) arg)->foods;
     int socketFileDescriptor = ((CreateConnectThreadArguments *) arg)->sockFd;
-    pthread_mutex_t lock = ((CreateConnectThreadArguments *) arg)->lock;
 
     Connection * connection;
     bool error;
@@ -99,12 +99,14 @@ void * initNewConnection(void *arg) {
 
     // Failed to create connection, stop the client and stop the thread.
     if (connection == NULL) {
+        pthread_mutex_unlock(&lock);
         close(socketFileDescriptor);
         pthread_exit(NULL);
     }
 
-    // Lock connections to add new connection
+    // Failed to re-alloc
     if (addItemToVector(connections, connection) < 0) {
+        pthread_mutex_unlock(&lock);
         // Error
         freeConnection(connection);
         pthread_exit(NULL);

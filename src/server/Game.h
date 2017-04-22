@@ -11,13 +11,11 @@
 
 typedef struct ChangeDirectionParams {
     Vector * connections;
-    pthread_mutex_t lock;
 } ChangeDirectionParams;
 
 typedef struct FoodGeneratorParams {
     Vector * foods;
     Vector * connections;
-    pthread_mutex_t lock;
 } FoodGeneratorParams;
 
 typedef enum {

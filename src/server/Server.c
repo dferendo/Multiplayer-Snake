@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
         printf("Port number was not passed");
         exit(1);
     }
+    pthread_mutex_init(&lock, NULL);
 
     // Initialize threads
     connections = initVector();
@@ -32,8 +33,6 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    pthread_mutex_t lock;
-    pthread_mutex_init(&lock, NULL);
     // Create args
     GameThreadParams * gameArgs = (GameThreadParams *) malloc(sizeof(GameThreadParams));
 
@@ -45,7 +44,6 @@ int main(int argc, char *argv[]) {
     }
     gameArgs->connections = connections;
     gameArgs->foods = foods;
-    gameArgs->lock = lock;
 
     ServerParams * serverArgs = (ServerParams *) malloc(sizeof(ServerParams));
 
@@ -59,7 +57,6 @@ int main(int argc, char *argv[]) {
 
     serverArgs->connections = connections;
     serverArgs->foods = foods;
-    serverArgs->lock = lock;
     serverArgs->portNumber = (uint16_t) atoi(argv[1]);
 
     // Create Threads

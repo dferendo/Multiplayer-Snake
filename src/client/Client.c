@@ -3,8 +3,6 @@
 #include "template/ClientLayout.h"
 #include "ConnectMenu.h"
 
-int getProgramParams(int argc, char **argv, char * hostName, int * portNumber);
-
 int main(int argc, char *argv[]) {
     // Check if port and hostname were passed.
     if (argc < 3) {

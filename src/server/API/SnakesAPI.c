@@ -69,7 +69,6 @@ void sendEndGameToClients(int sockFd, SnakeStatus status) {
 
 void * checkForChangeOfDirections(void * args) {
     Vector * connections = ((ChangeDirectionParams *) args)->connections;
-    pthread_mutex_t lock = ((ChangeDirectionParams *) args)->lock;
     Connection * connection;
     int response, direction;
     unsigned char buffer[DELIMITERS_SIZE], directionBuffer[INTEGER_BYTES];
@@ -83,6 +82,7 @@ void * checkForChangeOfDirections(void * args) {
             bzero(directionBuffer, INTEGER_BYTES);
 
             // Set to non blocking so that others can also change
+            // and do not block connections
             setSocketBlockingEnabled(connection->sockFd, false);
             response = (int) read(connection->sockFd, buffer, DELIMITERS_SIZE);
             setSocketBlockingEnabled(connection->sockFd, true);
@@ -94,25 +94,19 @@ void * checkForChangeOfDirections(void * args) {
                 }
                 freeConnection(connection);
                 deleteItemFromVector(connections, connection);
-                // Delete the connection and since the vectors shifts the elements,
-                // decrement the counter
-                i--;
-                continue;
+                break;
             }
             if (strncmp((const char *) buffer, CHANGE_DIRECTION_DELIMITER, DELIMITERS_SIZE) != 0) {
-                continue;
+                break;
             }
             // Read the actual change of direction.
-
             response = (int) read(connection->sockFd, directionBuffer, INTEGER_BYTES);
 
             if (response < 0) {
                 freeConnection(connection);
                 deleteItemFromVector(connections, connection);
-                // Delete the connection and since the vectors shifts the elements,
-                // decrement the counter
-                i--;
-                continue;
+                // Re-try later
+                break;
             }
             direction = (int) connection->snake->direction;
             deserializeInt(directionBuffer, &direction);

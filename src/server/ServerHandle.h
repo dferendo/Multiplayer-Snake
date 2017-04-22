@@ -18,7 +18,6 @@ typedef struct CreateConnectThreadArguments {
     int sockFd;
     Vector * connections;
     Vector * foods;
-    pthread_mutex_t lock;
 } CreateConnectThreadArguments;
 
 void * serverInit(void * args);
