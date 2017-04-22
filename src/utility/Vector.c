@@ -70,19 +70,23 @@ int deleteItemFromVector(Vector *vector, void *item) {
     }
     // Free the searched item
     free(item);
-    // TODO memmove use.
     // Move memory to the left to delete the selected Food.
     for (int i = index; i < vector->size - 1; i++) {
         vector->data[i] = vector->data[i + 1];
     }
     // Decrement size.
     vector->size--;
-    // Realloc new size.
-    void ** temp = (void **) realloc(vector->data, vector->size * sizeof(*vector->data));
-    if (temp == NULL) {
-        perror("Failed to de-allocate memory to Food vector.");
-        return -2;
+    // Size is 0, do not rely on realloc
+    if (vector->size == 0) {
+        free(vector->data);
+    } else {
+        // Realloc new size.
+        void ** temp = (void **) realloc(vector->data, vector->size * sizeof(*vector->data));
+        if (temp == NULL) {
+            perror("Failed to de-allocate memory to vector.");
+            return -2;
+        }
+        vector->data = temp;
     }
-    vector->data = temp;
     return 1;
 }
