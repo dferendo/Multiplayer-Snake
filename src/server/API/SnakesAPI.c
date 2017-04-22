@@ -49,7 +49,7 @@ bool sendSnakeDataToClients(Vector * connections) {
     return true;
 }
 
-void sendEndGameToClients(int sockFd, SnakeStatus status) {
+bool sendEndGameToClients(int sockFd, SnakeStatus status) {
     int response;
     unsigned char buffer[DELIMITERS_SIZE];
     bzero(buffer, DELIMITERS_SIZE);
@@ -65,8 +65,9 @@ void sendEndGameToClients(int sockFd, SnakeStatus status) {
 
     if (response < 0) {
         perror("Error writing to socket");
-        close(sockFd);
+        return false;
     }
+    return true;
 }
 
 void * checkForChangeOfDirections(void * args) {

@@ -27,8 +27,10 @@ typedef enum {
 
 void * gameInitialize(void *);
 
-void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock);
+void gameLoop(Vector *connections, Vector *foods);
 
-void moveSnakes(Vector *connections, Vector *foods);
+void restartGame(Vector * connections, Vector * foods);
+
+bool moveSnakes(Vector *connections, Vector *foods);
 
 #endif //SNAKES_GAME_H

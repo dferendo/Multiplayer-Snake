@@ -22,4 +22,8 @@ void freeConnection(Connection * connection);
 
 void freeSnake(Snake * snake);
 
+void clearFoodsVector(Vector * foods);
+
+void clearSnakeVector(Vector * snakes);
+
 #endif //SNAKES_GENERAL_H

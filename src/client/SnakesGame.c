@@ -38,30 +38,28 @@ void gameManager(int sockFd) {
         return;
     }
 
-    gameStatus = gameRunning(sockFd);
-    // End thread
-    *keepAlive = false;
-    // Connection was lost or winning of game. Wait for thread to stop.
-    pthread_join(characterReaderTId, NULL);
+    while (true) {
+        gameStatus = gameRunning(sockFd);
 
-    // Close socket once.
-    close(sockFd);
-    // Clear Vectors
-    clearSnakeVector(snakes);
-    clearFoodsVector(foods);
-    free(keepAlive);
-
-    if (gameStatus == 1) {
-        showScreenInCentre(WINNER_TEXT);
-    } else if (gameStatus == 2) {
-        showScreenInCentre(DIED_TEXT);
-    } else if (gameStatus == 3) {
-        showScreenInCentre(RESTART_TEXT);
-    } else if (gameStatus == -1) {
-        showScreenInCentre(ERROR_CONNECTION_FAILED);
-    } else {
-        perror("Expected error, problem with parallelism.");
+        if (gameStatus == 1) {
+            showScreenInCentre(WINNER_TEXT);
+        } else if (gameStatus == 2) {
+            showScreenInCentre(DIED_TEXT);
+            // Exit game if dead
+            break;
+        } else if (gameStatus == 3) {
+            showScreenInCentre(RESTART_TEXT);
+        } else if (gameStatus == -1) {
+            showScreenInCentre(ERROR_CONNECTION_FAILED);
+            // Exit game if server cannot be reached
+            break;
+        } else {
+            perror("Expected error, problem with parallelism.");
+            break;
+        }
     }
+    // If this is reached, terminate everything
+    closeClient(snakes, foods, sockFd, keepAlive, characterReaderTId);
 }
 
 int gameRunning(int sockFd) {
@@ -111,34 +109,6 @@ int gameRunning(int sockFd) {
     }
 }
 
-void clearFoodsVector(Vector *foods) {
-    Food * food;
-    if (foods == NULL) {
-        return;
-    }
-
-    for (int i = 0; i < foods->size; i++) {
-        food = (Food *) foods->data[i];
-        free(food->position);
-    }
-
-    deleteVector(foods);
-}
-
-void clearSnakeVector(Vector *snakes) {
-    Snake * snake;
-
-    if (snakes == NULL) {
-        return;
-    }
-
-    for (int i = 0; i < snakes->size; i++) {
-        snake = (Snake *) snakes->data[i];
-        freeSnake(snake);
-    }
-    deleteVector(snakes);
-}
-
 bool foodHandler(int sockFd) {
     clearFoodsVector(foods);
     deleteWindow(window);
@@ -161,7 +131,7 @@ bool snakeHandler(int sockFd) {
     // Error with snakes
     if (snakes == NULL) {
         deleteWindow(window);
-        showServerErrorScreen();
+        showScreenInCentre(ERROR_CONNECTION_FAILED);
         return false;
     }
     window = displayNewData(foods, snakes);
@@ -238,4 +208,18 @@ void *readDirectionFromUser(void *args) {
                 continue;
         }
     }
+}
+
+void closeClient(Vector *snakes, Vector *foods, int socketFd, bool * keepAlive, pthread_t characterReaderId) {
+    // End Character reader thread
+    *keepAlive = false;
+    // Connection was lost or winning of game. Wait for thread to stop.
+    pthread_join(characterReaderId, NULL);
+
+    free(keepAlive);
+    // Close socket once.
+    close(socketFd);
+    // Clear Vectors
+    clearSnakeVector(snakes);
+    clearFoodsVector(foods);
 }

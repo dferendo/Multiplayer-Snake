@@ -4,6 +4,7 @@
 #include "General.h"
 #include "LinkedList.h"
 #include "../server/ServerHandle.h"
+#include "../server/Food.h"
 #include <string.h>
 #include <unistd.h>
 
@@ -35,4 +36,32 @@ void freeSnake(Snake * snake) {
     deleteLinkedListPosition(snake->positions);
     // Free Snake
     free(snake);
+}
+
+void clearFoodsVector(Vector *foods) {
+    Food * food;
+    if (foods == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < foods->size; i++) {
+        food = (Food *) foods->data[i];
+        free(food->position);
+    }
+
+    deleteVector(foods);
+}
+
+void clearSnakeVector(Vector *snakes) {
+    Snake * snake;
+
+    if (snakes == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < snakes->size; i++) {
+        snake = (Snake *) snakes->data[i];
+        freeSnake(snake);
+    }
+    deleteVector(snakes);
 }

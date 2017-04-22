@@ -21,10 +21,8 @@ bool foodHandler(int sockFd);
 
 bool snakeHandler(int sockFd);
 
-void clearFoodsVector(Vector * foods);
-
-void clearSnakeVector(Vector * snakes);
-
 void * readDirectionFromUser(void *args);
+
+void closeClient(Vector *snakes, Vector *foods, int socketFd, bool *pBoolean, pthread_t i);
 
 #endif //SNAKES_SNAKESGAME_H

@@ -16,7 +16,7 @@
 
 #define FOOD_TO_WIN 15
 
-#define GAME_UPDATE_RATE_US 500000
+#define GAME_UPDATE_RATE_US 200000
 
 // All consoles will have the same size of the map
 #define MAIN_WINDOW_ROW 24

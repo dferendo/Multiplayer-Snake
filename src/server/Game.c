@@ -57,20 +57,27 @@ void * gameInitialize(void * args) {
         free(foodGeneratorParams);
         pthread_exit(NULL);
     }
-    gameLoop(connections, foods, lock);
-    free(args);
-    pthread_exit(NULL);
+    while (true) {
+        // Repeat, since game restarts with every win.
+        gameLoop(connections, foods);
+        // Restart game.
+        restartGame(connections,foods);
+        // Wait until prompt screen is down to move
+        sleep(PROMPT_SCREEN_DELAY);
+    }
 }
 
-void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock) {
+void gameLoop(Vector *connections, Vector *foods) {
     bool error;
 
     while (true) {
         // Lock so that food is not generated when finding the new location.
         pthread_mutex_lock(&lock);
         if (connections != NULL) {
-            // Move snakes
-            moveSnakes(connections, foods);
+            // Move snakes, if true there is a winner and game needs to be restarted.
+            if (moveSnakes(connections, foods)) {
+                break;
+            }
             // Send new information.
             do {
                 // Send data again, if a connection is lost re-send the data.
@@ -82,7 +89,7 @@ void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock) {
     }
 }
 
-void moveSnakes(Vector *connections, Vector *foods) {
+bool moveSnakes(Vector *connections, Vector *foods) {
     Snake * snake;
     SnakeStatus moveSnakesReturns[connections->size];
     bool thereAreWinners = false;
@@ -102,21 +109,46 @@ void moveSnakes(Vector *connections, Vector *foods) {
         for (int i = 0; i < connections->size; i++) {
             connection = (Connection *)connections->data[i];
             if (moveSnakesReturns[i] == WINNER) {
-                sendEndGameToClients(connection->sockFd, WINNER);
+                // Check for connection lost, if so remove the connection
+                if (!sendEndGameToClients(connection->sockFd, WINNER)) {
+                    freeConnection(connection);
+                    deleteItemFromVector(connections, connection);
+                }
             } else {
-                sendEndGameToClients(connection->sockFd, RESTART);
+                // Check for connection lost, if so remove the connection
+                if (!sendEndGameToClients(connection->sockFd, RESTART)) {
+                    freeConnection(connection);
+                    deleteItemFromVector(connections, connection);
+                }
             }
         }
+        return true;
     } else {
         // Check if snakes died.
         for (int i = 0; i < connections->size; i++) {
             connection = (Connection *) connections->data[i];
             if (moveSnakesReturns[i] == DIED) {
                 sendEndGameToClients(connection->sockFd, DIED);
-                // Clear snake.
+                // Clear snake, regardless if connection failed
                 freeConnection(connection);
                 deleteItemFromVector(connections, connection);
             }
         }
     }
+    return false;
+}
+
+void restartGame(Vector *connections, Vector *foods) {
+    pthread_mutex_lock(&lock);
+    Connection * connection;
+    // Clear food
+    clearFoodsVector(foods);
+    // Clear snakes
+    for (int i = 0; i < connections->size; i++) {
+        connection = (Connection *) connections->data[i];
+        freeSnake(connection->snake);
+        // Re-generate snake random position
+        connection->snake = createSnake(connections, foods);
+    }
+    pthread_mutex_unlock(&lock);
 }

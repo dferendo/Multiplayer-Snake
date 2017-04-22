@@ -12,7 +12,7 @@
 
 bool sendSnakeDataToClients(Vector *connections);
 
-void sendEndGameToClients(int sockFd, SnakeStatus status);
+bool sendEndGameToClients(int sockFd, SnakeStatus status);
 
 void * checkForChangeOfDirections(void * args);
 
