@@ -17,33 +17,45 @@ void * gameInitialize(void * args) {
     Vector * connections = ((GameThreadParams *) args)->connections;
     Vector * foods = ((GameThreadParams *) args)->foods;
     pthread_t foodThread, changeDirectionThread;
+    bool * keepChangeDirectionThread = (bool *) malloc(sizeof(bool)),
+            * keepFoodGeneratorThread = (bool *) malloc(sizeof(bool));
+
+    if (keepChangeDirectionThread == NULL) {
+        perror("Failed to allocate memory to Params");
+        pthread_exit(NULL);
+    } else if (keepFoodGeneratorThread == NULL) {
+        free(keepChangeDirectionThread);
+        perror("Failed to allocate memory to Params");
+        pthread_exit(NULL);
+    }
+    *keepChangeDirectionThread = true;
+    *keepFoodGeneratorThread = true;
 
     ChangeDirectionParams * changeDirectionParams =
             (ChangeDirectionParams *) malloc(sizeof(ChangeDirectionParams));
 
     if (changeDirectionParams == NULL) {
         perror("Cannot allocate memory to Params");
-        free(args);
         pthread_exit(NULL);
     }
     changeDirectionParams->connections = connections;
+    changeDirectionParams->killThread = keepChangeDirectionThread;
 
     FoodGeneratorParams * foodGeneratorParams =
             (FoodGeneratorParams *) malloc(sizeof(FoodGeneratorParams));
 
     if (foodGeneratorParams == NULL) {
         perror("Cannot allocate memory to Params");
-        free(args);
         free(changeDirectionParams);
         pthread_exit(NULL);
     }
     foodGeneratorParams->foods = foods;
     foodGeneratorParams->connections = connections;
+    foodGeneratorParams->killThread = keepFoodGeneratorThread;
 
     // Create thread for food.
     if (pthread_create(&foodThread, NULL, generateFood, foodGeneratorParams) != 0) {
         perror("Could not create a food thread");
-        free(args);
         free(changeDirectionParams);
         free(foodGeneratorParams);
         pthread_exit(NULL);
@@ -52,19 +64,22 @@ void * gameInitialize(void * args) {
     if (pthread_create(&changeDirectionThread, NULL, checkForChangeOfDirections,
                        changeDirectionParams) != 0) {
         perror("Could not create a Change direction thread");
-        free(args);
         free(changeDirectionParams);
         free(foodGeneratorParams);
         pthread_exit(NULL);
     }
-    while (true) {
-        // Repeat, since game restarts with every win.
-        gameLoop(connections, foods);
-        // Restart game.
-        restartGame(connections,foods);
-        // Wait until prompt screen is down to move
-        sleep(PROMPT_SCREEN_DELAY);
-    }
+
+    gameLoop(connections, foods);
+    // Kill threads
+    *keepChangeDirectionThread = false;
+    *keepFoodGeneratorThread = false;
+    // Wait for thread to finish
+    pthread_join(changeDirectionThread, NULL);
+    pthread_join(foodThread, NULL);
+    // Clear data used except connections
+    clearDataUsedForGame(connections, foods);
+    // Exit
+    pthread_exit(NULL);
 }
 
 void gameLoop(Vector *connections, Vector *foods) {
@@ -76,6 +91,7 @@ void gameLoop(Vector *connections, Vector *foods) {
         if (connections != NULL) {
             // Move snakes, if true there is a winner and game needs to be restarted.
             if (moveSnakes(connections, foods)) {
+                pthread_mutex_unlock(&lock);
                 break;
             }
             // Send new information.
@@ -138,7 +154,7 @@ bool moveSnakes(Vector *connections, Vector *foods) {
     return false;
 }
 
-void restartGame(Vector *connections, Vector *foods) {
+void clearDataUsedForGame(Vector *connections, Vector *foods) {
     pthread_mutex_lock(&lock);
     Connection * connection;
     // Clear food
@@ -147,8 +163,6 @@ void restartGame(Vector *connections, Vector *foods) {
     for (int i = 0; i < connections->size; i++) {
         connection = (Connection *) connections->data[i];
         freeSnake(connection->snake);
-        // Re-generate snake random position
-        connection->snake = createSnake(connections, foods);
     }
     pthread_mutex_unlock(&lock);
 }

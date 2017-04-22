@@ -51,6 +51,8 @@ int addItemToVector(Vector *vector, void *item) {
 void deleteVector(Vector * vector) {
     // Free the array.
     free(vector->data);
+    vector->data = NULL;
+    vector->size = 0;
     // Free the struct.
     free(vector);
 }

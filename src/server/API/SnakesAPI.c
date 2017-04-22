@@ -72,11 +72,17 @@ bool sendEndGameToClients(int sockFd, SnakeStatus status) {
 
 void * checkForChangeOfDirections(void * args) {
     Vector * connections = ((ChangeDirectionParams *) args)->connections;
+    bool * keepAlive = ((ChangeDirectionParams *) args)->killThread;
     Connection * connection;
     int response, direction;
     unsigned char buffer[DELIMITERS_SIZE], directionBuffer[INTEGER_BYTES];
 
     while (true) {
+        if (!(*keepAlive)) {
+            // Kill thread
+            free(args);
+            pthread_exit(NULL);
+        }
         pthread_mutex_lock(&lock);
         for (int i = 0; i < connections->size; i++) {
             // Read if delimiter was passed.

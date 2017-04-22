@@ -11,11 +11,13 @@
 
 typedef struct ChangeDirectionParams {
     Vector * connections;
+    bool * killThread;
 } ChangeDirectionParams;
 
 typedef struct FoodGeneratorParams {
     Vector * foods;
     Vector * connections;
+    bool * killThread;
 } FoodGeneratorParams;
 
 typedef enum {
@@ -29,7 +31,7 @@ void * gameInitialize(void *);
 
 void gameLoop(Vector *connections, Vector *foods);
 
-void restartGame(Vector * connections, Vector * foods);
+void clearDataUsedForGame(Vector *connections, Vector *foods);
 
 bool moveSnakes(Vector *connections, Vector *foods);
 

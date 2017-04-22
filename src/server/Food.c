@@ -17,12 +17,17 @@ pthread_mutex_t lock;
 void * generateFood(void * arg) {
     Vector * foods = ((FoodGeneratorParams *) arg)->foods;
     Vector * connections = ((FoodGeneratorParams *) arg)->connections;
+    bool * keepAlive = ((FoodGeneratorParams *) arg)->killThread;
     Food * food;
     Position * position;
     int nextFoodGenerator;
     bool error;
 
     while (true) {
+        if (!(*keepAlive)) {
+            free(arg);
+            pthread_exit(NULL);
+        }
         pthread_mutex_lock(&lock);
         // If no connections, do not generate food
         if (connections->size != 0) {

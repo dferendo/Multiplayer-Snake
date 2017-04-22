@@ -22,5 +22,11 @@ typedef struct ServerParams {
 
 int main(int argc, char *argv[]);
 
+void startGameThread(Vector * foods, Vector * connections);
+
+void startServerThread(Vector * foods, Vector * connections, uint16_t portNumber);
+
+void restartGame(Vector * foods, Vector * connections);
+
 
 #endif //SNAKES_SERVERLAUNCHER_H
