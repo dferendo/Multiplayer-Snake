@@ -56,6 +56,8 @@ void sendEndGameToClients(int sockFd, SnakeStatus status) {
 
     if (status == WINNER) {
         serializeCharArray(buffer, WINNER_DELIMITER, DELIMITERS_SIZE);
+    } else if (status == RESTART) {
+        serializeCharArray(buffer, RESTART_DELIMITER, DELIMITERS_SIZE);
     } else {
         serializeCharArray(buffer, LOSE_DELIMITER, DELIMITERS_SIZE);
     }

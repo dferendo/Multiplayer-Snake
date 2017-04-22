@@ -21,13 +21,14 @@ typedef struct FoodGeneratorParams {
 typedef enum {
     WINNER = 0,
     DIED = 1,
-    NORMAL = 2
+    NORMAL = 2,
+    RESTART = 3
 } SnakeStatus;
 
 void * gameInitialize(void *);
 
 void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock);
 
-bool moveSnakes(Vector *connections, Vector *foods);
+void moveSnakes(Vector *connections, Vector *foods);
 
 #endif //SNAKES_GAME_H

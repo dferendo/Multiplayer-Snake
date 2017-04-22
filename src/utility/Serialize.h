@@ -15,13 +15,11 @@
 
 #define DELIMITERS_SIZE 2
 #define SNAKE_DETAILS_DELIMITER "/S"
-#define HOST_STARTS_GAME_DELIMITER "/M"
 #define VECTOR_OF_FOOD_DELIMITER "/F"
 #define CHANGE_DIRECTION_DELIMITER "/A"
 #define WINNER_DELIMITER "/W"
 #define LOSE_DELIMITER "/L"
-#define NAME_ACCEPTED "/Q"
-#define NAME_NOT_ACCEPTED "/E"
+#define RESTART_DELIMITER "/R"
 
 // General serialize.
 
@@ -29,13 +27,7 @@ unsigned char * serializeInt(unsigned char * buffer, int value);
 
 unsigned char * deserializeInt(unsigned char *buffer, int * value);
 
-unsigned char * serializeShort(unsigned char * buffer, short value);
-
-unsigned char * deserializeShort(unsigned char * buffer, short * value);
-
 unsigned char * serializeCharArray(unsigned char * buffer, char * value, int size);
-
-unsigned char * deserializeCharArray(unsigned char * buffer, char * value, int size);
 
 // Serialize/Deserialize Snake information.
 

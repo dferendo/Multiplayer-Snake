@@ -40,7 +40,7 @@ bool printError(char *errorMessage) {
     mvwprintw(window, 2, 3, errorMessage);
     mvwprintw(window, 3, 3, "Program exiting");
     wrefresh(window);
-    sleep(PROMPTY_SCREEN_DELAY);
+    sleep(PROMPT_SCREEN_DELAY);
     deleteWindow(window);
     return false;
 }
@@ -56,24 +56,6 @@ void deleteWindow(WINDOW *window) {
     wclear(window);
     wrefresh(window);
     delwin(window);
-}
-
-void showWinnerScreen() {
-    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
-    mvwprintw(tempWindow, 2, 3, "You Win!!");
-    wrefresh(tempWindow);
-    sleep(DEAD_WIN_SCREEN_DELAY_SEC);
-    deleteWindow(tempWindow);
-    delwin(tempWindow);
-}
-
-void showDeadScreen() {
-    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
-    mvwprintw(tempWindow, 2, 3, "You Died");
-    wrefresh(tempWindow);
-    sleep(DEAD_WIN_SCREEN_DELAY_SEC);
-    deleteWindow(tempWindow);
-    delwin(tempWindow);
 }
 
 const chtype foodType(Food * type) {
@@ -95,15 +77,6 @@ WINDOW * createWindowAtTheCenterOfTheScreen(int height) {
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER);
     return menuWindow;
-}
-
-void showServerErrorScreen() {
-    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
-    mvwprintw(tempWindow, 2, 3, ERROR_CONNECTION_FAILED);
-    wrefresh(tempWindow);
-    sleep(DEAD_WIN_SCREEN_DELAY_SEC);
-    deleteWindow(tempWindow);
-    delwin(tempWindow);
 }
 
 WINDOW *displayNewData(Vector *foods, Vector * snakes) {
@@ -134,4 +107,13 @@ WINDOW *displayNewData(Vector *foods, Vector * snakes) {
         }
     }
     return window;
+}
+
+void showScreenInCentre(char *text) {
+    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
+    mvwprintw(tempWindow, 2, 3, text);
+    wrefresh(tempWindow);
+    sleep(PROMPT_SCREEN_DELAY);
+    deleteWindow(tempWindow);
+    delwin(tempWindow);
 }

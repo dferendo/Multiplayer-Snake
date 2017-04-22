@@ -63,6 +63,7 @@ void * gameInitialize(void * args) {
 }
 
 void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock) {
+    bool error;
 
     while (true) {
         // Lock so that food is not generated when finding the new location.
@@ -71,14 +72,17 @@ void gameLoop(Vector *connections, Vector *foods, pthread_mutex_t lock) {
             // Move snakes
             moveSnakes(connections, foods);
             // Send new information.
-            sendSnakeDataToClients(connections);
+            do {
+                // Send data again, if a connection is lost re-send the data.
+                error = sendSnakeDataToClients(connections);
+            } while (!error);
         }
         pthread_mutex_unlock(&lock);
         usleep(GAME_UPDATE_RATE_US);
     }
 }
 
-bool moveSnakes(Vector *connections, Vector *foods) {
+void moveSnakes(Vector *connections, Vector *foods) {
     Snake * snake;
     SnakeStatus moveSnakesReturns[connections->size];
     bool thereAreWinners = false;
@@ -100,20 +104,19 @@ bool moveSnakes(Vector *connections, Vector *foods) {
             if (moveSnakesReturns[i] == WINNER) {
                 sendEndGameToClients(connection->sockFd, WINNER);
             } else {
+                sendEndGameToClients(connection->sockFd, RESTART);
+            }
+        }
+    } else {
+        // Check if snakes died.
+        for (int i = 0; i < connections->size; i++) {
+            connection = (Connection *) connections->data[i];
+            if (moveSnakesReturns[i] == DIED) {
                 sendEndGameToClients(connection->sockFd, DIED);
+                // Clear snake.
+                freeConnection(connection);
+                deleteItemFromVector(connections, connection);
             }
         }
     }
-
-    // Check if snakes died.
-    for (int i = 0; i < connections->size; i++) {
-        connection = (Connection *)connections->data[i];
-        if (moveSnakesReturns[i] == DIED) {
-            sendEndGameToClients(connection->sockFd, DIED);
-            // Clear snake.
-            freeConnection(connection);
-            deleteItemFromVector(connections, connection);
-        }
-    }
-    return thereAreWinners;
 }

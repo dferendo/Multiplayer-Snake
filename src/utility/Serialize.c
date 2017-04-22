@@ -14,12 +14,6 @@ unsigned char * serializeInt(unsigned char *buffer, int value) {
     return buffer + 4;
 }
 
-unsigned char * serializeShort(unsigned char *buffer, short value) {
-    buffer[0] = (unsigned char) (value >> 8);
-    buffer[1] = (unsigned char) value;
-    return buffer + 2;
-}
-
 unsigned char * serializeCharArray(unsigned char * buffer, char * value, int size) {
     for (int i = 0; i < size; i++) {
         buffer[i] = (unsigned char) value[i];
@@ -42,23 +36,6 @@ unsigned char * deserializeInt(unsigned char *buffer, int * value) {
     tempValue |= buffer[3];
     *value = tempValue;
     return buffer + 4;
-}
-
-unsigned char * deserializeShort(unsigned char *buffer, short *value) {
-    uint16_t tempValue = 0;
-
-    tempValue |= (uint16_t) buffer[0] << 8;
-    tempValue |= (uint16_t) buffer[1];
-    *value = tempValue;
-    return buffer + 2;
-}
-
-unsigned char * deserializeCharArray(unsigned char *buffer, char *value, int size) {
-
-    for (int i = 0; i < size; i++) {
-        value[i] = buffer[i];
-    }
-    return buffer + size;
 }
 
 unsigned char * serializedLinkedList(unsigned char *buffer, LinkedListPosition *linkedListPosition) {

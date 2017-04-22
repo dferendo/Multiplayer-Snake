@@ -11,13 +11,14 @@
 
 // Put 0 for clean border
 #define MAIN_MENU_BORDER_CHARACTER '+'
-#define MAIN_MENU_ITEMS 3
-#define PLAY_GAME_MENU_REQUIRED 2
+#define SNAKE_CHARACTER "#"
 
 #define ERROR_NO_HOST "Error, no such host!"
 #define ERROR_CONNECTION_FAILED "Error, connection failed!"
 
-#define SNAKE_CHARACTER "#"
+#define WINNER_TEXT "You Win!!"
+#define DIED_TEXT "You Died"
+#define RESTART_TEXT "Another snake won, restarting"
 
 void createOutsideBorder();
 
@@ -31,11 +32,7 @@ void deleteWindow(WINDOW *window);
 
 WINDOW * createWindowAtTheCenterOfTheScreen(int height);
 
-void showWinnerScreen();
-
-void showDeadScreen();
-
-void showServerErrorScreen();
+void showScreenInCentre(char * text);
 
 const chtype foodType(Food * type);
 

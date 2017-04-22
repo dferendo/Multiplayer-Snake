@@ -37,6 +37,8 @@ int readDelimiterSnakes(int socketFd) {
         return 3;
     } else if (strncmp((const char *) buffer, LOSE_DELIMITER, DELIMITERS_SIZE) == 0) {
         return 4;
+    } else if (strncmp((const char *) buffer, RESTART_DELIMITER, DELIMITERS_SIZE) == 0) {
+        return 5;
     } else {
         return -2;
     }

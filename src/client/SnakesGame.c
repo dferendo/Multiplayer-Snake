@@ -52,11 +52,13 @@ void gameManager(int sockFd) {
     free(keepAlive);
 
     if (gameStatus == 1) {
-        showWinnerScreen();
+        showScreenInCentre(WINNER_TEXT);
     } else if (gameStatus == 2) {
-        showDeadScreen();
+        showScreenInCentre(DIED_TEXT);
+    } else if (gameStatus == 3) {
+        showScreenInCentre(RESTART_TEXT);
     } else if (gameStatus == -1) {
-        showServerErrorScreen();
+        showScreenInCentre(ERROR_CONNECTION_FAILED);
     } else {
         perror("Expected error, problem with parallelism.");
     }
@@ -90,6 +92,10 @@ int gameRunning(int sockFd) {
                 deleteWindow(window);
                 // Loser
                 return 2;
+            case 5:
+                // Restart
+                deleteWindow(window);
+                return 3;
             case 0:
                 // There was no reading
                 continue;
