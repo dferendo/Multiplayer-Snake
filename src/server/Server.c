@@ -64,6 +64,7 @@ void restartGame(Vector * foods, Vector * connections) {
     do {
         // Send data again, if a connection is lost re-send the data.
         error = sendSnakeDataToClients(connections);
+        error |= writeFoodDataToClients(connections, foods);
     } while (!error);
 }
 

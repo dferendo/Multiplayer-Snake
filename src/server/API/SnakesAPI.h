@@ -16,4 +16,6 @@ bool sendEndGameToClients(int sockFd, SnakeStatus status);
 
 void * checkForChangeOfDirections(void * args);
 
+bool writeFoodDataToClients(Vector * connections, Vector * foods);
+
 #endif //SNAKES_SNAKESAPI_H

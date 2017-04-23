@@ -11,6 +11,7 @@
 #include "../utility/Serialize.h"
 #include "ServerHandle.h"
 #include "../utility/General.h"
+#include "API/SnakesAPI.h"
 
 pthread_mutex_t lock;
 
@@ -74,30 +75,4 @@ void * generateFood(void * arg) {
         usleep((__useconds_t) nextFoodGenerator);
     }
 
-}
-
-bool writeFoodDataToClients(Vector * connections, Vector * foods) {
-    int response;
-    Connection * connection;
-    size_t size = DELIMITERS_SIZE + INTEGER_BYTES + (FOOD_BYTES_SIZE * foods->size);
-    unsigned char buffer[size];
-    bzero(buffer, size);
-
-    serializedVectorOfFoodsWithDelimiter(buffer, foods);
-
-    for (int i = 0; i < connections->size; i++) {
-        connection = (Connection *) connections->data[i];
-
-        response = (int) write(connection->sockFd, buffer, size);
-
-        if (response < 0) {
-            perror("Error writing to socket");
-            // Error, close socket, delete connection and indicate the server to
-            // resend the data. Connection is lost thus no other thread have access.
-            freeConnection(connection);
-            deleteItemFromVector(connections, connection);
-            return false;
-        }
-    }
-    return true;
 }

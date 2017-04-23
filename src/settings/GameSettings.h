@@ -14,9 +14,9 @@
 // Set 0 for no limit
 #define MAXIMUM_AMOUNT_OF_FOOD_ON_SCREEN 20
 
-#define FOOD_TO_WIN 15
+#define FOOD_TO_WIN 5
 
-#define GAME_UPDATE_RATE_US 250000
+#define GAME_UPDATE_RATE_US 400000
 
 // All consoles will have the same size of the map
 #define MAIN_WINDOW_ROW 24

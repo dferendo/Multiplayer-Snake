@@ -125,3 +125,29 @@ void * checkForChangeOfDirections(void * args) {
         usleep(GAME_UPDATE_RATE_US);
     }
 }
+
+bool writeFoodDataToClients(Vector * connections, Vector * foods) {
+    int response;
+    Connection * connection;
+    size_t size = DELIMITERS_SIZE + INTEGER_BYTES + (FOOD_BYTES_SIZE * foods->size);
+    unsigned char buffer[size];
+    bzero(buffer, size);
+
+    serializedVectorOfFoodsWithDelimiter(buffer, foods);
+
+    for (int i = 0; i < connections->size; i++) {
+        connection = (Connection *) connections->data[i];
+
+        response = (int) write(connection->sockFd, buffer, size);
+
+        if (response < 0) {
+            perror("Error writing to socket");
+            // Error, close socket, delete connection and indicate the server to
+            // resend the data. Connection is lost thus no other thread have access.
+            freeConnection(connection);
+            deleteItemFromVector(connections, connection);
+            return false;
+        }
+    }
+    return true;
+}

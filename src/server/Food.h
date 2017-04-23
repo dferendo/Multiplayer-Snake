@@ -17,6 +17,4 @@ typedef struct Food {
 
 void * generateFood(void * arg);
 
-bool writeFoodDataToClients(Vector * connections, Vector * foods);
-
 #endif //SNAKES_FOOD_H

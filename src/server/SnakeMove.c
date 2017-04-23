@@ -5,6 +5,7 @@
 #include "Food.h"
 #include "../settings/GameSettings.h"
 #include "ServerHandle.h"
+#include "API/SnakesAPI.h"
 
 SnakeStatus snakeAction(Snake * snake, Vector * foods, Vector * connections) {
 
