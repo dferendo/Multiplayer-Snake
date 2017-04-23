@@ -6,13 +6,20 @@
 #include "SnakesGame.h"
 #include <strings.h>
 #include <signal.h>
+#include <unistd.h>
+
+int sockFd;
 
 void serverConnection(int portNumber, char * hostName) {
-    int sockFd, nextAction;
+    int nextAction;
 
     if (!connectToServer(&sockFd, portNumber, hostName)) {
         return;
     }
+    // For CTRL + C,
+    // The signals SIGKILL and SIGSTOP cannot be caught, blocked, or ignored - man 7 signal
+    // Thus kill command is ignored.
+    signal(SIGINT, terminateClient);
 
     while (true) {
         nextAction = gameManager(sockFd);
@@ -54,4 +61,13 @@ bool connectToServer(int * sockFd, int portNumber, char * hostName) {
         return false;
     }
     return true;
+}
+
+void terminateClient(int sig) {
+    // Close socket
+    close(sockFd);
+    // End ncurses
+    endwin();
+    printf("Client disconnected.\n");
+    exit(0);
 }

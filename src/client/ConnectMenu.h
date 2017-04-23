@@ -17,4 +17,6 @@ void serverConnection(int portNumber, char * hostName);
 
 bool connectToServer(int * sockFd, int portNumber, char * hostName);
 
+void terminateClient(int sig);
+
 #endif //SNAKES_STARTGAME_H
