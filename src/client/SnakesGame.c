@@ -7,20 +7,19 @@
 #include "API/ClientAPI.h"
 #include "../utility/General.h"
 #include <pthread.h>
-#include <unistd.h>
 
 WINDOW * window;
 Vector * foods = NULL;
 Vector * snakes = NULL;
 
-void gameManager(int sockFd) {
+int gameManager(int sockFd) {
     int gameStatus;
     pthread_t characterReaderTId;
     bool * keepAlive = (bool *) malloc(sizeof(bool));
-    
+
     if (keepAlive == NULL) {
         perror("Failed to allocate memory to Params");
-        return;
+        return -1;
     }
     *keepAlive = true;
     ReadUserInputThreadParams * inputThreadParams =
@@ -28,38 +27,41 @@ void gameManager(int sockFd) {
 
     if (inputThreadParams == NULL) {
         perror("Failed to allocate memory to Params");
-        return;
+        return -1;
     }
     inputThreadParams->sockFd = sockFd;
     inputThreadParams->keepAlive = keepAlive;
     // Create a thread that reads user input.
     if (pthread_create(&characterReaderTId, NULL, readDirectionFromUser, inputThreadParams) != 0) {
         perror("Could not create a snake thread.");
-        return;
+        return -1;
     }
+    gameStatus = gameRunning(sockFd);
 
-    while (true) {
-        gameStatus = gameRunning(sockFd);
-
-        if (gameStatus == 1) {
-            showScreenInCentre(WINNER_TEXT);
-        } else if (gameStatus == 2) {
-            showScreenInCentre(DIED_TEXT);
-            // Exit game if dead
-            break;
-        } else if (gameStatus == 3) {
-            showScreenInCentre(RESTART_TEXT);
-        } else if (gameStatus == -1) {
-            showScreenInCentre(ERROR_CONNECTION_FAILED);
-            // Exit game if server cannot be reached
-            break;
-        } else {
-            perror("Expected error, problem with parallelism.");
-            break;
-        }
-    }
     // If this is reached, terminate everything
-    closeClient(snakes, foods, sockFd, keepAlive, characterReaderTId);
+    removeGameData(snakes, foods, keepAlive, characterReaderTId);
+    snakes = NULL;
+    foods = NULL;
+
+    if (gameStatus == 1) {
+        showScreenInCentre(WINNER_TEXT);
+        return 1;
+    } else if (gameStatus == 2) {
+        showScreenInCentre(DIED_TEXT);
+        // Exit game if dead
+        return -1;
+    } else if (gameStatus == 3) {
+        showScreenInCentre(RESTART_TEXT);
+        // Do not exit game
+        return 1;
+    } else if (gameStatus == -1) {
+        showScreenInCentre(ERROR_CONNECTION_FAILED);
+        // Exit game if server cannot be reached
+        return -1;
+    } else {
+        perror("Expected error, problem with parallelism.");
+        return -1;
+    }
 }
 
 int gameRunning(int sockFd) {
@@ -210,15 +212,13 @@ void *readDirectionFromUser(void *args) {
     }
 }
 
-void closeClient(Vector *snakes, Vector *foods, int socketFd, bool * keepAlive, pthread_t characterReaderId) {
+void removeGameData(Vector *snakes, Vector *foods, bool *keepAlive, pthread_t characterReaderId) {
     // End Character reader thread
     *keepAlive = false;
     // Connection was lost or winning of game. Wait for thread to stop.
     pthread_join(characterReaderId, NULL);
 
     free(keepAlive);
-    // Close socket once.
-    close(socketFd);
     // Clear Vectors
     clearSnakeVector(snakes);
     clearFoodsVector(foods);

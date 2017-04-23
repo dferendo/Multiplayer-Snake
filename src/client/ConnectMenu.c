@@ -3,20 +3,21 @@
 //
 #include "ConnectMenu.h"
 #include "template/ClientLayout.h"
-#include "../utility/General.h"
 #include "SnakesGame.h"
-#include "../settings/GameSettings.h"
-#include <unistd.h>
 #include <strings.h>
 
 void serverConnection(int portNumber, char * hostName) {
-    int sockFd;
+    int sockFd, nextAction;
 
     if (!connectToServer(&sockFd, portNumber, hostName)) {
         return;
     }
-
-    gameManager(sockFd);
+    while (true) {
+        nextAction = gameManager(sockFd);
+        if (nextAction < 0) {
+            break;
+        }
+    }
 }
 
 bool connectToServer(int * sockFd, int portNumber, char * hostName) {

@@ -13,7 +13,7 @@ typedef struct ReadUserInputThreadParams {
     bool * keepAlive;
 } ReadUserInputThreadParams;
 
-void gameManager(int sockFd);
+int gameManager(int sockFd);
 
 int gameRunning(int sockFd);
 
@@ -23,6 +23,6 @@ bool snakeHandler(int sockFd);
 
 void * readDirectionFromUser(void *args);
 
-void closeClient(Vector *snakes, Vector *foods, int socketFd, bool *pBoolean, pthread_t i);
+void removeGameData(Vector *snakes, Vector *foods, bool *pBoolean, pthread_t i);
 
 #endif //SNAKES_SNAKESGAME_H
