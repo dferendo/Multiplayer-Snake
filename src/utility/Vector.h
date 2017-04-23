@@ -36,9 +36,11 @@ Vector * initVector();
 int addItemToVector(Vector *vector, void *item);
 
 /**
- * Free all memory used by the Vector. Warning no pointers of the data are freed.
+ * Free all memory used by the Vector.
  *
  * @param vector: Vector containing all elements.
+ *
+ * @warning: no pointers of the data are freed.
  */
 void deleteVector(Vector * vector);
 

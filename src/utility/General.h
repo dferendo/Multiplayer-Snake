@@ -23,9 +23,10 @@ bool setSocketBlockingEnabled(int sockFd, bool blocking);
 
 /**
  * Free all data used by a malloc of a connection and close the socket of the connection.
- * Warning Connection is not freed.
  *
  * @param connection: Connection to be freed.
+ *
+ * @warning: Connection is not freed.
  */
 void freeDataOfConnection(Connection *connection);
 

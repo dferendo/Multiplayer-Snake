@@ -15,39 +15,39 @@ pthread_mutex_t lock;
 Vector * foods;
 Vector * connections;
 
-void * gameInitialize(void * args) {
+void * gameManagement(void *args) {
+    ChangeDirectionParams * changeDirectionParams;
+    FoodGeneratorParams * foodGeneratorParams;
     pthread_t foodThread, changeDirectionThread;
     bool * keepChangeDirectionThread = (bool *) malloc(sizeof(bool)),
             * keepFoodGeneratorThread = (bool *) malloc(sizeof(bool));
 
     if (keepChangeDirectionThread == NULL) {
         perror("Failed to allocate memory to Params");
-        pthread_exit(NULL);
+        exit(1);
     } else if (keepFoodGeneratorThread == NULL) {
         free(keepChangeDirectionThread);
         perror("Failed to allocate memory to Params");
-        pthread_exit(NULL);
+        exit(1);
     }
     *keepChangeDirectionThread = true;
     *keepFoodGeneratorThread = true;
 
-    ChangeDirectionParams * changeDirectionParams =
-            (ChangeDirectionParams *) malloc(sizeof(ChangeDirectionParams));
+    changeDirectionParams = (ChangeDirectionParams *) malloc(sizeof(ChangeDirectionParams));
 
     if (changeDirectionParams == NULL) {
         perror("Cannot allocate memory to Params");
-        pthread_exit(NULL);
+        exit(1);
     }
     changeDirectionParams->connections = connections;
     changeDirectionParams->killThread = keepChangeDirectionThread;
 
-    FoodGeneratorParams * foodGeneratorParams =
-            (FoodGeneratorParams *) malloc(sizeof(FoodGeneratorParams));
+    foodGeneratorParams = (FoodGeneratorParams *) malloc(sizeof(FoodGeneratorParams));
 
     if (foodGeneratorParams == NULL) {
         perror("Cannot allocate memory to Params");
         free(changeDirectionParams);
-        pthread_exit(NULL);
+        exit(1);
     }
     foodGeneratorParams->foods = foods;
     foodGeneratorParams->connections = connections;
@@ -58,7 +58,8 @@ void * gameInitialize(void * args) {
         perror("Could not create a food thread");
         free(changeDirectionParams);
         free(foodGeneratorParams);
-        pthread_exit(NULL);
+        // If the thread could not be created, stop the execution since it will be useless.
+        exit(1);
     }
     // Create Thread that listens to user change of direction.
     if (pthread_create(&changeDirectionThread, NULL, checkForChangeOfDirections,
@@ -66,21 +67,13 @@ void * gameInitialize(void * args) {
         perror("Could not create a Change direction thread");
         free(changeDirectionParams);
         free(foodGeneratorParams);
-        pthread_exit(NULL);
+        // Without the thread, the rest of the system is useless
+        exit(1);
     }
-
+    // Start game
     gameLoop(connections, foods);
-    // Kill threads
-    *keepChangeDirectionThread = false;
-    *keepFoodGeneratorThread = false;
-    // Wait for thread to finish
-    pthread_join(changeDirectionThread, NULL);
-    pthread_join(foodThread, NULL);
-    // Clear data used except connections
-    pthread_mutex_lock(&lock);
-    clearDataUsedForGame(connections, foods);
-    foods = initVector();
-    pthread_mutex_unlock(&lock);
+    // Clean up
+    gameCleanUp(keepChangeDirectionThread, keepFoodGeneratorThread, changeDirectionThread, foodThread);
     // Exit
     pthread_exit(NULL);
 }
@@ -129,13 +122,13 @@ bool moveSnakes(Vector *connections, Vector *foods) {
             connection = (Connection *)connections->data[i];
             if (moveSnakesReturns[i] == WINNER) {
                 // Check for connection lost, if so remove the connection
-                if (!sendEndGameToClients(connection->sockFd, WINNER)) {
+                if (!sendEndGameToClient(connection->sockFd, WINNER)) {
                     freeDataOfConnection(connection);
                     deleteItemFromVector(connections, connection);
                 }
             } else {
                 // Check for connection lost, if so remove the connection
-                if (!sendEndGameToClients(connection->sockFd, RESTART)) {
+                if (!sendEndGameToClient(connection->sockFd, RESTART)) {
                     freeDataOfConnection(connection);
                     deleteItemFromVector(connections, connection);
                 }
@@ -147,7 +140,7 @@ bool moveSnakes(Vector *connections, Vector *foods) {
         for (int i = 0; i < connections->size; i++) {
             connection = (Connection *) connections->data[i];
             if (moveSnakesReturns[i] == DIED) {
-                sendEndGameToClients(connection->sockFd, DIED);
+                sendEndGameToClient(connection->sockFd, DIED);
                 // Clear snake, regardless if connection failed
                 freeDataOfConnection(connection);
                 deleteItemFromVector(connections, connection);
@@ -168,4 +161,19 @@ void clearDataUsedForGame(Vector *connections, Vector *foods) {
         connection = (Connection *) connections->data[i];
         freeSnake(connection->snake);
     }
+}
+
+void gameCleanUp(bool * keepChangeDirectionThread, bool * keepFoodGeneratorThread,
+                 pthread_t changeDirectionThread, pthread_t foodThread) {
+    // Kill threads
+    *keepChangeDirectionThread = false;
+    *keepFoodGeneratorThread = false;
+    // Wait for thread to finish
+    pthread_join(changeDirectionThread, NULL);
+    pthread_join(foodThread, NULL);
+    // Clear data used except connections
+    pthread_mutex_lock(&lock);
+    clearDataUsedForGame(connections, foods);
+    foods = initVector();
+    pthread_mutex_unlock(&lock);
 }

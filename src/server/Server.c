@@ -69,7 +69,7 @@ void startGameThread() {
     pthread_t gameThread;
 
     // Game Thread
-    if (pthread_create(&gameThread, NULL, gameInitialize, NULL) != 0) {
+    if (pthread_create(&gameThread, NULL, gameManagement, NULL) != 0) {
         perror("Could not create a worker thread.");
         deleteVector(foods);
         deleteVector(connections);

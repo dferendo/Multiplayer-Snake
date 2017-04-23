@@ -49,7 +49,7 @@ bool sendSnakeDataToClients(Vector * connections) {
     return true;
 }
 
-bool sendEndGameToClients(int sockFd, SnakeStatus status) {
+bool sendEndGameToClient(int sockFd, SnakeStatus status) {
     int response;
     unsigned char buffer[DELIMITERS_SIZE];
     bzero(buffer, DELIMITERS_SIZE);
@@ -91,7 +91,7 @@ void * checkForChangeOfDirections(void * args) {
             bzero(directionBuffer, INTEGER_BYTES);
 
             // Set to non blocking so that others can also change
-            // and do not block connections
+            // and do not block connections.
             setSocketBlockingEnabled(connection->sockFd, false);
             response = (int) read(connection->sockFd, buffer, DELIMITERS_SIZE);
             setSocketBlockingEnabled(connection->sockFd, true);
@@ -101,6 +101,7 @@ void * checkForChangeOfDirections(void * args) {
                 if (errno == EAGAIN) {
                     continue;
                 }
+                // Connection failed, remove.
                 freeDataOfConnection(connection);
                 deleteItemFromVector(connections, connection);
                 break;

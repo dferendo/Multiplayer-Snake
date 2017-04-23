@@ -8,6 +8,8 @@
 Snake *createSnake(Vector * connections, Vector * foods, bool restart, int currentCount) {
     Position * allPositions[DEFAULT_START_SIZE], * position;
     Snake * snake;
+    LinkedListPosition * linkedListPosition;
+
     if (restart) {
         allPositions[0] = createInitialSnakeRandomPositionForRestart(connections, foods, currentCount);
     } else {
@@ -35,7 +37,7 @@ Snake *createSnake(Vector * connections, Vector * foods, bool restart, int curre
         allPositions[i] = position;
     }
 
-    LinkedListPosition * linkedListPosition = initLinkedListPosition(allPositions[0]);
+    linkedListPosition = initLinkedListPosition(allPositions[0]);
 
     if (linkedListPosition == NULL) {
         for (int i = 0; i < DEFAULT_START_SIZE; i++) {

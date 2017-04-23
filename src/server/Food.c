@@ -3,14 +3,10 @@
 //
 #include <pthread.h>
 #include <unistd.h>
-#include <strings.h>
 #include "Food.h"
 #include "Game.h"
 #include "../settings/GameSettings.h"
 #include "../utility/RandomUtility.h"
-#include "../utility/Serialize.h"
-#include "ServerHandle.h"
-#include "../utility/General.h"
 #include "API/SnakesAPI.h"
 
 pthread_mutex_t lock;
@@ -60,7 +56,6 @@ void * generateFood(void * arg) {
                     free(food);
                     continue;
                 }
-
                 // Write to clients about the foods.
                 do {
                     // Send data again, if a connection is lost re-send the data.

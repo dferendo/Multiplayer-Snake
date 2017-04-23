@@ -8,6 +8,7 @@
 #include "API/SnakesAPI.h"
 
 SnakeStatus snakeAction(Snake * snake, Vector * foods, Vector * connections) {
+    bool error;
 
     // Check Head collisions
     if (checkHeadCollision(snake, connections)) {
@@ -18,7 +19,10 @@ SnakeStatus snakeAction(Snake * snake, Vector * foods, Vector * connections) {
     // Check if next position is food and grow if so
     if (checkIfNextPositionIsFoodAndGrow(snake, foods)) {
         // Food was eaten, re-send food data
-        writeFoodDataToClients(connections, foods);
+        do {
+            // Send data again, if a connection is lost re-send the data.
+            error = writeFoodDataToClients(connections, foods);;
+        } while (!error);
     }
 
     if (snake->size == FOOD_TO_WIN) {
