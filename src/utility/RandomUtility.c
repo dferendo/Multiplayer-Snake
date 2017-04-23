@@ -17,16 +17,22 @@ Position * createInitialSnakeRandomPosition(Vector * connections, Vector * foods
     Position * position;
 
     while (true) {
-        // There is a border hence the -1.
-        x = rand() % (MAIN_WINDOW_COLUMN - 1);
-        y = rand() % (MAIN_WINDOW_ROW - 1);
+        // Do not create a snake exactly near the border
+        x = rand() % (MAIN_WINDOW_COLUMN - 1 - DEFAULT_START_SIZE) + DEFAULT_START_SIZE;
+        y = rand() % (MAIN_WINDOW_ROW - 1 - DEFAULT_START_SIZE) + DEFAULT_START_SIZE;
         exists = false;
 
         // Check if position is taken by other snakes.
         for (int i = 0; i < connections->size; i++) {
             connection = (Connection *) connections->data[i];
-            positionExistsLinkedList(connection->snake->positions, x, y, &exists);
-            // Position is already taken by another snake.
+            // Check if the next DEFAULT START SIZE are taken
+            for (int j = 1; j < DEFAULT_START_SIZE; j++) {
+                positionExistsLinkedList(connection->snake->positions, x + j, y, &exists);
+                // Position is already taken by another snake.
+                if (exists) {
+                    break;
+                }
+            }
             if (exists) {
                 break;
             }

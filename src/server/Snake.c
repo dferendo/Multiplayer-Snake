@@ -4,10 +4,9 @@
 #include "Snake.h"
 #include "../utility/RandomUtility.h"
 #include "../settings/GameSettings.h"
-#include "SnakeMove.h"
 
 Snake *createSnake(Vector * connections, Vector * foods) {
-    Position * allPositions[DEFAULT_START_SIZE];
+    Position * allPositions[DEFAULT_START_SIZE], * position;
     Snake * snake;
     allPositions[0] = createInitialSnakeRandomPosition(connections, foods);
 
@@ -15,15 +14,40 @@ Snake *createSnake(Vector * connections, Vector * foods) {
         return NULL;
     }
 
+    // Add the default snakes positions, these positions were checked by the first positions
+    // to see that they were not taken
+    for (int i = 1; i < DEFAULT_START_SIZE; i++) {
+        position = (Position *) malloc(sizeof(Position));
+
+        if (position == NULL) {
+            // Remove other allocated positions
+            for (int j = 0; j < i; j++) {
+                free(allPositions[j]);
+            }
+            return NULL;
+        }
+        position->x = allPositions[0]->x + i;
+        position->y = allPositions[0]->y;
+        allPositions[i] = position;
+    }
+
     LinkedListPosition * linkedListPosition = initLinkedListPosition(allPositions[0]);
 
     if (linkedListPosition == NULL) {
+        for (int i = 0; i < DEFAULT_START_SIZE; i++) {
+            free(allPositions[i]);
+        }
         return NULL;
+    }
+    // Add items to linked list
+    for (int i = 1; i < DEFAULT_START_SIZE; i++) {
+        addPosition(linkedListPosition, allPositions[i]);
     }
 
     snake = (Snake *) malloc(sizeof(Snake));
 
     if (snake == NULL) {
+        deleteLinkedListPosition(linkedListPosition);
         perror("Failed to allocate memory to Snake");
         return NULL;
     }
