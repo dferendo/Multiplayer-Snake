@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
         restartGame(foods, connections);
         pthread_mutex_unlock(&lock);
         // Give some time before starting new game.
-        sleep(PROMPT_SCREEN_DELAY);
+        sleep(PROMPT_SCREEN_DELAY_SEC);
     }
 }
 

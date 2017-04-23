@@ -21,6 +21,8 @@
 #define LOSE_DELIMITER "/L"
 #define RESTART_DELIMITER "/R"
 
+// Note that 1 character is 1 byte.
+
 // General serialize.
 
 unsigned char * serializeInt(unsigned char * buffer, int value);

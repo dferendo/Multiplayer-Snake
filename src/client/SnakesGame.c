@@ -118,7 +118,7 @@ void * readDirectionFromUser(void *args) {
     bool * keepAlive = ((ReadUserInputThreadParams *) args)->keepAlive;
     int character, previousChar = DEFAULT_START_DIRECTION_KEY;
     // Set time for getch() so that thread can catch if it is alive.
-    halfdelay(HALF_DELAY_GET_CHAR);
+    halfdelay(HALF_DELAY_GET_CHAR_IN_TENTH_OF_A_SEC);
 
     while (true) {
         if (!(*keepAlive)) {

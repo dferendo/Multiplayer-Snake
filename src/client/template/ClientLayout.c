@@ -40,7 +40,7 @@ void printError(char *errorMessage) {
     mvwprintw(window, 2, 3, errorMessage);
     mvwprintw(window, 3, 3, "Program exiting");
     wrefresh(window);
-    sleep(PROMPT_SCREEN_DELAY);
+    sleep(PROMPT_SCREEN_DELAY_SEC);
     deleteWindow(window);
 }
 
@@ -112,7 +112,7 @@ void showScreenInCentre(char *text) {
     WINDOW * tempWindow = createWindowAtTheCentreOfTheScreen(1);
     mvwprintw(tempWindow, 2, 3, text);
     wrefresh(tempWindow);
-    sleep(PROMPT_SCREEN_DELAY);
+    sleep(PROMPT_SCREEN_DELAY_SEC);
     deleteWindow(tempWindow);
     delwin(tempWindow);
 }

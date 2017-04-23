@@ -130,13 +130,13 @@ bool moveSnakes(Vector *connections, Vector *foods) {
             if (moveSnakesReturns[i] == WINNER) {
                 // Check for connection lost, if so remove the connection
                 if (!sendEndGameToClients(connection->sockFd, WINNER)) {
-                    freeConnection(connection);
+                    freeDataOfConnection(connection);
                     deleteItemFromVector(connections, connection);
                 }
             } else {
                 // Check for connection lost, if so remove the connection
                 if (!sendEndGameToClients(connection->sockFd, RESTART)) {
-                    freeConnection(connection);
+                    freeDataOfConnection(connection);
                     deleteItemFromVector(connections, connection);
                 }
             }
@@ -149,7 +149,7 @@ bool moveSnakes(Vector *connections, Vector *foods) {
             if (moveSnakesReturns[i] == DIED) {
                 sendEndGameToClients(connection->sockFd, DIED);
                 // Clear snake, regardless if connection failed
-                freeConnection(connection);
+                freeDataOfConnection(connection);
                 deleteItemFromVector(connections, connection);
                 // Since 1 deleted, everything is shifted
                 i--;

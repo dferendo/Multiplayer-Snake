@@ -103,7 +103,7 @@ void * initNewConnection(void *arg) {
     if (addItemToVector(connections, connection) < 0) {
         pthread_mutex_unlock(&lock);
         // Error
-        freeConnection(connection);
+        freeDataOfConnection(connection);
         pthread_exit(NULL);
     }
 

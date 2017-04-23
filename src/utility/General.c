@@ -7,6 +7,7 @@
 #include "../server/Food.h"
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 bool setSocketBlockingEnabled(int sockFd, bool blocking) {
     int flags;
@@ -22,7 +23,7 @@ bool setSocketBlockingEnabled(int sockFd, bool blocking) {
     return (fcntl(sockFd, F_SETFL, flags) == 0) ? true : false;
 }
 
-void freeConnection(Connection *connection) {
+void freeDataOfConnection(Connection *connection) {
     // Delete linked list with all the positions
     deleteLinkedListPosition(connection->snake->positions);
     // Free Snake

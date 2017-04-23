@@ -1,7 +1,6 @@
 //
 // Created by dylan on 12/04/2017.
 //
-
 #include "RandomUtility.h"
 #include "../settings/GameSettings.h"
 #include "../server/Food.h"
@@ -16,8 +15,8 @@ Position * createInitialSnakeRandomPosition(Vector * connections, Vector * foods
 
     while (true) {
         // Do not create a snake exactly near the border
-        x = rand() % (MAIN_WINDOW_COLUMN - 1 - DEFAULT_START_SIZE) + DEFAULT_START_SIZE;
-        y = rand() % (MAIN_WINDOW_ROW - 1 - DEFAULT_START_SIZE) + DEFAULT_START_SIZE;
+        x = (rand() % (MAIN_WINDOW_COLUMN - 1 - DEFAULT_START_SIZE)) + DEFAULT_START_SIZE;
+        y = (rand() % (MAIN_WINDOW_ROW - 1 - DEFAULT_START_SIZE)) + DEFAULT_START_SIZE;
         exists = false;
 
         // Check if position is taken by other snakes.
@@ -77,8 +76,8 @@ Position * createInitialSnakeRandomPositionForRestart(Vector * connections, Vect
 
     while (true) {
         // Do not create a snake exactly near the border
-        x = rand() % (MAIN_WINDOW_COLUMN - 1 - DEFAULT_START_SIZE) + DEFAULT_START_SIZE;
-        y = rand() % (MAIN_WINDOW_ROW - 1 - DEFAULT_START_SIZE) + DEFAULT_START_SIZE;
+        x = (rand() % (MAIN_WINDOW_COLUMN - 1 - DEFAULT_START_SIZE)) + DEFAULT_START_SIZE;
+        y = (rand() % (MAIN_WINDOW_ROW - 1 - DEFAULT_START_SIZE)) + DEFAULT_START_SIZE;
         exists = false;
 
         // Check if position is taken by other snakes.

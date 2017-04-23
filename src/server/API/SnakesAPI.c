@@ -41,7 +41,7 @@ bool sendSnakeDataToClients(Vector * connections) {
             perror("Failed to write to the socket");
             // Error, close socket, delete connection and indicate the server to
             // resend the data.
-            freeConnection(connection);
+            freeDataOfConnection(connection);
             deleteItemFromVector(connections, connection);
             return false;
         }
@@ -101,7 +101,7 @@ void * checkForChangeOfDirections(void * args) {
                 if (errno == EAGAIN) {
                     continue;
                 }
-                freeConnection(connection);
+                freeDataOfConnection(connection);
                 deleteItemFromVector(connections, connection);
                 break;
             }
@@ -112,7 +112,7 @@ void * checkForChangeOfDirections(void * args) {
             response = (int) read(connection->sockFd, directionBuffer, INTEGER_BYTES);
 
             if (response < 0) {
-                freeConnection(connection);
+                freeDataOfConnection(connection);
                 deleteItemFromVector(connections, connection);
                 // Re-try later
                 break;
@@ -144,7 +144,7 @@ bool writeFoodDataToClients(Vector * connections, Vector * foods) {
             perror("Error writing to socket");
             // Error, close socket, delete connection and indicate the server to
             // resend the data. Connection is lost thus no other thread have access.
-            freeConnection(connection);
+            freeDataOfConnection(connection);
             deleteItemFromVector(connections, connection);
             return false;
         }
