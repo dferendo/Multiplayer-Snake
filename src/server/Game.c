@@ -12,10 +12,10 @@
 #include <unistd.h>
 
 pthread_mutex_t lock;
+Vector * foods;
+Vector * connections;
 
 void * gameInitialize(void * args) {
-    Vector * connections = ((GameThreadParams *) args)->connections;
-    Vector * foods = ((GameThreadParams *) args)->foods;
     pthread_t foodThread, changeDirectionThread;
     bool * keepChangeDirectionThread = (bool *) malloc(sizeof(bool)),
             * keepFoodGeneratorThread = (bool *) malloc(sizeof(bool));
@@ -77,7 +77,10 @@ void * gameInitialize(void * args) {
     pthread_join(changeDirectionThread, NULL);
     pthread_join(foodThread, NULL);
     // Clear data used except connections
+    pthread_mutex_lock(&lock);
     clearDataUsedForGame(connections, foods);
+    foods = initVector();
+    pthread_mutex_unlock(&lock);
     // Exit
     pthread_exit(NULL);
 }
@@ -155,7 +158,6 @@ bool moveSnakes(Vector *connections, Vector *foods) {
 }
 
 void clearDataUsedForGame(Vector *connections, Vector *foods) {
-    pthread_mutex_lock(&lock);
     Connection * connection;
     // Clear food
     clearFoodsVector(foods);
@@ -164,5 +166,4 @@ void clearDataUsedForGame(Vector *connections, Vector *foods) {
         connection = (Connection *) connections->data[i];
         freeSnake(connection->snake);
     }
-    pthread_mutex_unlock(&lock);
 }

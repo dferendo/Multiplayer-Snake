@@ -34,6 +34,7 @@ void freeConnection(Connection *connection) {
 void freeSnake(Snake * snake) {
     // Delete linked list with all the positions
     deleteLinkedListPosition(snake->positions);
+    snake->size = 0;
     // Free Snake
     free(snake);
 }
@@ -48,7 +49,6 @@ void clearFoodsVector(Vector *foods) {
         food = (Food *) foods->data[i];
         free(food->position);
     }
-
     deleteVector(foods);
 }
 

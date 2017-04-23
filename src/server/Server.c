@@ -5,14 +5,15 @@
 #include "../utility/General.h"
 #include "Game.h"
 #include "API/SnakesAPI.h"
-#include "Food.h"
 #include "../settings/GameSettings.h"
 #include <pthread.h>
 #include <unistd.h>
 
+pthread_mutex_t lock;
+Vector * foods;
+Vector * connections;
+
 int main(int argc, char *argv[]) {
-    Vector * connections;
-    Vector * foods;
     // Seed
     srand((unsigned int) time(NULL));
 
@@ -21,8 +22,6 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     pthread_mutex_init(&lock, NULL);
-
-    // Initialize threads
     connections = initVector();
 
     if (connections == NULL) {
@@ -35,15 +34,13 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     // Start Server
-    startServerThread(foods, connections, (uint16_t) atoi(argv[1]));
+    startServerThread((uint16_t) atoi(argv[1]));
 
     while (true) {
         // Start game
         startGameThread(foods, connections);
         // Whenever a game ends, it will return.
         pthread_mutex_lock(&lock);
-        // Re-declare variables
-        foods = initVector();
         restartGame(foods, connections);
         pthread_mutex_unlock(&lock);
         // Give some time before starting new game.
@@ -58,7 +55,7 @@ void restartGame(Vector * foods, Vector * connections) {
     for (int i = 0; i < connections->size; i++) {
         connection = (Connection *) connections->data[i];
         // Re-generate snake random position
-        connection->snake = createSnake(connections, foods);
+        connection->snake = createSnake(connections, foods, true, i);
     }
     // Send data
     do {
@@ -68,34 +65,21 @@ void restartGame(Vector * foods, Vector * connections) {
     } while (!error);
 }
 
-void startGameThread(Vector *foods, Vector *connections) {
+void startGameThread() {
     pthread_t gameThread;
-    // Create args
-    GameThreadParams * gameArgs = (GameThreadParams *) malloc(sizeof(GameThreadParams));
-
-    if (gameArgs == NULL) {
-        perror("Error on malloc arguments");
-        deleteVector(connections);
-        deleteVector(foods);
-        exit(1);
-    }
-    gameArgs->connections = connections;
-    gameArgs->foods = foods;
 
     // Game Thread
-    if (pthread_create(&gameThread, NULL, gameInitialize, gameArgs) != 0) {
+    if (pthread_create(&gameThread, NULL, gameInitialize, NULL) != 0) {
         perror("Could not create a worker thread.");
-        free(gameArgs);
         deleteVector(foods);
         deleteVector(connections);
         exit(1);
     }
     // Wait for thread to finish
     pthread_join(gameThread, NULL);
-    free(gameArgs);
 }
 
-void startServerThread(Vector *foods, Vector *connections, uint16_t portNumber) {
+void startServerThread(uint16_t portNumber) {
     pthread_t serverThread;
     ServerParams * serverArgs = (ServerParams *) malloc(sizeof(ServerParams));
 
@@ -106,8 +90,6 @@ void startServerThread(Vector *foods, Vector *connections, uint16_t portNumber) 
         exit(1);
     }
 
-    serverArgs->connections = connections;
-    serverArgs->foods = foods;
     serverArgs->portNumber = portNumber;
 
     // Server Thread
@@ -118,4 +100,5 @@ void startServerThread(Vector *foods, Vector *connections, uint16_t portNumber) 
         deleteVector(connections);
         exit(1);
     }
+    free(serverArgs);
 }

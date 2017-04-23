@@ -5,10 +5,14 @@
 #include "../utility/RandomUtility.h"
 #include "../settings/GameSettings.h"
 
-Snake *createSnake(Vector * connections, Vector * foods) {
+Snake *createSnake(Vector * connections, Vector * foods, bool restart, int currentCount) {
     Position * allPositions[DEFAULT_START_SIZE], * position;
     Snake * snake;
-    allPositions[0] = createInitialSnakeRandomPosition(connections, foods);
+    if (restart) {
+        allPositions[0] = createInitialSnakeRandomPositionForRestart(connections, foods, currentCount);
+    } else {
+        allPositions[0] = createInitialSnakeRandomPosition(connections, foods);
+    }
 
     if (allPositions[0] == NULL) {
         return NULL;

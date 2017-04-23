@@ -27,7 +27,7 @@ typedef struct Snake {
     LinkedListPosition * positions;
 } Snake;
 
-Snake * createSnake(Vector * connections, Vector * foods);
+Snake * createSnake(Vector * connections, Vector * foods, bool restart, int currentCount);
 
 bool checkIfPositionsAreEqual(Position * position1, Position * position2);
 

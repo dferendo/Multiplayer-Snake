@@ -6,15 +6,15 @@
 #include "ServerHandle.h"
 #include "../utility/General.h"
 #include "API/SnakesAPI.h"
-#include "Food.h"
 #include <unistd.h>
 #include <netinet/in.h>
 
 pthread_mutex_t lock;
+Vector * foods;
+Vector * connections;
 
 void * serverInit(void * args) {
-    ServerParams * serverParams = (ServerParams *) args;
-    uint16_t portNumber = serverParams->portNumber;
+    uint16_t portNumber = ((ServerParams *) args)->portNumber;
     int sockFd;
     struct sockaddr_in serverAddress, clientAddress;
     socklen_t clientSize;
@@ -41,13 +41,12 @@ void * serverInit(void * args) {
 
     listen(sockFd, 0);
     clientSize = sizeof(clientAddress);
-    acceptClients(sockFd, (struct sockaddr *) &clientAddress, &clientSize, serverParams);
+    acceptClients(sockFd, (struct sockaddr *) &clientAddress, &clientSize);
 
     pthread_exit(NULL);
 }
 
-void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clientSize,
-                   ServerParams * serverParams) {
+void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clientSize) {
     int newSockFd;
     pthread_t clientThread;
 
@@ -72,8 +71,6 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
         }
 
         args->sockFd = newSockFd;
-        args->connections = serverParams->connections;
-        args->foods = serverParams->foods;
 
         if (pthread_create(&clientThread, NULL, initNewConnection, args) != 0) {
             perror("Could not create a worker thread.");
@@ -85,8 +82,6 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
 }
 
 void * initNewConnection(void *arg) {
-    Vector * connections = ((CreateConnectThreadArguments *) arg)->connections;
-    Vector * foods = ((CreateConnectThreadArguments *) arg)->foods;
     int socketFileDescriptor = ((CreateConnectThreadArguments *) arg)->sockFd;
 
     Connection * connection;
@@ -134,7 +129,7 @@ Connection * createConnection(int socketFileDescriptor, Vector * connections, Ve
         perror("Failed to allocate memory to connection");
         return NULL;
     }
-    snake = createSnake(connections, foods);
+    snake = createSnake(connections, foods, false, 0);
 
     if (snake == NULL) {
         return NULL;

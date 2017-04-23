@@ -9,6 +9,9 @@
 
 Position * createInitialSnakeRandomPosition(Vector * connections, Vector * foods);
 
+Position * createInitialSnakeRandomPositionForRestart(Vector * connections, Vector * foods,
+                                                      int snakeCreated);
+
 Position * createFoodPosition(Vector * positionsOfSnakes, Vector * foodLocations);
 
 #endif //SNAKES_RANDOMUTILITY_H

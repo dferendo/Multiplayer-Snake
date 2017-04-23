@@ -16,14 +16,11 @@ typedef struct Connection {
 
 typedef struct CreateConnectThreadArguments {
     int sockFd;
-    Vector * connections;
-    Vector * foods;
 } CreateConnectThreadArguments;
 
 void * serverInit(void * args);
 
-void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clientSize,
-                   ServerParams * serverParams);
+void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clientSize);
 
 Connection * createConnection(int socketFileDescriptor, Vector * connections,
                               Vector * foods);
