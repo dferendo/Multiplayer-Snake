@@ -34,15 +34,14 @@ void createOutsideBorder() {
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER);
 }
 
-bool printError(char *errorMessage) {
-    WINDOW * window = createWindowAtTheCenterOfTheScreen(2);
+void printError(char *errorMessage) {
+    WINDOW * window = createWindowAtTheCentreOfTheScreen(2);
 
     mvwprintw(window, 2, 3, errorMessage);
     mvwprintw(window, 3, 3, "Program exiting");
     wrefresh(window);
     sleep(PROMPT_SCREEN_DELAY);
     deleteWindow(window);
-    return false;
 }
 
 WINDOW *generatePlayingWindow() {
@@ -63,7 +62,7 @@ const chtype foodType(Food * type) {
     return (const chtype) foodTypes[type->foodType];
 }
 
-WINDOW * createWindowAtTheCenterOfTheScreen(int height) {
+WINDOW * createWindowAtTheCentreOfTheScreen(int height) {
     int windowStartingX = MAIN_WINDOW_COLUMN / 4, windowStartingY = MAIN_WINDOW_ROW / 4,
             correctHeight = height + 4, width = MAIN_WINDOW_COLUMN / 2;
 
@@ -110,7 +109,7 @@ WINDOW *displayNewData(Vector *foods, Vector * snakes) {
 }
 
 void showScreenInCentre(char *text) {
-    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
+    WINDOW * tempWindow = createWindowAtTheCentreOfTheScreen(1);
     mvwprintw(tempWindow, 2, 3, text);
     wrefresh(tempWindow);
     sleep(PROMPT_SCREEN_DELAY);

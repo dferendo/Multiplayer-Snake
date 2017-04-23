@@ -6,7 +6,6 @@
 #include "../../utility/General.h"
 #include <unistd.h>
 #include <memory.h>
-#include <errno.h>
 
 int readDelimiterSnakes(int socketFd) {
     int response;
@@ -17,10 +16,6 @@ int readDelimiterSnakes(int socketFd) {
     response = (int) read(socketFd, buffer, DELIMITERS_SIZE);
 
     if (response < 0) {
-        // Since non-blocking, read can return this error if data was not read.
-        if (errno == EAGAIN) {
-            return 0;
-        }
         return -1;
     }
 

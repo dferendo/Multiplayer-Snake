@@ -76,9 +76,6 @@ int handleGameDataFromServer(int sockFd) {
                 // Restart
                 deleteWindow(window);
                 return 3;
-            case 0:
-                // There was no reading
-                continue;
             default:
                 deleteWindow(window);
                 // Connections error
