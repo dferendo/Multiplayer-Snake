@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
     while (true) {
         // Start game
-        startGameThread(foods, connections);
+        startGameThread();
         // Whenever a game ends, it will return.
         pthread_mutex_lock(&lock);
         restartGame(foods, connections);
@@ -100,5 +100,4 @@ void startServerThread(uint16_t portNumber) {
         deleteVector(connections);
         exit(1);
     }
-    free(serverArgs);
 }

@@ -5,6 +5,7 @@
 #include "template/ClientLayout.h"
 #include "SnakesGame.h"
 #include <strings.h>
+#include <signal.h>
 
 void serverConnection(int portNumber, char * hostName) {
     int sockFd, nextAction;
@@ -12,6 +13,7 @@ void serverConnection(int portNumber, char * hostName) {
     if (!connectToServer(&sockFd, portNumber, hostName)) {
         return;
     }
+
     while (true) {
         nextAction = gameManager(sockFd);
         if (nextAction < 0) {

@@ -48,6 +48,7 @@ void clearFoodsVector(Vector *foods) {
     for (int i = 0; i < foods->size; i++) {
         food = (Food *) foods->data[i];
         free(food->position);
+        free(food);
     }
     deleteVector(foods);
 }
