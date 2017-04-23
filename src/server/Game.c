@@ -151,6 +151,8 @@ bool moveSnakes(Vector *connections, Vector *foods) {
                 // Clear snake, regardless if connection failed
                 freeConnection(connection);
                 deleteItemFromVector(connections, connection);
+                // Since 1 deleted, everything is shifted
+                i--;
             }
         }
     }
