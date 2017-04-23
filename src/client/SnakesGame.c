@@ -14,6 +14,7 @@ Vector * snakes = NULL;
 
 int gameManager(int sockFd) {
     int gameStatus;
+    ReadUserInputThreadParams * inputThreadParams;
     pthread_t characterReaderTId;
     bool * keepAlive = (bool *) malloc(sizeof(bool));
 
@@ -22,8 +23,7 @@ int gameManager(int sockFd) {
         return -1;
     }
     *keepAlive = true;
-    ReadUserInputThreadParams * inputThreadParams =
-            (ReadUserInputThreadParams *) malloc(sizeof(ReadUserInputThreadParams));
+    inputThreadParams = (ReadUserInputThreadParams *) malloc(sizeof(ReadUserInputThreadParams));
 
     if (inputThreadParams == NULL) {
         perror("Failed to allocate memory to Params");
@@ -33,38 +33,18 @@ int gameManager(int sockFd) {
     inputThreadParams->keepAlive = keepAlive;
     // Create a thread that reads user input.
     if (pthread_create(&characterReaderTId, NULL, readDirectionFromUser, inputThreadParams) != 0) {
-        perror("Could not create a snake thread.");
+        perror("Could not create a read user thread.");
+        free(inputThreadParams);
         return -1;
     }
-    gameStatus = gameRunning(sockFd);
-
-    // If this is reached, terminate everything
+    gameStatus = handleGameDataFromServer(sockFd);
+    // Removes data
     removeGameData(snakes, foods, keepAlive, characterReaderTId);
-    snakes = NULL;
-    foods = NULL;
-
-    if (gameStatus == 1) {
-        showScreenInCentre(WINNER_TEXT);
-        return 1;
-    } else if (gameStatus == 2) {
-        showScreenInCentre(DIED_TEXT);
-        // Exit game if dead
-        return -1;
-    } else if (gameStatus == 3) {
-        showScreenInCentre(RESTART_TEXT);
-        // Do not exit game
-        return 1;
-    } else if (gameStatus == -1) {
-        showScreenInCentre(ERROR_CONNECTION_FAILED);
-        // Exit game if server cannot be reached
-        return -1;
-    } else {
-        perror("Expected error, problem with parallelism.");
-        return -1;
-    }
+    // Close game
+    return closeGame(gameStatus);
 }
 
-int gameRunning(int sockFd) {
+int handleGameDataFromServer(int sockFd) {
     int nextCompute;
     WINDOW * window = generatePlayingWindow();
 
@@ -99,14 +79,10 @@ int gameRunning(int sockFd) {
             case 0:
                 // There was no reading
                 continue;
-            case -1:
+            default:
                 deleteWindow(window);
                 // Connections error
                 return -1;
-            default:
-                deleteWindow(window);
-                // Unexpected data received
-                return -2;
         }
     }
 }
@@ -133,7 +109,6 @@ bool snakeHandler(int sockFd) {
     // Error with snakes
     if (snakes == NULL) {
         deleteWindow(window);
-        showScreenInCentre(ERROR_CONNECTION_FAILED);
         return false;
     }
     window = displayNewData(foods, snakes);
@@ -141,7 +116,7 @@ bool snakeHandler(int sockFd) {
     return true;
 }
 
-void *readDirectionFromUser(void *args) {
+void * readDirectionFromUser(void *args) {
     int sockFd = ((ReadUserInputThreadParams *) args)->sockFd;
     bool * keepAlive = ((ReadUserInputThreadParams *) args)->keepAlive;
     int character, previousChar = DEFAULT_START_DIRECTION_KEY;
@@ -164,10 +139,8 @@ void *readDirectionFromUser(void *args) {
                     if (sendUserDirection(sockFd, D_UP)) {
                         previousChar = character;
                     } else {
-                        free(args);
-                        // If you cannot write to the socket, that indicates
-                        // that the server close.
-                        pthread_exit(NULL);
+                        // Since there was a connection error with server, stop thread.
+                        *keepAlive = false;
                     }
                 }
                 break;
@@ -176,10 +149,7 @@ void *readDirectionFromUser(void *args) {
                     if (sendUserDirection(sockFd, D_LEFT)) {
                         previousChar = character;
                     } else {
-                        free(args);
-                        // If you cannot write to the socket, that indicates
-                        // that the server close.
-                        pthread_exit(NULL);
+                        *keepAlive = false;
                     }
                 }
                 break;
@@ -188,10 +158,7 @@ void *readDirectionFromUser(void *args) {
                     if (sendUserDirection(sockFd, D_RIGHT)) {
                         previousChar = character;
                     } else {
-                        free(args);
-                        // If you cannot write to the socket, that indicates
-                        // that the server close.
-                        pthread_exit(NULL);
+                        *keepAlive = false;
                     }
                 }
                 break;
@@ -200,10 +167,7 @@ void *readDirectionFromUser(void *args) {
                     if (sendUserDirection(sockFd, D_DOWN)) {
                         previousChar = character;
                     } else {
-                        free(args);
-                        // If you cannot write to the socket, that indicates
-                        // that the server close.
-                        pthread_exit(NULL);
+                        *keepAlive = false;
                     }
                 }
             default:
@@ -222,4 +186,27 @@ void removeGameData(Vector *snakes, Vector *foods, bool *keepAlive, pthread_t ch
     // Clear Vectors
     clearSnakeVector(snakes);
     clearFoodsVector(foods);
+}
+
+int closeGame(int status) {
+    // If this is reached, terminate everything
+    snakes = NULL;
+    foods = NULL;
+
+    if (status == 1) {
+        showScreenInCentre(WINNER_TEXT);
+        return 1;
+    } else if (status == 2) {
+        showScreenInCentre(DIED_TEXT);
+        // Exit game if dead
+        return -1;
+    } else if (status == 3) {
+        showScreenInCentre(RESTART_TEXT);
+        // Do not exit game
+        return 1;
+    } else {
+        showScreenInCentre(ERROR_CONNECTION_FAILED);
+        // Exit game if server cannot be reached
+        return -1;
+    }
 }

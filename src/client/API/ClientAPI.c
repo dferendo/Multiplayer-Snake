@@ -4,7 +4,6 @@
 #include "ClientAPI.h"
 #include "../../utility/Serialize.h"
 #include "../../utility/General.h"
-#include "../SnakesGame.h"
 #include <unistd.h>
 #include <memory.h>
 #include <errno.h>
@@ -15,11 +14,7 @@ int readDelimiterSnakes(int socketFd) {
 
     bzero(buffer, DELIMITERS_SIZE);
 
-    // Enable non blocking for read.
-    setSocketBlockingEnabled(socketFd, false);
     response = (int) read(socketFd, buffer, DELIMITERS_SIZE);
-    // Disable non blocking for read.
-    setSocketBlockingEnabled(socketFd, true);
 
     if (response < 0) {
         // Since non-blocking, read can return this error if data was not read.

@@ -7,10 +7,12 @@
 #include <strings.h>
 #include <signal.h>
 #include <unistd.h>
+#include <netinet/in.h>
+#include <netdb.h>
 
 int sockFd;
 
-void serverConnection(int portNumber, char * hostName) {
+void serverManager(int portNumber, char *hostName) {
     int nextAction;
 
     if (!connectToServer(&sockFd, portNumber, hostName)) {
