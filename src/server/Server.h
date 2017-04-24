@@ -13,7 +13,8 @@ extern pthread_mutex_t lock;
 extern Vector * foods;
 // Holds all current connections.
 extern Vector * connections;
-
+// Server socket.
+extern int sockFd;
 /**
  * Params passed to the server Thread.
  */
@@ -45,5 +46,7 @@ void startServerThread(uint16_t portNumber);
  * @param connections: All current Connections.
  */
 void restartGame(Vector * foods, Vector * connections);
+
+void terminateServer(int sig);
 
 #endif //SNAKES_SERVERLAUNCHER_H

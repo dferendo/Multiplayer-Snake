@@ -12,10 +12,10 @@
 pthread_mutex_t lock;
 Vector * foods;
 Vector * connections;
+int sockFd;
 
 void * serverInit(void * args) {
     uint16_t portNumber = ((ServerParams *) args)->portNumber;
-    int sockFd;
     struct sockaddr_in serverAddress, clientAddress;
     socklen_t clientSize;
 

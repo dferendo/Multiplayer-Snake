@@ -8,15 +8,17 @@
 #include "../settings/GameSettings.h"
 #include <pthread.h>
 #include <unistd.h>
+#include <signal.h>
 
 pthread_mutex_t lock;
 Vector * foods;
 Vector * connections;
+int sockFd;
 
 int main(int argc, char *argv[]) {
     // Seed
     srand((unsigned int) time(NULL));
-
+    sockFd = -1;
     if (argc < 2) {
         printf("Port number was not passed");
         exit(1);
@@ -33,6 +35,7 @@ int main(int argc, char *argv[]) {
     if (foods == NULL) {
         exit(1);
     }
+    signal(SIGINT, terminateServer);
     // Start Server
     startServerThread((uint16_t) atoi(argv[1]));
 
@@ -43,8 +46,6 @@ int main(int argc, char *argv[]) {
         pthread_mutex_lock(&lock);
         restartGame(foods, connections);
         pthread_mutex_unlock(&lock);
-        // Give some time before starting new game.
-        sleep(PROMPT_SCREEN_DELAY_SEC);
     }
 }
 
@@ -100,4 +101,17 @@ void startServerThread(uint16_t portNumber) {
         deleteVector(connections);
         exit(1);
     }
+}
+
+void terminateServer(int sig) {
+    // Check if socket was checked
+    if (sockFd != -1) {
+        close(sockFd);
+        // Close all client sockets, connections has been initialise
+        for (int i = 0; i < connections->size; i++) {
+            close(((Connection *)connections->data[i])->sockFd);
+        }
+    }
+    printf("Server closed.\n");
+    exit(1);
 }

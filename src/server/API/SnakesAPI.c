@@ -101,7 +101,7 @@ void * checkForChangeOfDirections(void * args) {
                 if (errno == EAGAIN) {
                     continue;
                 }
-                // Connection failed, remove.
+                // Connection failed
                 freeDataOfConnection(connection);
                 deleteItemFromVector(connections, connection);
                 break;
@@ -123,7 +123,7 @@ void * checkForChangeOfDirections(void * args) {
             connection->snake->direction = (Direction) direction;
         }
         pthread_mutex_unlock(&lock);
-        usleep(GAME_UPDATE_RATE_US);
+        usleep(GAME_READ_USER_INPUT_UPDATE_RATE_US);
     }
 }
 

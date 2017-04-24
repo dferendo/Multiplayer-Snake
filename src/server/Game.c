@@ -72,6 +72,8 @@ void * gameManagement(void *args) {
     }
     // Start game
     gameLoop(connections, foods);
+    // Sleep for a bit
+    sleep(PROMPT_SCREEN_DELAY_SEC);
     // Clean up
     gameCleanUp(keepChangeDirectionThread, keepFoodGeneratorThread, changeDirectionThread, foodThread);
     // Exit
