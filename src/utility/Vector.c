@@ -16,26 +16,26 @@ Vector * initVector() {
     }
     // No elements are in the vector yet.
     newVector->size = 0;
+    newVector->data = NULL;
     return newVector;
 }
 
 int addItemToVector(Vector *vector, void *item) {
     // Realloc needs to have previous memory allocated to it to be used.
     if (vector->size == 0) {
-        vector->size++;
-        vector->data = (void **) malloc(vector->size * sizeof(*vector->data));
+        vector->data = (void **) malloc((vector->size + 1)* sizeof(*vector->data));
         if (vector->data == NULL) {
             perror("Failed to allocate memory to Food in vector.");
             return -1;
         }
         // Add properties to the new allocated memory.
         vector->data[0] = item;
+        vector->size++;
         return 1;
     }
 
-    vector->size++;
     void ** temp;
-    temp = (void **) realloc(vector->data, vector->size * sizeof(*vector->data));
+    temp = (void **) realloc(vector->data, (vector->size + 1) * sizeof(*vector->data));
 
     if (temp == NULL) {
         perror("Failed to re-allocate memory to Food in vector.");
@@ -43,13 +43,16 @@ int addItemToVector(Vector *vector, void *item) {
         return -2;
     }
     vector->data = temp;
-    vector->data[vector->size - 1] = item;
+    vector->data[vector->size] = item;
+    vector->size++;
     return 1;
 }
 
 void deleteVector(Vector * vector) {
     // Free the array.
     free(vector->data);
+    vector->data = NULL;
+    vector->size = 0;
     // Free the struct.
     free(vector);
 }
@@ -69,19 +72,23 @@ int deleteItemFromVector(Vector *vector, void *item) {
     }
     // Free the searched item
     free(item);
-    // TODO memmove use.
     // Move memory to the left to delete the selected Food.
     for (int i = index; i < vector->size - 1; i++) {
         vector->data[i] = vector->data[i + 1];
     }
     // Decrement size.
     vector->size--;
-    // Realloc new size.
-    void ** temp = (void **) realloc(vector->data, vector->size * sizeof(*vector->data));
-    if (temp == NULL) {
-        perror("Failed to de-allocate memory to Food vector.");
-        return -2;
+    // Size is 0, do not rely on realloc
+    if (vector->size == 0) {
+        free(vector->data);
+    } else {
+        // Realloc new size.
+        void ** temp = (void **) realloc(vector->data, vector->size * sizeof(*vector->data));
+        if (temp == NULL) {
+            perror("Failed to de-allocate memory to vector.");
+            return -2;
+        }
+        vector->data = temp;
     }
-    vector->data = temp;
     return 1;
 }

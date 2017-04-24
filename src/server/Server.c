@@ -2,100 +2,116 @@
 // Created by dylan on 14/04/2017.
 //
 #include "Server.h"
+#include "../utility/General.h"
+#include "Game.h"
+#include "API/SnakesAPI.h"
+#include "../settings/GameSettings.h"
 #include <pthread.h>
 #include <unistd.h>
-#include <strings.h>
-#include "QueueToPlay.h"
+#include <signal.h>
 
-Vector * connections;
-Vector * initialPositions;
-Vector * foods;
 pthread_mutex_t lock;
+Vector * foods;
+Vector * connections;
+int sockFd;
 
 int main(int argc, char *argv[]) {
+    // Seed
     srand((unsigned int) time(NULL));
+    sockFd = -1;
     if (argc < 2) {
         printf("Port number was not passed");
         exit(1);
     }
-
-    serverInit((uint16_t) atoi(argv[1]));
-}
-
-void serverInit(uint16_t portNumber) {
-    int sockFd;
-    struct sockaddr_in serverAddress, clientAddress;
-    socklen_t clientSize;
-    // Vectors needed
+    pthread_mutex_init(&lock, NULL);
     connections = initVector();
-    initialPositions = initVector();
+
+    if (connections == NULL) {
+        exit(1);
+    }
+
     foods = initVector();
 
-    pthread_mutex_init(&lock, NULL);
-    // Create socket
-    sockFd = socket(AF_INET, SOCK_STREAM, 0);
-
-    if (sockFd == -1) {
-        perror("Error opening socket.");
+    if (foods == NULL) {
         exit(1);
     }
+    signal(SIGINT, terminateServer);
+    // Start Server
+    startServerThread((uint16_t) atoi(argv[1]));
 
-    bzero((char *) &serverAddress, sizeof(serverAddress));
-    serverAddress.sin_family = AF_INET;
-    // Accepts any addresses
-    serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons(portNumber);
-
-    // Binding
-    if (bind(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
-        perror("Error on binding");
-        exit(1);
+    while (true) {
+        // Start game
+        startGameThread();
+        // Whenever a game ends, it will return.
+        pthread_mutex_lock(&lock);
+        restartGame(foods, connections);
+        pthread_mutex_unlock(&lock);
     }
-
-    listen(sockFd, 0);
-    clientSize = sizeof(clientAddress);
-    acceptClients(sockFd, (struct sockaddr *) &clientAddress, &clientSize);
 }
 
-void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clientSize) {
-    bool hostEstablish = false;
-    int newSockFd;
-    pthread_t clientThread;
+void restartGame(Vector * foods, Vector * connections) {
+    Connection * connection;
+    bool error;
+    // Give starting positions
+    for (int i = 0; i < connections->size; i++) {
+        connection = (Connection *) connections->data[i];
+        // Re-generate snake random position
+        connection->snake = createSnake(connections, foods, true, i);
+    }
+    // Send data
+    do {
+        // Send data again, if a connection is lost re-send the data.
+        error = sendSnakeDataToClients(connections);
+        error |= writeFoodDataToClients(connections, foods);
+    } while (!error);
+}
 
-    // Wait for connections
-    while (true) {
-        // Accept connection
-        newSockFd = accept(sockFd, clientAddress, clientSize);
+void startGameThread() {
+    pthread_t gameThread;
 
-        // Failed connection, ignore client
-        if (newSockFd == -1) {
-            perror("Error on client accept");
-            continue;
-        }
-        CreateConnectThreadArguments * args = (CreateConnectThreadArguments *)
-                malloc(sizeof(CreateConnectThreadArguments));
+    // Game Thread
+    if (pthread_create(&gameThread, NULL, gameManagement, NULL) != 0) {
+        perror("Could not create a worker thread.");
+        deleteVector(foods);
+        deleteVector(connections);
+        exit(1);
+    }
+    // Wait for thread to finish
+    pthread_join(gameThread, NULL);
+}
 
-        // Failed malloc, ignore client
-        if (args == NULL) {
-            perror("Error on malloc arguments");
-            close(newSockFd);
-            exit(1);
-        }
+void startServerThread(uint16_t portNumber) {
+    pthread_t serverThread;
+    ServerParams * serverArgs = (ServerParams *) malloc(sizeof(ServerParams));
 
-        args->sockFd = newSockFd;
+    if (serverArgs == NULL) {
+        perror("Error on malloc arguments");
+        deleteVector(connections);
+        deleteVector(foods);
+        exit(1);
+    }
 
-        if (!hostEstablish) {
-            hostEstablish = true;
-            args->isHost = true;
-        } else {
-            args->isHost = false;
-        }
+    serverArgs->portNumber = portNumber;
 
-        if (pthread_create(&clientThread, NULL, initNewConnection, args) != 0) {
-            perror("Could not create a worker thread.");
-            free(args);
-            close(newSockFd);
-            exit(1);
+    // Server Thread
+    if (pthread_create(&serverThread, NULL, serverInit, serverArgs) != 0) {
+        perror("Could not create a worker thread.");
+        free(serverArgs);
+        deleteVector(foods);
+        deleteVector(connections);
+        exit(1);
+    }
+}
+
+void terminateServer(int sig) {
+    // Check if socket was checked
+    if (sockFd != -1) {
+        close(sockFd);
+        // Close all client sockets, connections has been initialise
+        for (int i = 0; i < connections->size; i++) {
+            close(((Connection *)connections->data[i])->sockFd);
         }
     }
+    printf("Server closed.\n");
+    exit(1);
 }

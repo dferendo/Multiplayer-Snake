@@ -5,115 +5,115 @@
 #include "Server.h"
 #include "Game.h"
 #include "SnakeMove.h"
-#include "../utility/Serialize.h"
 #include "../utility/General.h"
 #include "Food.h"
+#include "../settings/GameSettings.h"
+#include "API/SnakesAPI.h"
 #include <unistd.h>
-#include <strings.h>
-#include <memory.h>
 
-Vector * connections;
-Vector * foods;
 pthread_mutex_t lock;
+Vector * foods;
+Vector * connections;
 
-void gameInitialize() {
-    pthread_t foodThread;
-    pthread_t changeDirectionThread;
-    // Where all the food will be placed.
-    foods = initVector();
-    // Send initial snake information
-    sendSnakeInformationToClients();
+void * gameManagement(void *args) {
+    ChangeDirectionParams * changeDirectionParams;
+    FoodGeneratorParams * foodGeneratorParams;
+    pthread_t foodThread, changeDirectionThread;
+    bool * keepChangeDirectionThread = (bool *) malloc(sizeof(bool)),
+            * keepFoodGeneratorThread = (bool *) malloc(sizeof(bool));
+
+    if (keepChangeDirectionThread == NULL) {
+        perror("Failed to allocate memory to Params");
+        exit(1);
+    } else if (keepFoodGeneratorThread == NULL) {
+        free(keepChangeDirectionThread);
+        perror("Failed to allocate memory to Params");
+        exit(1);
+    }
+    *keepChangeDirectionThread = true;
+    *keepFoodGeneratorThread = true;
+
+    changeDirectionParams = (ChangeDirectionParams *) malloc(sizeof(ChangeDirectionParams));
+
+    if (changeDirectionParams == NULL) {
+        perror("Cannot allocate memory to Params");
+        exit(1);
+    }
+    changeDirectionParams->connections = connections;
+    changeDirectionParams->killThread = keepChangeDirectionThread;
+
+    foodGeneratorParams = (FoodGeneratorParams *) malloc(sizeof(FoodGeneratorParams));
+
+    if (foodGeneratorParams == NULL) {
+        perror("Cannot allocate memory to Params");
+        free(changeDirectionParams);
+        exit(1);
+    }
+    foodGeneratorParams->foods = foods;
+    foodGeneratorParams->connections = connections;
+    foodGeneratorParams->killThread = keepFoodGeneratorThread;
+
     // Create thread for food.
-    if (pthread_create(&foodThread, NULL, generateFood, NULL) != 0) {
+    if (pthread_create(&foodThread, NULL, generateFood, foodGeneratorParams) != 0) {
         perror("Could not create a food thread");
-        return;
+        free(changeDirectionParams);
+        free(foodGeneratorParams);
+        // If the thread could not be created, stop the execution since it will be useless.
+        exit(1);
     }
     // Create Thread that listens to user change of direction.
-    if (pthread_create(&changeDirectionThread, NULL, checkForChangeOfDirections, NULL) != 0) {
+    if (pthread_create(&changeDirectionThread, NULL, checkForChangeOfDirections,
+                       changeDirectionParams) != 0) {
         perror("Could not create a Change direction thread");
-        return;
+        free(changeDirectionParams);
+        free(foodGeneratorParams);
+        // Without the thread, the rest of the system is useless
+        exit(1);
     }
-    gameLoop();
+    // Start game
+    gameLoop(connections, foods);
+    // Sleep for a bit
+    sleep(PROMPT_SCREEN_DELAY_SEC);
+    // Clean up
+    gameCleanUp(keepChangeDirectionThread, keepFoodGeneratorThread, changeDirectionThread, foodThread);
+    // Exit
+    pthread_exit(NULL);
 }
 
-void gameLoop() {
+void gameLoop(Vector *connections, Vector *foods) {
+    bool error;
 
     while (true) {
-        usleep(GAME_UPDATE_RATE_US);
         // Lock so that food is not generated when finding the new location.
         pthread_mutex_lock(&lock);
-        // Create thread workers.
-        if (createSnakeWorkers()) {
-            break;
+        if (connections != NULL) {
+            // Move snakes, if true there is a winner and game needs to be restarted.
+            if (moveSnakes(connections, foods)) {
+                pthread_mutex_unlock(&lock);
+                break;
+            }
+            // Send new information.
+            do {
+                // Send data again, if a connection is lost re-send the data.
+                error = sendSnakeDataToClients(connections);
+            } while (!error);
         }
-        // Send new information.
-        sendSnakeInformationToClients();
         pthread_mutex_unlock(&lock);
+        usleep(GAME_UPDATE_RATE_US);
     }
 }
 
-void sendSnakeInformationToClients() {
-    int response;
-    // Size without Positions of snake.
-    // The information consists of a delimiter and for each snake, it contains the
-    // owner name and the size of the snake and the current direction.
-    size_t size = DELIMITERS_SIZE + (connections->size * MAXIMUM_INPUT_STRING) +
-                  (connections->size * (INTEGER_BYTES * 2));
-
-    // Calculate the size of positions of the snake.
-    for (int i = 0; i < connections->size; i++) {
-        size += (((Connection *) connections->data[i])->clientInfo->snake->size) *
-                POSITION_BYTES;
-    }
-
-    unsigned char buffer[size];
-    bzero(buffer, size);
-
-    serializedSnakeFromConnections(buffer, connections);
-
-    // Write to all the clients about the information.
-    for (int i = 0; i < connections->size; i++) {
-        struct Connection * connection = (Connection *) connections->data[i];
-
-        response = (int) write(connection->sockFd, buffer, size);
-
-        if (response == -1) {
-            perror("Failed to write to the socket");
-            close(connection->sockFd);
-        }
-    }
-}
-
-bool createSnakeWorkers() {
+bool moveSnakes(Vector *connections, Vector *foods) {
     Snake * snake;
+    SnakeStatus moveSnakesReturns[connections->size];
     bool thereAreWinners = false;
-    pthread_t  snakesTIds[connections->size];
     Connection * connection;
-    // Create a thread for every Snake.
-    SnakeWorkerParams snakeWorkerParams[connections->size];
-    SnakeWorkerReturn snakeWorkerReturn[connections->size];
 
+    // Move snakes
     for (int i = 0; i < connections->size; i++) {
-        snake = ((Connection *) connections->data[i])->clientInfo->snake;
-        // Set params to be passed to pthread
-        snakeWorkerParams[i].connections = connections;
-        snakeWorkerParams[i].foods = foods;
-        snakeWorkerParams[i].snake = snake;
-        // Create Threads
-        // Every thread can modify the snake since they are different.
-        if (pthread_create(&snakesTIds[i], NULL, snakeAction, snakeWorkerParams + i) != 0) {
-            perror("Could not create a snake thread.");
-            return true;
-        }
-    }
-    // Wait for threads
-    for (int i = 0; i < connections->size; i++) {
-        // Method returns nothing.
-        void * threadReturn;
-        pthread_join(snakesTIds[i], &threadReturn);
-        snakeWorkerReturn[i].status = ((SnakeWorkerReturn *) threadReturn)->status;
-        // Check for winners.
-        if (snakeWorkerReturn[i].status == WINNER) {
+        snake = ((Connection *) connections->data[i])->snake;
+        moveSnakesReturns[i] = snakeAction(snake, foods, connections);
+        if (moveSnakesReturns[i] == WINNER) {
             thereAreWinners = true;
         }
     }
@@ -122,79 +122,60 @@ bool createSnakeWorkers() {
     if (thereAreWinners) {
         for (int i = 0; i < connections->size; i++) {
             connection = (Connection *)connections->data[i];
-            if (snakeWorkerReturn[i].status == WINNER) {
-                sendEndGameToClients(connection->sockFd, WINNER);
+            if (moveSnakesReturns[i] == WINNER) {
+                // Check for connection lost, if so remove the connection
+                if (!sendEndGameToClient(connection->sockFd, WINNER)) {
+                    freeDataOfConnection(connection);
+                    deleteItemFromVector(connections, connection);
+                }
             } else {
-                sendEndGameToClients(connection->sockFd, DIED);
+                // Check for connection lost, if so remove the connection
+                if (!sendEndGameToClient(connection->sockFd, RESTART)) {
+                    freeDataOfConnection(connection);
+                    deleteItemFromVector(connections, connection);
+                }
             }
         }
-    }
-    // Check if snakes died.
-    for (int i = 0; i < connections->size; i++) {
-        connection = (Connection *)connections->data[i];
-        if (snakeWorkerReturn[i].status == DIED) {
-            sendEndGameToClients(connection->sockFd, DIED);
-            // Clear snake.
-            freeConnection(connection);
-            deleteItemFromVector(connections, connection);
-        }
-    }
-    // If no connections, stop game.
-    return thereAreWinners || (connections->size == 0);
-}
-
-void *checkForChangeOfDirections(void * args) {
-    Connection * connection;
-    int response, direction;
-    unsigned char buffer[DELIMITERS_SIZE], directionBuffer[INTEGER_BYTES];
-
-    while (true) {
-        for (int i = 0; i < connections->size; i++) {
-            // Read if delimiter was passed.
-            connection = ((Connection *) connections->data[i]);
-            bzero(buffer, DELIMITERS_SIZE);
-
-            // Set to non blocking so that others can also change
-            setSocketBlockingEnabled(connection->sockFd, false);
-            response = (int) read(connection->sockFd, buffer, DELIMITERS_SIZE);
-            setSocketBlockingEnabled(connection->sockFd, true);
-
-            if (response < 0) {
-                continue;
-            }
-            if (strncmp((const char *) buffer, CHANGE_DIRECTION_DELIMITER, DELIMITERS_SIZE) != 0) {
-                continue;
-            }
-            // Read the actual change of direction.
-
-            response = (int) read(connection->sockFd, directionBuffer, INTEGER_BYTES);
-
-            if (response < 0) {
-                continue;
-            }
-            pthread_mutex_lock(&lock);
-            direction = (int) connection->clientInfo->snake->direction;
-            deserializeInt(directionBuffer, &direction);
-            connection->clientInfo->snake->direction = (Direction) direction;
-            pthread_mutex_unlock(&lock);
-        }
-    }
-}
-
-void sendEndGameToClients(int sockFd, SnakeStatus status) {
-    int response;
-    unsigned char buffer[DELIMITERS_SIZE];
-    bzero(buffer, DELIMITERS_SIZE);
-
-    if (status == WINNER) {
-        serializeCharArray(buffer, WINNER_DELIMITER, DELIMITERS_SIZE);
+        return true;
     } else {
-        serializeCharArray(buffer, LOSE_DELIMITER, DELIMITERS_SIZE);
+        // Check if snakes died.
+        for (int i = 0; i < connections->size; i++) {
+            connection = (Connection *) connections->data[i];
+            if (moveSnakesReturns[i] == DIED) {
+                sendEndGameToClient(connection->sockFd, DIED);
+                // Clear snake, regardless if connection failed
+                freeDataOfConnection(connection);
+                deleteItemFromVector(connections, connection);
+                // Since 1 deleted, everything is shifted
+                i--;
+            }
+        }
     }
-    response = (int) write(sockFd, buffer, DELIMITERS_SIZE);
+    return false;
+}
 
-    if (response < 0) {
-        perror("Error writing to socket");
-        close(sockFd);
+void clearDataUsedForGame(Vector *connections, Vector *foods) {
+    Connection * connection;
+    // Clear food
+    clearFoodsVector(foods);
+    // Clear snakes
+    for (int i = 0; i < connections->size; i++) {
+        connection = (Connection *) connections->data[i];
+        freeSnake(connection->snake);
     }
+}
+
+void gameCleanUp(bool * keepChangeDirectionThread, bool * keepFoodGeneratorThread,
+                 pthread_t changeDirectionThread, pthread_t foodThread) {
+    // Kill threads
+    *keepChangeDirectionThread = false;
+    *keepFoodGeneratorThread = false;
+    // Wait for thread to finish
+    pthread_join(changeDirectionThread, NULL);
+    pthread_join(foodThread, NULL);
+    // Clear data used except connections
+    pthread_mutex_lock(&lock);
+    clearDataUsedForGame(connections, foods);
+    foods = initVector();
+    pthread_mutex_unlock(&lock);
 }

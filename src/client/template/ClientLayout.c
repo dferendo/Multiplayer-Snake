@@ -1,22 +1,29 @@
 #include <strings.h>
 #include "ClientLayout.h"
 #include "../../settings/GameSettings.h"
-#include "../../server/Server.h"
 #include "unistd.h"
 
-const char * const MENU_ITEMS[MAIN_MENU_ITEMS] = {
-        "1) Play",
-        "2) About",
-        "3) Exit"
-};
-
-const char * const SERVER_REQUIRED[PLAY_GAME_MENU_REQUIRED] = {
-        "Player Name: ",
-        "Server Name: ",
-        "Port Number: "
-};
-
-const char * const CREDITS = "Created by Dylan Frendo";
+void ncursesInit() {
+    initscr();
+    // Check if terminal has colours
+    if (has_colors() == FALSE) {
+        endwin();
+        printf("Terminal does not support colors!!\n");
+        exit(1);
+    }
+    // Start the colours
+    start_color();
+    // Set cursor to invisible
+    curs_set(0);
+    // Allows more control for the input
+    cbreak();
+    // Do not display inserted keys to the screen.
+    noecho();
+    // Creates the border for the game.
+    createOutsideBorder();
+    // Show the Border.
+    refresh();
+}
 
 void createOutsideBorder() {
     // Create border
@@ -27,116 +34,14 @@ void createOutsideBorder() {
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER);
 }
 
-WINDOW * createMainMenuWindow() {
-    WINDOW * menuWindow = createWindowAtTheCenterOfTheScreen((MAIN_WINDOW_ROW / 2) - 4);
-
-    // Add Divisor line.
-    for(int x = 1; x < (MAIN_WINDOW_COLUMN / 2) - 1; x++) {
-        mvwaddch(menuWindow, (MAIN_WINDOW_ROW / 2) - 3, x, MAIN_MENU_DIVIDER);
-    }
-    // Print menu items.
-    for (int i = 0; i < MAIN_MENU_ITEMS; i++) {
-        mvwprintw(menuWindow, 1 + i, 2, MENU_ITEMS[i]);
-    }
-    // Add Credits
-    mvwprintw(menuWindow, (MAIN_WINDOW_ROW / 2) - 2, 2, CREDITS);
-    return menuWindow;
-}
-
-void aboutMenu() {
-    WINDOW * menuWindow = createWindowAtTheCenterOfTheScreen((MAIN_WINDOW_ROW / 2) - 4);
-
-    mvwprintw(menuWindow, 1, 2, "A simple multiple snakes made using ncu-");
-    mvwprintw(menuWindow, 2, 2, "rses library. Controls: W A D X for the ");
-    mvwprintw(menuWindow, 3, 2, "respective direction of the snake. To p-");
-    mvwprintw(menuWindow, 4, 2, "lay a SERVER is required where the host ");
-    mvwprintw(menuWindow, 5, 2, "can start a game.");
-    mvwprintw(menuWindow, (MAIN_WINDOW_ROW / 2) - 2, 2, "Press any key to continue");
-
-    wrefresh(menuWindow);
-    getch();
-    // Delete
-    delwin(menuWindow);
-}
-
-void getInput(char * name, char * serverName, char * port) {
-    WINDOW * menuWindow = createWindowAtTheCenterOfTheScreen(3);
-
-    // Clear char
-    bzero(name, MAXIMUM_INPUT_STRING);
-    bzero(serverName, MAXIMUM_INPUT_STRING);
-    bzero(port, MAXIMUM_INPUT_STRING);
-    // Display Input name Window
-    for (int i = 0; i < PLAY_GAME_MENU_REQUIRED; i++) {
-        mvwprintw(menuWindow, i + 2, 3, SERVER_REQUIRED[i]);
-    }
-
-    wrefresh(menuWindow);
-    // Enable user to write on screen
-    echo();
-    // Show cursor
-    curs_set(1);
-    // Get name
-    wmove(menuWindow, 2, PLAY_GAME_MENU_LENGTH + 3);
-    wgetnstr(menuWindow, name, MAXIMUM_INPUT_STRING);
-    // Get Server name
-    wmove(menuWindow, 3, PLAY_GAME_MENU_LENGTH + 3);
-    wgetnstr(menuWindow, serverName, MAXIMUM_INPUT_STRING);
-    // Get port number
-    wmove(menuWindow, 4, PLAY_GAME_MENU_LENGTH + 3);
-    wgetnstr(menuWindow, port, MAXIMUM_INPUT_STRING);
-    // Disable cursor
-    curs_set(0);
-    // Disable user write on screen
-    noecho();
-    deleteWindow(menuWindow);
-}
-
-bool printErrorAndOfferRetry(char *errorMessage) {
-    WINDOW * window = createWindowAtTheCenterOfTheScreen(2);
+void printError(char *errorMessage) {
+    WINDOW * window = createWindowAtTheCentreOfTheScreen(2);
 
     mvwprintw(window, 2, 3, errorMessage);
-    mvwprintw(window, 3, 3, "Retry? (Y/n)");
+    mvwprintw(window, 3, 3, "Program exiting");
     wrefresh(window);
-    int retry = getch();
-    if (retry == 'Y' || retry == 'y') {
-        deleteWindow(window);
-        return true;
-    }
+    sleep(PROMPT_SCREEN_DELAY_SEC);
     deleteWindow(window);
-    return false;
-}
-
-WINDOW * generateWindowForWaitingInQueue(Vector * connections, bool isHost) {
-    WINDOW * window;
-
-    if (connections == NULL) {
-        window = createWindowAtTheCenterOfTheScreen(1);
-        mvwprintw(window, 2, 3, "Generating Queue.....");
-        wrefresh(window);
-        return window;
-    }
-    // + 3 since hosts get special command and players waiting.
-    window = createWindowAtTheCenterOfTheScreen((int) connections->size + 3);
-
-    mvwprintw(window, 2, 3, "Players waiting: ");
-
-    for (int i = 0; i < connections->size; i++) {
-        char str[MAXIMUM_INPUT_STRING + 10];
-        Connection * nextConnection = (Connection *) connections->data[i];
-
-        if (nextConnection->clientInfo->isHost) {
-            sprintf(str, "%d) %s (H)", i + 1, nextConnection->clientInfo->name);
-        } else {
-            sprintf(str, "%d) %s", i + 1, nextConnection->clientInfo->name);
-        }
-        mvwprintw(window, i + 3, 3, str);
-    }
-    if (isHost) {
-        mvwprintw(window, (int) (connections->size + 4), 3, HOST_GAME_START);
-    }
-    wrefresh(window);
-    return window;
 }
 
 WINDOW *generatePlayingWindow() {
@@ -152,30 +57,12 @@ void deleteWindow(WINDOW *window) {
     delwin(window);
 }
 
-void showWinnerScreen() {
-    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
-    mvwprintw(tempWindow, 0, 0, "You Win!!");
-    wrefresh(tempWindow);
-    sleep(DEAD_WIN_SCREEN_DELAY_SEC);
-    deleteWindow(tempWindow);
-    delwin(tempWindow);
-}
-
-void showDeadScreen() {
-    WINDOW * tempWindow = createWindowAtTheCenterOfTheScreen(1);
-    mvwprintw(tempWindow, 0, 0, "You Died");
-    wrefresh(tempWindow);
-    sleep(DEAD_WIN_SCREEN_DELAY_SEC);
-    deleteWindow(tempWindow);
-    delwin(tempWindow);
-}
-
 const chtype foodType(Food * type) {
     chtype foodTypes[] = {ACS_DIAMOND};
     return (const chtype) foodTypes[type->foodType];
 }
 
-WINDOW * createWindowAtTheCenterOfTheScreen(int height) {
+WINDOW * createWindowAtTheCentreOfTheScreen(int height) {
     int windowStartingX = MAIN_WINDOW_COLUMN / 4, windowStartingY = MAIN_WINDOW_ROW / 4,
             correctHeight = height + 4, width = MAIN_WINDOW_COLUMN / 2;
 
@@ -189,4 +76,43 @@ WINDOW * createWindowAtTheCenterOfTheScreen(int height) {
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER);
     return menuWindow;
+}
+
+WINDOW *displayNewData(Vector *foods, Vector * snakes) {
+    WINDOW * window = generatePlayingWindow();
+    Food * food;
+    LinkedListPosition * snake;
+
+    // There could be some connections but no food yet.
+    if (foods != NULL) {
+        // Display Foods.
+        for (int i = 0; i < foods->size; i++) {
+            food = (Food *) foods->data[i];
+            mvwaddch(window, food->position->y, food->position->x,
+                     foodType(food));
+        }
+    }
+
+    // Food can be generated before snakes
+    if (snakes != NULL) {
+        // Display Snakes for every connection
+        for (int i = 0; i < snakes->size; i++) {
+            snake = ((Snake *) snakes->data[i])->positions;
+            // Display snake.
+            do {
+                mvwprintw(window, snake->position->y, snake->position->x, SNAKE_CHARACTER);
+                snake = snake->next;
+            } while (snake != NULL);
+        }
+    }
+    return window;
+}
+
+void showScreenInCentre(char *text) {
+    WINDOW * tempWindow = createWindowAtTheCentreOfTheScreen(1);
+    mvwprintw(tempWindow, 2, 3, text);
+    wrefresh(tempWindow);
+    sleep(PROMPT_SCREEN_DELAY_SEC);
+    deleteWindow(tempWindow);
+    delwin(tempWindow);
 }

@@ -2,21 +2,12 @@
 // Created by dylan on 15/04/2017.
 //
 #include "General.h"
+#include "LinkedList.h"
+#include "../server/ServerHandle.h"
+#include "../server/Food.h"
 #include <string.h>
 #include <unistd.h>
-
-bool checkIfHost(Vector *connections, char *playerID) {
-
-    for (int i = 0; i < connections->size; i++) {
-        Connection * connection = (Connection *) connections->data[i];
-
-        if (strcmp(connection->clientInfo->name, playerID) == 0 &&
-            connection->clientInfo->isHost) {
-            return true;
-        }
-    }
-    return false;
-}
+#include <fcntl.h>
 
 bool setSocketBlockingEnabled(int sockFd, bool blocking) {
     int flags;
@@ -32,20 +23,47 @@ bool setSocketBlockingEnabled(int sockFd, bool blocking) {
     return (fcntl(sockFd, F_SETFL, flags) == 0) ? true : false;
 }
 
-void freeConnection(Connection *connection) {
+void freeDataOfConnection(Connection *connection) {
     // Delete linked list with all the positions
-    deleteLinkedListPosition(connection->clientInfo->snake->positions);
+    deleteLinkedListPosition(connection->snake->positions);
     // Free Snake
-    free(connection->clientInfo->snake);
-    // Free Client
-    free(connection->clientInfo);
+    free(connection->snake);
     // Close socket
     close(connection->sockFd);
 }
 
-void freeConnectionNoSnake(Connection * connection) {
-    // Free Client
-    free(connection->clientInfo);
-    // Close socket
-    close(connection->sockFd);
+void freeSnake(Snake * snake) {
+    // Delete linked list with all the positions
+    deleteLinkedListPosition(snake->positions);
+    snake->size = 0;
+    // Free Snake
+    free(snake);
+}
+
+void clearFoodsVector(Vector *foods) {
+    Food * food;
+    if (foods == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < foods->size; i++) {
+        food = (Food *) foods->data[i];
+        free(food->position);
+        free(food);
+    }
+    deleteVector(foods);
+}
+
+void clearSnakeVector(Vector *snakes) {
+    Snake * snake;
+
+    if (snakes == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < snakes->size; i++) {
+        snake = (Snake *) snakes->data[i];
+        freeSnake(snake);
+    }
+    deleteVector(snakes);
 }

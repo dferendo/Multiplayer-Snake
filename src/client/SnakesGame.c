@@ -2,259 +2,170 @@
 // Created by dylan on 17/04/2017.
 //
 #include "SnakesGame.h"
-#include "../server/Server.h"
 #include "template/ClientLayout.h"
-#include "../utility/Serialize.h"
+#include "../settings/GameSettings.h"
+#include "API/ClientAPI.h"
 #include "../utility/General.h"
-#include "../server/Food.h"
-#include <strings.h>
-#include <unistd.h>
-#include <memory.h>
 #include <pthread.h>
 
-void gameInit(Vector * connections, int sockFd) {
-    Vector * foods = NULL;
-    pthread_t characterReaderTId;
+WINDOW * window;
+Vector * foods = NULL;
+Vector * snakes = NULL;
 
-    ReadUserInputThreadParams * inputThreadParams =
-            (ReadUserInputThreadParams *) malloc(sizeof(ReadUserInputThreadParams));
+int gameManager(int sockFd) {
+    int gameStatus;
+    ReadUserInputThreadParams * inputThreadParams;
+    pthread_t characterReaderTId;
+    bool * keepAlive = (bool *) malloc(sizeof(bool));
+
+    if (keepAlive == NULL) {
+        perror("Failed to allocate memory to Params");
+        return -1;
+    }
+    *keepAlive = true;
+    inputThreadParams = (ReadUserInputThreadParams *) malloc(sizeof(ReadUserInputThreadParams));
 
     if (inputThreadParams == NULL) {
-        return;
+        perror("Failed to allocate memory to Params");
+        return -1;
     }
     inputThreadParams->sockFd = sockFd;
+    inputThreadParams->keepAlive = keepAlive;
     // Create a thread that reads user input.
     if (pthread_create(&characterReaderTId, NULL, readDirectionFromUser, inputThreadParams) != 0) {
-        perror("Could not create a snake thread.");
-        return;
+        perror("Could not create a read user thread.");
+        free(inputThreadParams);
+        return -1;
     }
-
-    gameRunning(connections, foods, sockFd);
+    gameStatus = handleGameDataFromServer(sockFd);
+    // Removes data
+    removeGameData(snakes, foods, keepAlive, characterReaderTId);
+    // Close game
+    return closeGame(gameStatus);
 }
 
-void gameRunning(Vector *connections, Vector * foods, int sockFd) {
+int handleGameDataFromServer(int sockFd) {
     int nextCompute;
     WINDOW * window = generatePlayingWindow();
 
     while (true) {
         nextCompute = readDelimiterSnakes(sockFd);
 
-        if (nextCompute == 1) {
-            if (foods != NULL) {
-                clearFoodsVector(foods);
-            }
-            foods = readFoodsFromSocket(sockFd);
-            window = displayNewData(foods, connections);
-            wrefresh(window);
-        } else if (nextCompute == 2) {
-            deleteWindow(window);
-            readSnakesFromSocket(connections, sockFd);
-            window = displayNewData(foods, connections);
-            wrefresh(window);
-        } else if (nextCompute == 3) {
-            deleteWindow(window);
-            showWinnerScreen();
-            // Stop loop
-            break;
-        } else if (nextCompute == 4) {
-            deleteWindow(window);
-            showDeadScreen();
-            // Stop loop
-            break;
+        switch (nextCompute) {
+            case 1:
+                if (!foodHandler(sockFd)) {
+                    // Connection error.
+                    return -1;
+                }
+                break;
+            case 2:
+                if (!snakeHandler(sockFd)) {
+                    // Connection error
+                    return -1;
+                }
+                break;
+            case 3:
+                deleteWindow(window);
+                // Winner
+                return 1;
+            case 4:
+                deleteWindow(window);
+                // Loser
+                return 2;
+            case 5:
+                // Restart
+                deleteWindow(window);
+                return 3;
+            default:
+                deleteWindow(window);
+                // Connections error
+                return -1;
         }
     }
 }
 
-int readDelimiterSnakes(int socketFd) {
-    int response;
-    unsigned char buffer[DELIMITERS_SIZE];
-
-    bzero(buffer, DELIMITERS_SIZE);
-
-    // Enable non blocking for read.
-    setSocketBlockingEnabled(socketFd, false);
-    response = (int) read(socketFd, buffer, DELIMITERS_SIZE);
-    // Disable non blocking for read.
-    setSocketBlockingEnabled(socketFd, true);
-
-    if (response < 0) {
-        return -1;
+bool foodHandler(int sockFd) {
+    clearFoodsVector(foods);
+    deleteWindow(window);
+    foods = readFoodsFromSocket(sockFd);
+    // Error with foods
+    if (foods == NULL) {
+        deleteWindow(window);
+        return false;
     }
-
-    if (strncmp((const char *) buffer, VECTOR_OF_FOOD_DELIMITER, DELIMITERS_SIZE) == 0) {
-        return 1;
-    } else if (strncmp((const char *) buffer, SNAKE_DETAILS_DELIMITER, DELIMITERS_SIZE) == 0) {
-        return 2;
-    } else if (strncmp((const char *) buffer, WINNER_DELIMITER, DELIMITERS_SIZE) == 0) {
-        return 3;
-    } else if (strncmp((const char *) buffer, LOSE_DELIMITER, DELIMITERS_SIZE) == 0) {
-        return 4;
-    } else {
-        return -2;
-    }
+    window = displayNewData(foods, snakes);
+    wrefresh(window);
+    return true;
 }
 
-Vector *readFoodsFromSocket(int socketFileDescriptor) {
-    int response, amountOfFood;
-    size_t foodSize;
-    // First read the amount of Food.
-    unsigned char bufferInteger[INTEGER_BYTES];
-    bzero(bufferInteger, INTEGER_BYTES);
-    Vector * foods = initVector();
+bool snakeHandler(int sockFd) {
+    clearSnakeVector(snakes);
+    deleteWindow(window);
 
-    response = (int) read(socketFileDescriptor, bufferInteger, INTEGER_BYTES);
-
-    if (response == -1) {
-        perror("Error when reading from socket");
-        close(socketFileDescriptor);
-        return NULL;
+    snakes = readSnakesFromSocket(sockFd);
+    // Error with snakes
+    if (snakes == NULL) {
+        deleteWindow(window);
+        return false;
     }
-
-    deserializeInt(bufferInteger, &amountOfFood);
-    foodSize = (size_t) (amountOfFood * FOOD_BYTES_SIZE);
-
-    // Now read the actual Food.
-    unsigned char buffer[foodSize];
-    bzero(buffer, foodSize);
-
-    response = (int) read(socketFileDescriptor, buffer, foodSize);
-
-    if (response == -1) {
-        perror("Error when reading from socket");
-        close(socketFileDescriptor);
-        exit(1);
-    }
-
-    // De-serialize foods and put them in a vector
-    deserializedVectorOfFoods(buffer, foods, amountOfFood);
-    return foods;
+    window = displayNewData(foods, snakes);
+    wrefresh(window);
+    return true;
 }
 
-void clearFoodsVector(Vector *foods) {
-    Food * food;
-
-    for (int i = 0; i < foods->size; i++) {
-        food = (Food *) foods->data[i];
-        free(food->position);
-    }
-
-    deleteVector(foods);
-}
-
-WINDOW *displayNewData(Vector *foods, Vector * connections) {
-    WINDOW *window = generatePlayingWindow();
-    Food * food;
-    LinkedListPosition * snake;
-
-    // There could be some connections but no food yet.
-    if (foods != NULL) {
-        // Display Foods.
-        for (int i = 0; i < foods->size; i++) {
-            food = (Food *) foods->data[i];
-            mvwaddch(window, food->position->y, food->position->x,
-                      foodType(food));
-        }
-    }
-
-    // Display Snakes for every connection
-    for (int i = 0; i < connections->size; i++) {
-        snake = ((Connection *) connections->data[i])->clientInfo->snake->positions;
-        // Display snake.
-        do {
-            mvwprintw(window, snake->position->y, snake->position->x, SNAKE_CHARACTER);
-            snake = snake->next;
-        } while(snake != NULL);
-    }
-    return window;
-}
-
-void readSnakesFromSocket(Vector * connections, int sockFd) {
-    int response, sizeOfSnake, sizeForSnake;
-    // Reading name and size.
-    size_t size = MAXIMUM_INPUT_STRING + INTEGER_BYTES;
-
-    // For every connection, there should be a snake.
-    for (int i = 0; i < connections->size; i++) {
-        unsigned char bufferName[size], name[MAXIMUM_INPUT_STRING];
-        bzero(bufferName, size);
-
-        response = (int) read(sockFd, bufferName, size);
-
-        if (response == -1) {
-            perror("Error when reading from socket");
-            close(sockFd);
-            return;
-        }
-
-        deserializedNameAndSizeOfSnake(bufferName, (char *) name, &sizeOfSnake);
-        // Int contains the direction each snake size contains a position.
-        sizeForSnake = (sizeOfSnake * POSITION_BYTES) + INTEGER_BYTES;
-        unsigned char bufferSnake[sizeForSnake];
-
-        response = (int) read(sockFd, bufferSnake, (size_t) sizeForSnake);
-
-        if (response == -1) {
-            perror("Error when reading from socket");
-            close(sockFd);
-            return;
-        }
-
-        // Put the new snake to the data.
-        deserializedSnake(bufferSnake, clearPreviousSnakeForNewerSnake(connections, (char *) name),
-                          sizeOfSnake);
-    }
-}
-
-Snake * clearPreviousSnakeForNewerSnake(Vector *connections, char *name) {
-    Connection * connection;
-    // Find the snake
-    for (int i = 0; i < connections->size; i++) {
-        connection = (Connection *) connections->data[i];
-
-        if (strncmp(connection->clientInfo->name, name, MAXIMUM_INPUT_STRING) == 0) {
-            // Malloc memory if not set beforehand
-            if (connection->clientInfo->snake == NULL) {
-                connection->clientInfo->snake = (Snake *) malloc(sizeof(Snake));
-            } else {
-                // De-allocate memory Snake
-                deleteLinkedListPosition(connection->clientInfo->snake->positions);
-            }
-            return connection->clientInfo->snake;
-        }
-    }
-    return NULL;
-}
-
-void *readDirectionFromUser(void *args) {
+void * readDirectionFromUser(void *args) {
     int sockFd = ((ReadUserInputThreadParams *) args)->sockFd;
+    bool * keepAlive = ((ReadUserInputThreadParams *) args)->keepAlive;
     int character, previousChar = DEFAULT_START_DIRECTION_KEY;
+    // Set time for getch() so that thread can catch if it is alive.
+    halfdelay(HALF_DELAY_GET_CHAR_IN_TENTH_OF_A_SEC);
 
     while (true) {
+        if (!(*keepAlive)) {
+            // Thread no longer needed
+            free(args);
+            // Remove delay
+            cbreak();
+            pthread_exit(NULL);
+        }
         character = getch();
         switch (character) {
             case 'w':
                 // If snake allowed to go opposite side, it would mean he is dead.
-                if (previousChar != 'x') {
-                    sendUserDirection(sockFd, D_UP);
-                    previousChar = character;
+                if (previousChar != 'x' && previousChar != 'w') {
+                    if (sendUserDirection(sockFd, D_UP)) {
+                        previousChar = character;
+                    } else {
+                        // Since there was a connection error with server, stop thread.
+                        *keepAlive = false;
+                    }
                 }
                 break;
             case 'a':
-                if (previousChar != 'd') {
-                    sendUserDirection(sockFd, D_LEFT);
-                    previousChar = character;
+                if (previousChar != 'd' && previousChar != 'a') {
+                    if (sendUserDirection(sockFd, D_LEFT)) {
+                        previousChar = character;
+                    } else {
+                        *keepAlive = false;
+                    }
                 }
                 break;
             case 'd':
-                if (previousChar != 'a') {
-                    sendUserDirection(sockFd, D_RIGHT);
-                    previousChar = character;
+                if (previousChar != 'a' && previousChar != 'd') {
+                    if (sendUserDirection(sockFd, D_RIGHT)) {
+                        previousChar = character;
+                    } else {
+                        *keepAlive = false;
+                    }
                 }
                 break;
             case 'x':
-                if (previousChar != 'w') {
-                    sendUserDirection(sockFd, D_DOWN);
-                    previousChar = character;
+                if (previousChar != 'w' && previousChar != 'x') {
+                    if (sendUserDirection(sockFd, D_DOWN)) {
+                        previousChar = character;
+                    } else {
+                        *keepAlive = false;
+                    }
                 }
             default:
                 continue;
@@ -262,17 +173,37 @@ void *readDirectionFromUser(void *args) {
     }
 }
 
-void sendUserDirection(int sockFd, int direction) {
-    int response;
-    size_t size = DELIMITERS_SIZE + INTEGER_BYTES + MAXIMUM_INPUT_STRING;
-    unsigned char buffer[size];
+void removeGameData(Vector *snakes, Vector *foods, bool *keepAlive, pthread_t characterReaderId) {
+    // End Character reader thread
+    *keepAlive = false;
+    // Connection was lost or winning of game. Wait for thread to stop.
+    pthread_join(characterReaderId, NULL);
 
-    serializedSnakeDirectionWithDelimiter(buffer, direction);
+    free(keepAlive);
+    // Clear Vectors
+    clearSnakeVector(snakes);
+    clearFoodsVector(foods);
+}
 
-    response = (int) write(sockFd, buffer, size);
+int closeGame(int status) {
+    // If this is reached, terminate everything
+    snakes = NULL;
+    foods = NULL;
 
-    if (response == -1) {
-        perror("Failed to write to the socket");
-        close(sockFd);
+    if (status == 1) {
+        showScreenInCentre(WINNER_TEXT);
+        return 1;
+    } else if (status == 2) {
+        showScreenInCentre(DIED_TEXT);
+        // Exit game if dead
+        return -1;
+    } else if (status == 3) {
+        showScreenInCentre(RESTART_TEXT);
+        // Do not exit game
+        return 1;
+    } else {
+        showScreenInCentre(ERROR_CONNECTION_FAILED);
+        // Exit game if server cannot be reached
+        return -1;
     }
 }

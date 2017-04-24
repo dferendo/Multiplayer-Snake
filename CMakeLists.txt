@@ -9,28 +9,26 @@ set(CLIENT_FILES
         src/utility/Serialize.c
         src/client/template/ClientLayout.c
         src/client/Client.c
-        src/client/QueueMenu.c
+        src/client/ConnectMenu.c
         src/utility/Vector.h
         src/utility/General.h
         src/utility/Serialize.h
         src/client/template/ClientLayout.h
         src/client/Client.h
-        src/client/QueueMenu.h
+        src/client/ConnectMenu.h
         src/client/SnakesGame.h
         src/client/SnakesGame.c
         src/settings/GameSettings.h
         src/utility/LinkedList.c
-        src/utility/LinkedList.h src/client/API/QueueAPI.h src/client/API/QueueAPI.c src/server/API/ServerQueueAPI.c)
+        src/utility/LinkedList.h src/client/API/ClientAPI.h src/client/API/ClientAPI.c)
 
 set(SERVER_FILES
         src/utility/Vector.c
         src/utility/Serialize.c
         src/server/Server.c
-        src/server/QueueToPlay.c
         src/utility/Vector.h
         src/utility/Serialize.h
         src/server/Server.h
-        src/server/QueueToPlay.h
         src/server/Snake.h
         src/server/Snake.c
         src/settings/GameSettings.h
@@ -45,7 +43,11 @@ set(SERVER_FILES
         src/server/Food.h
         src/server/Food.c
         src/server/SnakeMove.h
-        src/server/SnakeMove.c src/server/API/ServerQueueAPI.h)
+        src/server/SnakeMove.c
+        src/server/ServerHandle.c
+        src/server/ServerHandle.h
+        src/server/API/SnakesAPI.h
+        src/server/API/SnakesAPI.c)
 
 add_executable(Client ${CLIENT_FILES})
 add_executable(Server ${SERVER_FILES})

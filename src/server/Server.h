@@ -5,41 +5,48 @@
 #ifndef SNAKES_SERVERLAUNCHER_H
 #define SNAKES_SERVERLAUNCHER_H
 
+#include <stdint.h>
 #include "../utility/Vector.h"
-#include "Snake.h"
-#include "../settings/GameSettings.h"
-#include <stdbool.h>
-#include <netinet/in.h>
-
-typedef struct ClientInfo {
-    char name[MAXIMUM_INPUT_STRING];
-    short isHost;
-    Snake * snake;
-} ClientInfo;
-
-typedef struct Connection {
-    int sockFd;
-    ClientInfo * clientInfo;
-} Connection;
-
-typedef struct CreateConnectThreadArguments {
-    short isHost;
-    int sockFd;
-} CreateConnectThreadArguments;
-
-// Vector containing Connections Type
-extern Vector * connections;
-// Contains the food.
-extern Vector * foods;
-// Lock
+// Lock.
 extern pthread_mutex_t lock;
-// Contains the initial positions of all snakes.
-extern Vector * initialPositions;
+// Holds all current foods.
+extern Vector * foods;
+// Holds all current connections.
+extern Vector * connections;
+// Server socket.
+extern int sockFd;
+/**
+ * Params passed to the server Thread.
+ */
+typedef struct ServerParams {
+    uint16_t portNumber;
+} ServerParams;
 
 int main(int argc, char *argv[]);
 
-void serverInit(uint16_t portNumber);
+/**
+ * Starts the game pthread. This restarts every time there is a winner.
+ */
+void startGameThread();
 
-void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clientSize);
+/**
+ * Starts the server thread. Never restarts.
+ *
+ * @param portNumber: port number of the server.
+ */
+void startServerThread(uint16_t portNumber);
+
+/**
+ * Sets all the data required for the new game. Creates the initial snakes positions
+ * and send the data and foods data to the clients.
+ *
+ * @note There is a brief delay every time a new game starts.
+ *
+ * @param foods: All current Foods.
+ * @param connections: All current Connections.
+ */
+void restartGame(Vector * foods, Vector * connections);
+
+void terminateServer(int sig);
 
 #endif //SNAKES_SERVERLAUNCHER_H

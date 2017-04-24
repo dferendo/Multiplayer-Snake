@@ -11,53 +11,77 @@
 
 // Put 0 for clean border
 #define MAIN_MENU_BORDER_CHARACTER '+'
-#define MAIN_MENU_DIVIDER '-'
-#define MAIN_MENU_ITEMS 3
-#define PLAY_GAME_MENU_REQUIRED 3
-#define PLAY_GAME_MENU_LENGTH 13
+#define SNAKE_CHARACTER "#"
 
 #define ERROR_NO_HOST "Error, no such host!"
 #define ERROR_CONNECTION_FAILED "Error, connection failed!"
-#define ERROR_NAME_INVALID "Error, name is invalid!"
 
-// Wait 2 seconds when using half delay since it waits n tenths
-// of a second.
-#define WAIT_INPUT_TIME_FOR_HOST_TO_START_GAME 20
+#define WINNER_TEXT "You Win!!"
+#define DIED_TEXT "You Died"
+#define RESTART_TEXT "Another snake won, restarting"
 
-#define HOST_GAME_START "Press 'S' to start Game!"
+/**
+ * Setting up of ncurses used. Exit the program if colours is not supported by terminal.
+ */
+void ncursesInit();
 
-#define SLEEP_WHEN_NO_HOST_QUEUE_SEC 2
-
-#define SNAKE_CHARACTER "#"
-
-const char * const MENU_ITEMS[MAIN_MENU_ITEMS];
-
-const char * const CREDITS;
-
-const char * const SERVER_REQUIRED[PLAY_GAME_MENU_REQUIRED];
-
+/**
+ * Create an outside border on the standard screen.
+ */
 void createOutsideBorder();
 
-WINDOW * createMainMenuWindow();
+/**
+ * Print given text in the centre of the screen, used to inform the user
+ * that the program will exits.
+ *
+ * @param errorMessage: The type of error message.
+ */
+void printError(char *errorMessage);
 
-void aboutMenu();
-
-void getInput(char * name, char * serverName, char * port);
-
-bool printErrorAndOfferRetry(char *errorMessage);
-
-WINDOW * generateWindowForWaitingInQueue(Vector * connections, bool isHost);
-
+/**
+ * Generate the window used by the snakes to roam the playing area.
+ *
+ * @return: The window where the snakes and foods will be placed.
+ */
 WINDOW * generatePlayingWindow();
 
+/**
+ * Clears and delete passed WINDOW.
+ *
+ * @param window: The window to be deleted.
+ */
 void deleteWindow(WINDOW *window);
 
-WINDOW * createWindowAtTheCenterOfTheScreen(int height);
+/**
+ * Creates a window at the centre with a border.
+ *
+ * @param height: The amount of rows the user need.
+ * @return: Returns the window at the centre of the screen.
+ */
+WINDOW * createWindowAtTheCentreOfTheScreen(int height);
 
-void showWinnerScreen();
-
-void showDeadScreen();
-
+/**
+ * Returns the food type of a Food in chtype format.
+ *
+ * @param type: The food.
+ * @return: The type of the food.
+ */
 const chtype foodType(Food * type);
+
+/**
+ * Displays the data of foods and snakes, window requires still wrefresh.
+ *
+ * @param foods: The current foods.
+ * @param snakes: The current positions of the snakes.
+ * @return: Window with the data in the window.
+ */
+WINDOW * displayNewData(Vector * foods, Vector * snakes);
+
+/**
+ * Shows given text in the centre of the screen with an outside border.
+ *
+ * @param text: The text to be displayed.
+ */
+void showScreenInCentre(char *text);
 
 #endif //SNAKES_CLIENTLAYOUT_H

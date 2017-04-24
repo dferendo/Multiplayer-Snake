@@ -2,38 +2,37 @@
 // Created by dylan on 19/04/2017.
 //
 #include "SnakeMove.h"
-#include "Game.h"
 #include "Food.h"
-#include "Server.h"
+#include "../settings/GameSettings.h"
+#include "ServerHandle.h"
+#include "API/SnakesAPI.h"
 
-void * snakeAction(void *args) {
-    Snake * snake = ((SnakeWorkerParams *) args)->snake;
-    Vector * allFoods = ((SnakeWorkerParams *) args)->foods;
-    Vector * allConnections = ((SnakeWorkerParams *) args)->connections;
-    // For return purposes
-    SnakeWorkerReturn * status = (SnakeWorkerReturn *) malloc(sizeof(SnakeWorkerReturn));
+SnakeStatus snakeAction(Snake * snake, Vector * foods, Vector * connections) {
+    bool error;
 
     // Check Head collisions
-    if (checkHeadCollision(snake, allConnections)) {
-        status->status = DIED;
-        return (void *) status;
-    } else if (checkIfNextPositionIsCollision(snake, allConnections)) {
-        status->status = DIED;
-        return (void *) status;
+    if (checkHeadCollision(snake, connections)) {
+        return DIED;
+    } else if (checkIfNextPositionIsCollision(snake, connections)) {
+        return DIED;
     }
     // Check if next position is food and grow if so
-    checkIfNextPositionIsFoodAndGrow(snake, allFoods);
+    if (checkIfNextPositionIsFoodAndGrow(snake, foods)) {
+        // Food was eaten, re-send food data
+        do {
+            // Send data again, if a connection is lost re-send the data.
+            error = writeFoodDataToClients(connections, foods);;
+        } while (!error);
+    }
 
     if (snake->size == FOOD_TO_WIN) {
-        status->status = WINNER;
-        return (void *) status;
+        return WINNER;
     }
     // Move
     snakeMove(snake);
 
     // Snake just moved
-    status->status = NORMAL;
-    return (void *) status;
+    return NORMAL;
 }
 
 bool checkHeadCollision(Snake * snake, Vector * connections) {
@@ -43,7 +42,7 @@ bool checkHeadCollision(Snake * snake, Vector * connections) {
     nextPositionOfSelectedSnake = moveHeadSnake(snake->direction, snake->positions->position);
     // Check if two heads of snake collide, if they do they both die.
     for (int i = 0; i < connections->size; i++) {
-        tempSnake = ((Connection *) connections->data[i])->clientInfo->snake;
+        tempSnake = ((Connection *) connections->data[i])->snake;
         // Skips if same snake
         if (tempSnake == snake) {
             continue;
@@ -94,7 +93,7 @@ Position * moveHeadSnake(Direction direction, Position *position) {
     return tempPosition;
 }
 
-void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
+bool checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
     Position * nextPositionOfSelectedSnake, * eatenPosition;
     Food * food;
     // Get the next position of this snake
@@ -107,10 +106,9 @@ void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
             // If they are equal, increase the size of snake.
             if (checkIfPositionsAreEqual(nextPositionOfSelectedSnake, food->position)) {
                 eatenPosition = (Position *) malloc(sizeof(Position));
-
                 if (eatenPosition == NULL) {
                     perror("Failed to allocate memory to Position");
-                    return;
+                    return false;
                 }
                 // The position does not care since it will handled by move.
                 addPosition(snake->positions, eatenPosition);
@@ -119,11 +117,12 @@ void checkIfNextPositionIsFoodAndGrow(Snake *snake, Vector *foods) {
                 // Remove the eaten food.
                 free(food->position);
                 deleteItemFromVector(foods, food);
-                return;
+                return true;
             }
         }
     }
     free(nextPositionOfSelectedSnake);
+    return false;
 }
 
 bool checkIfNextPositionIsCollision(Snake *snake, Vector *connections) {
@@ -142,7 +141,7 @@ bool checkIfNextPositionIsCollision(Snake *snake, Vector *connections) {
     // Check if collision with other snake
     for (int i = 0; i < connections->size; i++) {
         exists = false;
-        nextSnake = ((Connection *) connections->data[i])->clientInfo->snake;
+        nextSnake = ((Connection *) connections->data[i])->snake;
         positionExistsLinkedList(nextSnake->positions, nextPositionOfSelectedSnake->x,
                                  nextPositionOfSelectedSnake->y, &exists);
         // If true, there is a collision.
