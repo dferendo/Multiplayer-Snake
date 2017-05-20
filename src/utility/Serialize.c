@@ -151,6 +151,7 @@ unsigned char * serializedSnakesFromConnections(unsigned char *buffer, Vector *c
     // the next position of the size of the next snake.
     for (int i = 0; i < connections->size; i++) {
         connection = (Connection *) connections->data[i];
+        buffer = serializeInt(buffer, connection->uniqueID);
         buffer = serializeInt(buffer, connection->snake->size);
         buffer = serializedSnake(buffer, connection->snake);
     }

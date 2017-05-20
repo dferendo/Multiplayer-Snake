@@ -5,6 +5,7 @@
 #include "LinkedList.h"
 #include "../server/ServerHandle.h"
 #include "../server/Food.h"
+#include "../client/SnakesGame.h"
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -55,15 +56,15 @@ void clearFoodsVector(Vector *foods) {
 }
 
 void clearSnakeVector(Vector *snakes) {
-    Snake * snake;
+    SnakeInfo * snake;
 
     if (snakes == NULL) {
         return;
     }
 
     for (int i = 0; i < snakes->size; i++) {
-        snake = (Snake *) snakes->data[i];
-        freeSnake(snake);
+        snake = (SnakeInfo *) snakes->data[i];
+        freeSnake(snake->snake);
     }
     deleteVector(snakes);
 }

@@ -2,6 +2,7 @@
 #include "ClientLayout.h"
 #include "../../settings/GameSettings.h"
 #include "unistd.h"
+#include "../SnakesGame.h"
 
 void ncursesInit() {
     initscr();
@@ -78,7 +79,7 @@ WINDOW * createWindowAtTheCentreOfTheScreen(int height) {
     return menuWindow;
 }
 
-WINDOW *displayNewData(Vector *foods, Vector * snakes) {
+WINDOW * displayNewData(Vector *foods, Vector * snakes) {
     WINDOW * window = generatePlayingWindow();
     Food * food;
     LinkedListPosition * snake;
@@ -97,7 +98,7 @@ WINDOW *displayNewData(Vector *foods, Vector * snakes) {
     if (snakes != NULL) {
         // Display Snakes for every connection
         for (int i = 0; i < snakes->size; i++) {
-            snake = ((Snake *) snakes->data[i])->positions;
+            snake = ((SnakeInfo *) snakes->data[i])->snake->positions;
             // Display snake.
             do {
                 mvwprintw(window, snake->position->y, snake->position->x, SNAKE_CHARACTER);

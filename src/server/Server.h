@@ -15,6 +15,7 @@ extern Vector * foods;
 extern Vector * connections;
 // Server socket.
 extern int sockFd;
+
 /**
  * Params passed to the server Thread.
  */

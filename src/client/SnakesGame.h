@@ -20,6 +20,16 @@ typedef struct ReadUserInputThreadParams {
 } ReadUserInputThreadParams;
 
 /**
+ * Holds the information of a snake.
+ * snake: snake with its position and size.
+ * uniqueID: The ID of the snake.
+ */
+typedef struct SnakeInfo {
+    Snake * snake;
+    int uniqueID;
+} SnakeInfo;
+
+/**
  * Initialise variables/thread required to play the game. Creates a thread to read the input
  * from the user and leaves the main thread to read the data from the server. When the game
  * is over, it calls the appropriate methods to close all data used.

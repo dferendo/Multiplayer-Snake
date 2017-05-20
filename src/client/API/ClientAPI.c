@@ -4,6 +4,7 @@
 #include "ClientAPI.h"
 #include "../../utility/Serialize.h"
 #include "../../utility/General.h"
+#include "../SnakesGame.h"
 #include <unistd.h>
 #include <memory.h>
 
@@ -77,14 +78,14 @@ Vector * readSnakesFromSocket(int sockFd) {
     // Init Vector
     Vector * snakes = initVector();
     Snake * snake;
-    int response, amountOfSnakes, sizeOfSnake;
+    SnakeInfo * snakeInfo;
+    int response, amountOfSnakes, sizeOfSnake, snakeID;
     // Reading the amount of snakes.
-    size_t sizeForAmountOfSnakes = INTEGER_BYTES, sizeForSnakeSize = INTEGER_BYTES,
-            sizeForPositionsOfSnake;
-    unsigned char bufferForAmountOfSnakes[sizeForAmountOfSnakes];
+    size_t integerRead = INTEGER_BYTES, sizeForPositionsOfSnake;
+    unsigned char bufferForReadingInt[integerRead];
 
-    bzero(bufferForAmountOfSnakes, sizeForAmountOfSnakes);
-    response = (int) read(sockFd, bufferForAmountOfSnakes, sizeForAmountOfSnakes);
+    bzero(bufferForReadingInt, integerRead);
+    response = (int) read(sockFd, bufferForReadingInt, integerRead);
 
     if (response < 0) {
         perror("Failed to read from socket");
@@ -93,22 +94,32 @@ Vector * readSnakesFromSocket(int sockFd) {
     }
 
     // Get the amount of snakes.
-    deserializeInt(bufferForAmountOfSnakes, &amountOfSnakes);
+    deserializeInt(bufferForReadingInt, &amountOfSnakes);
     // Now get the actual snake.
     for (int i = 0; i < amountOfSnakes; i++) {
-        // First read the size of the snake
-        unsigned char bufferSizeOfSnake[sizeForSnakeSize];
-        bzero(bufferSizeOfSnake, sizeForSnakeSize);
+        bzero(bufferForReadingInt, integerRead);
+        // First read user ID
+        response = (int) read(sockFd, bufferForReadingInt, integerRead);
 
-        response = (int) read(sockFd, bufferSizeOfSnake, sizeForSnakeSize);
+        deserializeInt(bufferForReadingInt, &snakeID);
 
         if (response < 0) {
             perror("Failed to read from socket");
             clearSnakeVector(snakes);
             return NULL;
         }
+        // Now read the size of snake
+        bzero(bufferForReadingInt, integerRead);
 
-        deserializeInt(bufferSizeOfSnake, &sizeOfSnake);
+        response = (int) read(sockFd, bufferForReadingInt, integerRead);
+
+        if (response < 0) {
+            perror("Failed to read from socket");
+            clearSnakeVector(snakes);
+            return NULL;
+        }
+        deserializeInt(bufferForReadingInt, &sizeOfSnake);
+
         // Int contains the direction each snake size contains a position.
         sizeForPositionsOfSnake = (size_t) ((sizeOfSnake * POSITION_BYTES) + INTEGER_BYTES);
         unsigned char bufferSnake[sizeForPositionsOfSnake];
@@ -134,8 +145,19 @@ Vector * readSnakesFromSocket(int sockFd) {
         // Put the new snake to the data.
         deserializedSnake(bufferSnake, snake, sizeOfSnake);
 
+        snakeInfo = (SnakeInfo *) malloc(sizeof(SnakeInfo));
+
+        if (snakeInfo == NULL) {
+            perror("Failed to allocate memory to snake info");
+            clearSnakeVector(snakes);
+            return NULL;
+        }
+
+        snakeInfo->uniqueID = snakeID;
+        snakeInfo->snake = snake;
+
         // Add snake to the vector
-        if (addItemToVector(snakes, snake) < 0) {
+        if (addItemToVector(snakes, snakeInfo) < 0) {
             freeSnake(snake);
             clearSnakeVector(snakes);
             return NULL;
