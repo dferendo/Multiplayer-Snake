@@ -45,7 +45,7 @@ int gameManager(int sockFd) {
 }
 
 int handleGameDataFromServer(int sockFd) {
-    int nextCompute;
+    int nextCompute, uniqueID = -1;
     WINDOW * window = generatePlayingWindow();
 
     while (true) {
@@ -76,6 +76,18 @@ int handleGameDataFromServer(int sockFd) {
                 // Restart
                 deleteWindow(window);
                 return 3;
+            case 6:
+                // Unique ID setter
+                if (uniqueID != -1) {
+                    printf("Setting unique ID multiple times!");
+                }
+                uniqueID = readUserID(sockFd);
+                
+                if (uniqueID == -1) {
+                    // Connection error
+                    return -1;
+                }
+                break;
             default:
                 deleteWindow(window);
                 // Connections error

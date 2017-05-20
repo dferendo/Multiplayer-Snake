@@ -29,6 +29,8 @@ int readDelimiterSnakes(int socketFd) {
         return 4;
     } else if (strncmp((const char *) buffer, RESTART_DELIMITER, DELIMITERS_SIZE) == 0) {
         return 5;
+    } else if (strncmp((const char *) buffer, UNIQUE_ID_DELIMITER, DELIMITERS_SIZE) == 0) {
+        return 6;
     } else {
         return -2;
     }
@@ -157,4 +159,20 @@ bool sendUserDirection(int sockFd, int direction) {
         return false;
     }
     return true;
+}
+
+int readUserID(int sockFd) {
+    int response, uniqueID;
+    unsigned char bufferInteger[INTEGER_BYTES];
+    bzero(bufferInteger, INTEGER_BYTES);
+
+    response = (int) read(sockFd, bufferInteger, INTEGER_BYTES);
+
+    if (response < 0) {
+        perror("Failed to read from socket");
+        return -1;
+    }
+
+    deserializeInt(bufferInteger, &uniqueID);
+    return uniqueID;
 }

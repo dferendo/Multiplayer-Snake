@@ -18,6 +18,7 @@
  *         3 Win delimiter.
  *         4 Loss delimiter.
  *         5 Restart delimiter.
+ *         6 unique ID delimiter.
  *         -1 Connection error.
  *         -2 No delimiter found.
  */
@@ -47,5 +48,13 @@ Vector * readSnakesFromSocket(int sockFd);
  * @return: True is write was successful, false otherwise.
  */
 bool sendUserDirection(int sockFd, int direction);
+
+/**
+ * Read and de-serialize the unique ID of this current user.
+ *
+ * @param sockFd The socket file descriptor.
+ * @return the unique ID, -1 if there was an error.
+ */
+int readUserID(int sockFd);
 
 #endif //SNAKES_CLIENTAPI_H
