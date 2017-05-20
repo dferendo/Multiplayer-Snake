@@ -82,37 +82,37 @@ int handleGameDataFromServer(int sockFd) {
                     printf("Setting unique ID multiple times!");
                 }
                 uniqueID = readUserID(sockFd);
-                
+
                 if (uniqueID == -1) {
                     // Connection error
                     return -1;
                 }
-                break;
+                continue;
             default:
                 deleteWindow(window);
                 // Connections error
                 return -1;
         }
+        deleteWindow(window);
+        // Update screen
+        window = displayNewData(foods, snakes, uniqueID);
+        wrefresh(window);
     }
 }
 
 bool foodHandler(int sockFd) {
     clearFoodsVector(foods);
-    deleteWindow(window);
     foods = readFoodsFromSocket(sockFd);
     // Error with foods
     if (foods == NULL) {
         deleteWindow(window);
         return false;
     }
-    window = displayNewData(foods, snakes);
-    wrefresh(window);
     return true;
 }
 
 bool snakeHandler(int sockFd) {
     clearSnakeVector(snakes);
-    deleteWindow(window);
 
     snakes = readSnakesFromSocket(sockFd);
     // Error with snakes
@@ -120,7 +120,6 @@ bool snakeHandler(int sockFd) {
         deleteWindow(window);
         return false;
     }
-    window = displayNewData(foods, snakes);
     wrefresh(window);
     return true;
 }

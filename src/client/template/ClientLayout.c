@@ -79,31 +79,92 @@ WINDOW * createWindowAtTheCentreOfTheScreen(int height) {
     return menuWindow;
 }
 
-WINDOW * displayNewData(Vector *foods, Vector * snakes) {
-    WINDOW * window = generatePlayingWindow();
+WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
+    WINDOW * window;
     Food * food;
     LinkedListPosition * snake;
+    SnakeInfo * snakeInfo = NULL;
+    Position * centrePosition = NULL;
+    int totalRow, totalColumn, startingRow, startingColumn;
+    ;
 
-    // There could be some connections but no food yet.
-    if (foods != NULL) {
-        // Display Foods.
-        for (int i = 0; i < foods->size; i++) {
-            food = (Food *) foods->data[i];
-            mvwaddch(window, food->position->y, food->position->x,
-                     foodType(food));
+    getmaxyx(stdscr, totalRow, totalColumn);
+
+    for (int i = 0; i < snakes->size; i++) {
+        snakeInfo = ((SnakeInfo *) snakes->data[i]);
+
+        if (snakeInfo->uniqueID == uniqueID) {
+            centrePosition = snakeInfo->snake->positions->position;
+            break;
         }
     }
 
+    if (snakeInfo == NULL) {
+        // Not found
+        return NULL;
+    }
+
+    // Generate window.
+    window = newwin(totalRow, totalColumn, 0, 0);
+
+    // Check the snakes and food if they are found in the window screen
+
+//    if (foods != NULL) {
+//        for (int i = 0; i < foods->size; i++) {
+//            food = ((Food *) foods->data[i]);
+//            if (checkIfPositionIsFoundInScreen(centrePosition, food->position, totalRow, totalColumn)) {
+//                mvwaddch(window, food->position->y, food->position->x, foodType(food));
+//            }
+//        }
+//    }
+
     // Food can be generated before snakes
-    if (snakes != NULL) {
-        // Display Snakes for every connection
-        for (int i = 0; i < snakes->size; i++) {
-            snake = ((SnakeInfo *) snakes->data[i])->snake->positions;
-            // Display snake.
-            do {
-                mvwprintw(window, snake->position->y, snake->position->x, SNAKE_CHARACTER);
-                snake = snake->next;
-            } while (snake != NULL);
+//    if (snakes != NULL) {
+//         Display Snakes for every connection if they are on screen
+//        for (int i = 0; i < snakes->size; i++) {
+//            snake = ((SnakeInfo *) snakes->data[i])->snake->positions;
+//             Display snake.
+//            do {
+//                if (checkIfPositionIsFoundInScreen(centrePosition, snake->position, totalRow, totalColumn)) {
+//                    startingRow = snake->position->y - (totalRow / 2);
+//                    startingColumn = snake->position->x - (totalRow / 2);
+//                    mvwprintw(window, startingRow, startingColumn, SNAKE_CHARACTER);
+//                }
+//                snake = snake->next;
+//            } while (snake != NULL);
+//        }
+//    }
+    startingRow = centrePosition->y - (totalRow / 2);
+    startingColumn = centrePosition->x - (totalColumn / 2);
+    mvwprintw(window, centrePosition->y - startingRow, centrePosition->x - startingColumn, "#");
+
+    // Create Border
+    // Top border
+    if (centrePosition->y - (totalRow / 2) < 0) {
+        int startingY = centrePosition->y - (totalRow / 2);
+        for (int i = 0; i < totalColumn; i++) {
+            mvwaddch(window, abs(startingY) - 1, i, '#');
+        }
+    }
+    // Button border
+    if (centrePosition->y + (totalRow / 2) > MAIN_WINDOW_ROW) {
+        int startingY = (MAIN_WINDOW_ROW - centrePosition->y) + (totalRow / 2);
+        for (int i = 0; i < totalColumn; i++) {
+            mvwaddch(window, startingY - 1, i, '#');
+        }
+    }
+    // Left border
+    if (centrePosition->x - (totalColumn / 2) < 0) {
+        int startingX = centrePosition->x - (totalColumn / 2);
+        for (int i = 0; i < totalRow; i++) {
+            mvwaddch(window, i, abs(startingX) - 1, '#');
+        }
+    }
+    // Right border
+    if (centrePosition->x + (totalColumn / 2) > MAIN_WINDOW_COLUMN) {
+        int startingX = (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumn / 2);
+        for (int i = 0; i < totalRow; i++) {
+            mvwaddch(window, i, startingX - 1, '#');
         }
     }
     return window;
@@ -116,4 +177,19 @@ void showScreenInCentre(char *text) {
     sleep(PROMPT_SCREEN_DELAY_SEC);
     deleteWindow(tempWindow);
     delwin(tempWindow);
+}
+
+bool checkIfPositionIsFoundInScreen(Position * centre, Position * newPosition, int totalRows, int totalColumns) {
+    int startingRow, startingColumn;
+    startingRow = centre->y - (totalRows / 2);
+    startingColumn = centre->x - (totalColumns / 2);
+
+    if (!(newPosition->x > startingColumn && newPosition->x < (startingColumn + totalColumns))) {
+        return false;
+    }
+
+    if (!(newPosition->y > startingRow && newPosition->y < (startingRow + totalRows))) {
+        return false;
+    }
+    return true;
 }

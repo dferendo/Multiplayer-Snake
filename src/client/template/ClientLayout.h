@@ -75,7 +75,7 @@ const chtype foodType(Food * type);
  * @param snakes: The current positions of the snakes.
  * @return: Window with the data in the window.
  */
-WINDOW * displayNewData(Vector * foods, Vector * snakes);
+WINDOW * displayNewData(Vector * foods, Vector * snakes, int uniqueID);
 
 /**
  * Shows given text in the centre of the screen with an outside border.
@@ -83,5 +83,8 @@ WINDOW * displayNewData(Vector * foods, Vector * snakes);
  * @param text: The text to be displayed.
  */
 void showScreenInCentre(char *text);
+
+bool checkIfPositionIsFoundInScreen(Position * centre, Position * newPosition,
+                                    int totalRows, int totalColumns);
 
 #endif //SNAKES_CLIENTLAYOUT_H
