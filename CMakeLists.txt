@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.5.1)
 project(Snakes)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pthread")
@@ -14,13 +14,14 @@ set(CLIENT_FILES
         src/utility/General.h
         src/utility/Serialize.h
         src/client/template/ClientLayout.h
-        src/client/Client.h
         src/client/ConnectMenu.h
         src/client/SnakesGame.h
         src/client/SnakesGame.c
         src/settings/GameSettings.h
         src/utility/LinkedList.c
-        src/utility/LinkedList.h src/client/API/ClientAPI.h src/client/API/ClientAPI.c)
+        src/utility/LinkedList.h
+        src/client/API/ClientAPI.h
+        src/client/API/ClientAPI.c)
 
 set(SERVER_FILES
         src/utility/Vector.c

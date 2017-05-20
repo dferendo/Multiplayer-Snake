@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     srand((unsigned int) time(NULL));
     sockFd = -1;
     if (argc < 2) {
-        printf("Port number was not passed");
+        printf("Port number was not passed.\n");
         exit(1);
     }
     pthread_mutex_init(&lock, NULL);
@@ -35,6 +35,8 @@ int main(int argc, char *argv[]) {
     if (foods == NULL) {
         exit(1);
     }
+    // Make program not to terminate by broke pipe
+    signal(SIGPIPE, SIG_IGN);
     signal(SIGINT, terminateServer);
     // Start Server
     startServerThread((uint16_t) atoi(argv[1]));

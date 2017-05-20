@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <memory.h>
 #include <errno.h>
+#include <signal.h>
 
 bool sendSnakeDataToClients(Vector * connections) {
     int response;
