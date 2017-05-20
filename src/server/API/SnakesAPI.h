@@ -56,4 +56,15 @@ void * checkForChangeOfDirections(void * args);
  */
 bool writeFoodDataToClients(Vector * connections, Vector * foods);
 
+/**
+ * Write the unique ID to the newly connected user.
+ *
+ * @param uniqueID The user unique ID
+ * @return True is the writing was successful, false otherwise.
+ *
+ * @warning: If false is return, the connection that failed will be
+ * removed from connections.
+ */
+bool writeUserUniqueID(int sockFd, int uniqueID);
+
 #endif //SNAKES_SNAKESAPI_H

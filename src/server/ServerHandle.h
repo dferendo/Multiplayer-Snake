@@ -16,6 +16,7 @@
  */
 typedef struct Connection {
     int sockFd;
+    unsigned int uniqueID;
     Snake * snake;
 } Connection;
 

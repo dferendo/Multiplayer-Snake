@@ -153,3 +153,19 @@ bool writeFoodDataToClients(Vector * connections, Vector * foods) {
     }
     return true;
 }
+
+bool writeUserUniqueID(int sockFd, int uniqueID) {
+    int response;
+    size_t size = DELIMITERS_SIZE + INTEGER_BYTES;
+    unsigned char buffer[size];
+
+    serializedUserUniqueID(buffer, uniqueID);
+
+    response = (int) write(sockFd, buffer, size);
+
+    if (response == -1) {
+        perror("Failed to write to the socket");
+        return false;
+    }
+    return true;
+}

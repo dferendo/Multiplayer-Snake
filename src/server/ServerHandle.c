@@ -107,6 +107,14 @@ void * initNewConnection(void *arg) {
         pthread_exit(NULL);
     }
 
+    // Send unique ID
+    if (!writeUserUniqueID(socketFileDescriptor, connection->uniqueID)) {
+        // Failed to send, ignore connection
+        freeDataOfConnection(connection);
+        deleteItemFromVector(connections, connection);
+        pthread_exit(NULL);
+    }
+
     do {
         // Send data again, if a connection is lost re-send the data.
         error = sendSnakeDataToClients(connections);
@@ -122,6 +130,7 @@ void * initNewConnection(void *arg) {
 }
 
 Connection * createConnection(int socketFileDescriptor, Vector * connections, Vector * foods) {
+    static unsigned int uniqueID = 0;
     Snake * snake;
     // Allocate memory to Connection info
     Connection * connection = (Connection *) malloc(sizeof(Connection));
@@ -137,5 +146,6 @@ Connection * createConnection(int socketFileDescriptor, Vector * connections, Ve
 
     connection->sockFd = socketFileDescriptor;
     connection->snake = snake;
+    connection->uniqueID = uniqueID++;
     return connection;
 }

@@ -156,3 +156,9 @@ unsigned char * serializedSnakesFromConnections(unsigned char *buffer, Vector *c
     }
     return buffer;
 }
+
+unsigned char *serializedUserUniqueID(unsigned char *buffer, int uniqueID) {
+    buffer = serializeCharArray(buffer, UNIQUE_ID_DELIMITER, DELIMITERS_SIZE);
+    buffer = serializeInt(buffer, uniqueID);
+    return buffer;
+}
