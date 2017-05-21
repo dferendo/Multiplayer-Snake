@@ -151,7 +151,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         }
     }
     // Button border
-    if (centrePosition->y + (totalRowVisitable / 2) > MAIN_WINDOW_ROW) {
+    if (centrePosition->y + (totalRowVisitable / 2) >= MAIN_WINDOW_ROW - 1) {
         startingRow = (MAIN_WINDOW_ROW - centrePosition->y) + (totalRowVisitable / 2);
 
         startColOrRow = centrePosition->x - (totalColumnVisitable / 2) < 0 ? centrePosition->x
@@ -167,7 +167,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         startingColumn = centrePosition->x - (totalColumnVisitable / 2);
 
         startColOrRow = centrePosition->y - (totalRowVisitable / 2) < 0 ? centrePosition->y - (totalRowVisitable / 2) : 0;
-        endColOrRow = centrePosition->y + (totalRowVisitable / 2) > MAIN_WINDOW_ROW ?
+        endColOrRow = centrePosition->y + (totalRowVisitable / 2) >= MAIN_WINDOW_ROW ?
                       (MAIN_WINDOW_ROW - centrePosition->y) + (totalRowVisitable / 2) : totalRowVisitable;
         for (int i = abs(startColOrRow) - 1; i < endColOrRow; i++) {
             mvwaddch(window, i, abs(startingColumn) - 1, '#');
@@ -178,7 +178,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         startingColumn = (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumnVisitable / 2);
 
         startColOrRow = centrePosition->y - (totalRowVisitable / 2) < 0 ? centrePosition->y - (totalRowVisitable / 2) : 0;
-        endColOrRow = centrePosition->y + (totalRowVisitable / 2) > MAIN_WINDOW_ROW ?
+        endColOrRow = centrePosition->y + (totalRowVisitable / 2) >= MAIN_WINDOW_ROW ?
                       (MAIN_WINDOW_ROW - centrePosition->y) + (totalRowVisitable / 2) : totalRowVisitable;
         for (int i = abs(startColOrRow); i < endColOrRow; i++) {
             mvwaddch(window, i, startingColumn - 1, '#');
