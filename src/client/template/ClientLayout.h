@@ -26,24 +26,12 @@
 void ncursesInit();
 
 /**
- * Create an outside border on the standard screen.
- */
-void createOutsideBorder();
-
-/**
  * Print given text in the centre of the screen, used to inform the user
  * that the program will exits.
  *
  * @param errorMessage: The type of error message.
  */
 void printError(char *errorMessage);
-
-/**
- * Generate the window used by the snakes to roam the playing area.
- *
- * @return: The window where the snakes and foods will be placed.
- */
-WINDOW * generatePlayingWindow();
 
 /**
  * Clears and delete passed WINDOW.
@@ -58,7 +46,7 @@ void deleteWindow(WINDOW *window);
  * @param height: The amount of rows the user need.
  * @return: Returns the window at the centre of the screen.
  */
-WINDOW * createWindowAtTheCentreOfTheScreen(int height);
+WINDOW * createModalLayout(int height);
 
 /**
  * Returns the food type of a Food in chtype format.

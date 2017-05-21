@@ -20,23 +20,10 @@ void ncursesInit() {
     cbreak();
     // Do not display inserted keys to the screen.
     noecho();
-    // Creates the border for the game.
-    createOutsideBorder();
-    // Show the Border.
-    refresh();
-}
-
-void createOutsideBorder() {
-    // Create border
-    wborder(stdscr,
-            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
-            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
-            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
-            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER);
 }
 
 void printError(char *errorMessage) {
-    WINDOW * window = createWindowAtTheCentreOfTheScreen(2);
+    WINDOW * window = createModalLayout(2);
 
     mvwprintw(window, 2, 3, errorMessage);
     mvwprintw(window, 3, 3, "Program exiting");
@@ -45,14 +32,10 @@ void printError(char *errorMessage) {
     deleteWindow(window);
 }
 
-WINDOW *generatePlayingWindow() {
-    WINDOW * window;
-    // Creating playing window without borders.
-    window = newwin(MAIN_WINDOW_ROW - 1, MAIN_WINDOW_COLUMN - 1, 1, 1);
-    return window;
-}
-
 void deleteWindow(WINDOW *window) {
+    if (window == NULL) {
+        return;
+    }
     wclear(window);
     wrefresh(window);
     delwin(window);
@@ -63,9 +46,21 @@ const chtype foodType(Food * type) {
     return (const chtype) foodTypes[type->foodType];
 }
 
-WINDOW * createWindowAtTheCentreOfTheScreen(int height) {
-    int windowStartingX = MAIN_WINDOW_COLUMN / 4, windowStartingY = MAIN_WINDOW_ROW / 4,
-            correctHeight = height + 4, width = MAIN_WINDOW_COLUMN / 2;
+WINDOW * createModalLayout(int height) {
+    int totalRowVisitable, totalColumnVisitable, windowStartingX,
+            windowStartingY, correctHeight = height + 4, width;
+    getmaxyx(stdscr, totalRowVisitable, totalColumnVisitable);
+
+    wborder(stdscr,
+            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
+            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
+            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
+            MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER);
+
+    refresh();
+
+    windowStartingX = totalColumnVisitable / 4, windowStartingY =  totalRowVisitable / 3,
+            width = totalColumnVisitable / 2;
 
     WINDOW * menuWindow;
     // Create new window where main menu will be placed.
@@ -193,7 +188,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
 }
 
 void showScreenInCentre(char *text) {
-    WINDOW * tempWindow = createWindowAtTheCentreOfTheScreen(1);
+    WINDOW * tempWindow = createModalLayout(1);
     mvwprintw(tempWindow, 2, 3, text);
     wrefresh(tempWindow);
     sleep(PROMPT_SCREEN_DELAY_SEC);

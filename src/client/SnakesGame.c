@@ -46,7 +46,7 @@ int gameManager(int sockFd) {
 
 int handleGameDataFromServer(int sockFd) {
     int nextCompute, uniqueID = -1;
-    WINDOW * window = generatePlayingWindow();
+    WINDOW * window = NULL;
 
     while (true) {
         nextCompute = readDelimiterSnakes(sockFd);
