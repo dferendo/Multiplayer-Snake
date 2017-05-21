@@ -29,6 +29,9 @@ void printError(char *errorMessage) {
     mvwprintw(window, 3, 3, "Program exiting");
     wrefresh(window);
     sleep(PROMPT_SCREEN_DELAY_SEC);
+    // Remove border
+    wborder(window, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+    wrefresh(window);
     deleteWindow(window);
 }
 
@@ -56,11 +59,10 @@ WINDOW * createModalLayout(int height) {
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER);
-
     refresh();
 
     windowStartingX = totalColumnVisitable / 4, windowStartingY =  totalRowVisitable / 3,
-            width = totalColumnVisitable / 2;
+    width = totalColumnVisitable / 2;
 
     WINDOW * menuWindow;
     // Create new window where main menu will be placed.
@@ -87,18 +89,20 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
 
     getmaxyx(stdscr, totalRowVisitable, totalColumnVisitable);
 
-    for (int i = 0; i < snakes->size; i++) {
-        snakeInfo = ((SnakeInfo *) snakes->data[i]);
+    if (snakes != NULL) {
+        for (int i = 0; i < snakes->size; i++) {
+            snakeInfo = ((SnakeInfo *) snakes->data[i]);
 
-        if (snakeInfo->uniqueID == uniqueID) {
-            centrePosition = snakeInfo->snake->positions->position;
-            startingRow = centrePosition->y - (totalRowVisitable / 2);
-            startingColumn = centrePosition->x - (totalColumnVisitable / 2);
-            break;
+            if (snakeInfo->uniqueID == uniqueID) {
+                centrePosition = snakeInfo->snake->positions->position;
+                startingRow = centrePosition->y - (totalRowVisitable / 2);
+                startingColumn = centrePosition->x - (totalColumnVisitable / 2);
+                break;
+            }
         }
     }
 
-    if (snakeInfo == NULL) {
+    if (centrePosition == NULL) {
         // Not found, error
         return NULL;
     }
@@ -142,7 +146,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         // beginning (not 0) if the player is near the corner.
         startColOrRow = centrePosition->x - (totalColumnVisitable / 2) < 0 ? centrePosition->x - (totalColumnVisitable / 2) : 0;
         endColOrRow = centrePosition->x + (totalColumnVisitable / 2) > MAIN_WINDOW_COLUMN ?
-                 (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumnVisitable / 2) : totalColumnVisitable;
+                      (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumnVisitable / 2) : totalColumnVisitable;
         for (int i = abs(startColOrRow); i < endColOrRow; i++) {
             mvwaddch(window, abs(startingRow) - 1, i, '#');
         }
@@ -152,7 +156,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         startingRow = (MAIN_WINDOW_ROW - centrePosition->y) + (totalRowVisitable / 2);
 
         startColOrRow = centrePosition->x - (totalColumnVisitable / 2) < 0 ? centrePosition->x
-                                                                    - (totalColumnVisitable / 2) : 0;
+                                                                             - (totalColumnVisitable / 2) : 0;
         endColOrRow = centrePosition->x + (totalColumnVisitable / 2) > MAIN_WINDOW_COLUMN ?
                       (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumnVisitable / 2) : totalColumnVisitable;
         for (int i = abs(startColOrRow); i < endColOrRow; i++) {
@@ -192,8 +196,9 @@ void showScreenInCentre(char *text) {
     mvwprintw(tempWindow, 2, 3, text);
     wrefresh(tempWindow);
     sleep(PROMPT_SCREEN_DELAY_SEC);
+    wborder(stdscr, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+    refresh();
     deleteWindow(tempWindow);
-    delwin(tempWindow);
 }
 
 bool checkIfPositionIsFoundInScreen(Position * centre, Position * newPosition, int totalRows, int totalColumns) {

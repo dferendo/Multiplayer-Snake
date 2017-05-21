@@ -65,6 +65,7 @@ void clearSnakeVector(Vector *snakes) {
     for (int i = 0; i < snakes->size; i++) {
         snake = (SnakeInfo *) snakes->data[i];
         freeSnake(snake->snake);
+        free(snake);
     }
     deleteVector(snakes);
 }

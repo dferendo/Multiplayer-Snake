@@ -11,6 +11,7 @@
 WINDOW * window;
 Vector * foods = NULL;
 Vector * snakes = NULL;
+int uniqueID = -1;
 
 int gameManager(int sockFd) {
     int gameStatus;
@@ -45,7 +46,7 @@ int gameManager(int sockFd) {
 }
 
 int handleGameDataFromServer(int sockFd) {
-    int nextCompute, uniqueID = -1;
+    int nextCompute;
     WINDOW * window = NULL;
 
     while (true) {
@@ -96,9 +97,9 @@ int handleGameDataFromServer(int sockFd) {
         deleteWindow(window);
         // Update screen
         window = displayNewData(foods, snakes, uniqueID);
-        // Snake was not found
+        // Snake was not found, data not received yet
         if (window == NULL) {
-            return -1;
+            continue;
         }
         wrefresh(window);
     }
