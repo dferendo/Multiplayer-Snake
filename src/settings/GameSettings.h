@@ -21,8 +21,8 @@
 #define GAME_READ_USER_INPUT_UPDATE_RATE_US 150000
 
 // All consoles will have the same size of the map
-#define MAIN_WINDOW_ROW 24
-#define MAIN_WINDOW_COLUMN 89
+#define MAIN_WINDOW_ROW 26
+#define MAIN_WINDOW_COLUMN 92
 
 #define PROMPT_SCREEN_DELAY_SEC 1
 

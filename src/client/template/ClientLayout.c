@@ -85,8 +85,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
     LinkedListPosition * snake;
     SnakeInfo * snakeInfo = NULL;
     Position * centrePosition = NULL;
-    int totalRow, totalColumn, startingRow, startingColumn;
-    ;
+    int totalRow, totalColumn, startingRow = 0, startingColumn = 0;
 
     getmaxyx(stdscr, totalRow, totalColumn);
 
@@ -95,6 +94,8 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
 
         if (snakeInfo->uniqueID == uniqueID) {
             centrePosition = snakeInfo->snake->positions->position;
+            startingRow = centrePosition->y - (totalRow / 2);
+            startingColumn = centrePosition->x - (totalColumn / 2);
             break;
         }
     }
@@ -119,52 +120,48 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
 //    }
 
     // Food can be generated before snakes
-//    if (snakes != NULL) {
-//         Display Snakes for every connection if they are on screen
-//        for (int i = 0; i < snakes->size; i++) {
-//            snake = ((SnakeInfo *) snakes->data[i])->snake->positions;
-//             Display snake.
-//            do {
-//                if (checkIfPositionIsFoundInScreen(centrePosition, snake->position, totalRow, totalColumn)) {
-//                    startingRow = snake->position->y - (totalRow / 2);
-//                    startingColumn = snake->position->x - (totalRow / 2);
-//                    mvwprintw(window, startingRow, startingColumn, SNAKE_CHARACTER);
-//                }
-//                snake = snake->next;
-//            } while (snake != NULL);
-//        }
-//    }
-    startingRow = centrePosition->y - (totalRow / 2);
-    startingColumn = centrePosition->x - (totalColumn / 2);
-    mvwprintw(window, centrePosition->y - startingRow, centrePosition->x - startingColumn, "#");
+    if (snakes != NULL) {
+        // Display Snakes for every connection if they are on screen
+        for (int i = 0; i < snakes->size; i++) {
+            snake = ((SnakeInfo *) snakes->data[i])->snake->positions;
+            // Display snake.
+            do {
+                if (checkIfPositionIsFoundInScreen(centrePosition, snake->position, totalRow, totalColumn)) {
+                    mvwprintw(window, snake->position->y - startingRow,
+                              snake->position->x - startingColumn, SNAKE_CHARACTER);
+                }
+                snake = snake->next;
+            } while (snake != NULL);
+        }
+    }
 
     // Create Border
     // Top border
     if (centrePosition->y - (totalRow / 2) < 0) {
-        int startingY = centrePosition->y - (totalRow / 2);
+        startingRow = centrePosition->y - (totalRow / 2);
         for (int i = 0; i < totalColumn; i++) {
-            mvwaddch(window, abs(startingY) - 1, i, '#');
+            mvwaddch(window, abs(startingRow) - 1, i, '#');
         }
     }
     // Button border
     if (centrePosition->y + (totalRow / 2) > MAIN_WINDOW_ROW) {
-        int startingY = (MAIN_WINDOW_ROW - centrePosition->y) + (totalRow / 2);
+        startingRow = (MAIN_WINDOW_ROW - centrePosition->y) + (totalRow / 2);
         for (int i = 0; i < totalColumn; i++) {
-            mvwaddch(window, startingY - 1, i, '#');
+            mvwaddch(window, startingRow - 2, i, '#');
         }
     }
     // Left border
     if (centrePosition->x - (totalColumn / 2) < 0) {
-        int startingX = centrePosition->x - (totalColumn / 2);
+        startingColumn = centrePosition->x - (totalColumn / 2);
         for (int i = 0; i < totalRow; i++) {
-            mvwaddch(window, i, abs(startingX) - 1, '#');
+            mvwaddch(window, i, abs(startingColumn) - 1, '#');
         }
     }
     // Right border
     if (centrePosition->x + (totalColumn / 2) > MAIN_WINDOW_COLUMN) {
-        int startingX = (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumn / 2);
+        startingColumn = (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumn / 2);
         for (int i = 0; i < totalRow; i++) {
-            mvwaddch(window, i, startingX - 1, '#');
+            mvwaddch(window, i, startingColumn - 2, '#');
         }
     }
     return window;
