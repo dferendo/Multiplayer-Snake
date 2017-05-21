@@ -96,6 +96,10 @@ int handleGameDataFromServer(int sockFd) {
         deleteWindow(window);
         // Update screen
         window = displayNewData(foods, snakes, uniqueID);
+        // Snake was not found
+        if (window == NULL) {
+            return -1;
+        }
         wrefresh(window);
     }
 }

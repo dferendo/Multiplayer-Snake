@@ -85,8 +85,10 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
     LinkedListPosition * snake;
     SnakeInfo * snakeInfo = NULL;
     Position * centrePosition = NULL;
-    int totalRowVisitable, totalColumnVisitable, startingRow = 0, startingColumn = 0, startColOrRow, endColOrRow;
-    ;
+    int totalRowVisitable, totalColumnVisitable,
+            startingRow = 0, startingColumn = 0,
+            startColOrRow, endColOrRow, statisticDataLength = 22;
+    char buffer[statisticDataLength];
 
     getmaxyx(stdscr, totalRowVisitable, totalColumnVisitable);
 
@@ -102,7 +104,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
     }
 
     if (snakeInfo == NULL) {
-        // Not found
+        // Not found, error
         return NULL;
     }
 
@@ -184,6 +186,9 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
             mvwaddch(window, i, startingColumn - 1, '#');
         }
     }
+    sprintf(buffer, "(%d, %d) Score: %d", centrePosition->x, centrePosition->y, snakeInfo->snake->size);
+    mvwprintw(window, 0, totalColumnVisitable - statisticDataLength, buffer);
+
     return window;
 }
 

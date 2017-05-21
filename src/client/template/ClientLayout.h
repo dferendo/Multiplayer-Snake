@@ -70,6 +70,7 @@ const chtype foodType(Food * type);
 
 /**
  * Displays the data of foods and snakes, window requires still wrefresh.
+ * Displays the score, position and snakes amount.
  *
  * @param foods: The current foods.
  * @param snakes: The current positions of the snakes.
@@ -84,6 +85,15 @@ WINDOW * displayNewData(Vector * foods, Vector * snakes, int uniqueID);
  */
 void showScreenInCentre(char *text);
 
+/**
+ * Check if a given position is found in the current section of the screen.
+ *
+ * @param centre The camera centre.
+ * @param newPosition A position to check if it is found.
+ * @param totalRows The amount of rows the screen has.
+ * @param totalColumns The amount of columns the screen has.
+ * @return
+ */
 bool checkIfPositionIsFoundInScreen(Position * centre, Position * newPosition,
                                     int totalRows, int totalColumns);
 
