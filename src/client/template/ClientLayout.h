@@ -11,7 +11,9 @@
 
 // Put 0 for clean border
 #define MAIN_MENU_BORDER_CHARACTER '+'
-#define SNAKE_CHARACTER "#"
+#define SNAKE_CHARACTER ACS_BULLET
+
+#define DIR(x) x == 0 ? '^' : x == 1 ? '<' : x == 2 ? 'v' : '>'
 
 #define ERROR_NO_HOST "Error, no such host!"
 #define ERROR_CONNECTION_FAILED "Error, connection failed!"
@@ -24,6 +26,11 @@
  * Setting up of ncurses used. Exit the program if colours is not supported by terminal.
  */
 void ncursesInit();
+
+/**
+ * Sets the colors available.
+ */
+void setColors();
 
 /**
  * Print given text in the centre of the screen, used to inform the user

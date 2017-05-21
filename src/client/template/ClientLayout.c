@@ -3,6 +3,9 @@
 #include "../../settings/GameSettings.h"
 #include "unistd.h"
 #include "../SnakesGame.h"
+#include <stdlib.h>
+
+#define SNAKE_COLOR_AVAILABLE 5
 
 void ncursesInit() {
     initscr();
@@ -14,12 +17,23 @@ void ncursesInit() {
     }
     // Start the colours
     start_color();
+    setColors();
     // Set cursor to invisible
     curs_set(0);
     // Allows more control for the input
     cbreak();
     // Do not display inserted keys to the screen.
     noecho();
+}
+
+void setColors() {
+    init_color(COLOR_RED, 600, 200, 200);
+    init_pair(1, COLOR_WHITE, COLOR_RED);
+    init_pair(2, COLOR_WHITE, COLOR_YELLOW);
+    init_pair(3, COLOR_WHITE, COLOR_BLUE);
+    init_pair(4, COLOR_WHITE, COLOR_GREEN);
+    init_pair(5, COLOR_WHITE, COLOR_MAGENTA);
+    init_pair(6, COLOR_WHITE, COLOR_CYAN);
 }
 
 void printError(char *errorMessage) {
@@ -84,7 +98,8 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
     Position * centrePosition = NULL;
     int totalRowVisitable, totalColumnVisitable,
             startingRow = 0, startingColumn = 0,
-            startColOrRow, endColOrRow, statisticDataLength = 22;
+            startColOrRow, endColOrRow, statisticDataLength = 22, snakeColor;
+    bool isFirstPosition;
     char buffer[statisticDataLength];
 
     getmaxyx(stdscr, totalRowVisitable, totalColumnVisitable);
@@ -111,7 +126,6 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
     window = newwin(totalRowVisitable, totalColumnVisitable, 0, 0);
 
     // Check the snakes and food if they are found in the window screen
-
     if (foods != NULL) {
         for (int i = 0; i < foods->size; i++) {
             food = ((Food *) foods->data[i]);
@@ -127,14 +141,29 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         // Display Snakes for every connection if they are on screen
         for (int i = 0; i < snakes->size; i++) {
             snake = ((SnakeInfo *) snakes->data[i])->snake->positions;
+            if (((SnakeInfo *) snakes->data[i])->uniqueID == uniqueID) {
+                snakeColor = 1;
+                wattron(window, COLOR_PAIR(snakeColor));
+            } else {
+                snakeColor = (((SnakeInfo *) snakes->data[i])->uniqueID % SNAKE_COLOR_AVAILABLE) + 2;
+                wattron(window, COLOR_PAIR(snakeColor));
+            }
+            isFirstPosition = true;
             // Display snake.
             do {
                 if (checkIfPositionIsFoundInScreen(centrePosition, snake->position, totalRowVisitable, totalColumnVisitable)) {
-                    mvwprintw(window, snake->position->y - startingRow,
-                              snake->position->x - startingColumn, SNAKE_CHARACTER);
+                    if (isFirstPosition) {
+                        mvwaddch(window, snake->position->y - startingRow,
+                                 snake->position->x - startingColumn, DIR((((SnakeInfo *) snakes->data[i]))->snake->direction));
+                    } else {
+                        mvwaddch(window, snake->position->y - startingRow,
+                                 snake->position->x - startingColumn, SNAKE_CHARACTER);
+                    }
                 }
+                isFirstPosition = false;
                 snake = snake->next;
             } while (snake != NULL);
+            wattroff(window, COLOR_PAIR(snakeColor));
         }
     }
 
@@ -148,7 +177,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         endColOrRow = centrePosition->x + (totalColumnVisitable / 2) > MAIN_WINDOW_COLUMN ?
                       (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumnVisitable / 2) : totalColumnVisitable;
         for (int i = abs(startColOrRow); i < endColOrRow; i++) {
-            mvwaddch(window, abs(startingRow) - 1, i, '#');
+            mvwaddch(window, abs(startingRow) - 1, i, MAIN_MENU_BORDER_CHARACTER);
         }
     }
     // Button border
@@ -160,7 +189,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         endColOrRow = centrePosition->x + (totalColumnVisitable / 2) > MAIN_WINDOW_COLUMN ?
                       (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumnVisitable / 2) : totalColumnVisitable;
         for (int i = abs(startColOrRow); i < endColOrRow; i++) {
-            mvwaddch(window, startingRow - 1, i, '#');
+            mvwaddch(window, startingRow - 1, i, MAIN_MENU_BORDER_CHARACTER);
         }
     }
     // Left border
@@ -171,7 +200,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         endColOrRow = centrePosition->y + (totalRowVisitable / 2) >= MAIN_WINDOW_ROW ?
                       (MAIN_WINDOW_ROW - centrePosition->y) + (totalRowVisitable / 2) : totalRowVisitable;
         for (int i = abs(startColOrRow) - 1; i < endColOrRow; i++) {
-            mvwaddch(window, i, abs(startingColumn) - 1, '#');
+            mvwaddch(window, i, abs(startingColumn) - 1, MAIN_MENU_BORDER_CHARACTER);
         }
     }
     // Right border
@@ -182,7 +211,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
         endColOrRow = centrePosition->y + (totalRowVisitable / 2) >= MAIN_WINDOW_ROW ?
                       (MAIN_WINDOW_ROW - centrePosition->y) + (totalRowVisitable / 2) : totalRowVisitable;
         for (int i = abs(startColOrRow); i < endColOrRow; i++) {
-            mvwaddch(window, i, startingColumn - 1, '#');
+            mvwaddch(window, i, startingColumn - 1, MAIN_MENU_BORDER_CHARACTER);
         }
     }
     sprintf(buffer, "(%d, %d) Score: %d", centrePosition->x, centrePosition->y, snakeInfo->snake->size);

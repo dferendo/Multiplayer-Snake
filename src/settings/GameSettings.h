@@ -16,13 +16,13 @@
 
 #define FOOD_TO_WIN 15
 
-#define GAME_UPDATE_RATE_US 200000
+#define GAME_UPDATE_RATE_US 100000
 
 #define GAME_READ_USER_INPUT_UPDATE_RATE_US 150000
 
 // All consoles will have the same size of the map
-#define MAIN_WINDOW_ROW 26
-#define MAIN_WINDOW_COLUMN 60
+#define MAIN_WINDOW_ROW 50
+#define MAIN_WINDOW_COLUMN 100
 
 #define PROMPT_SCREEN_DELAY_SEC 3
 
