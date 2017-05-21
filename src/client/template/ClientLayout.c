@@ -110,14 +110,15 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
 
     // Check the snakes and food if they are found in the window screen
 
-//    if (foods != NULL) {
-//        for (int i = 0; i < foods->size; i++) {
-//            food = ((Food *) foods->data[i]);
-//            if (checkIfPositionIsFoundInScreen(centrePosition, food->position, totalRow, totalColumn)) {
-//                mvwaddch(window, food->position->y, food->position->x, foodType(food));
-//            }
-//        }
-//    }
+    if (foods != NULL) {
+        for (int i = 0; i < foods->size; i++) {
+            food = ((Food *) foods->data[i]);
+            if (checkIfPositionIsFoundInScreen(centrePosition, food->position, totalRow, totalColumn)) {
+                mvwaddch(window, food->position->y - startingRow,
+                         food->position->x - startingColumn, foodType(food));
+            }
+        }
+    }
 
     // Food can be generated before snakes
     if (snakes != NULL) {
@@ -147,7 +148,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
     if (centrePosition->y + (totalRow / 2) > MAIN_WINDOW_ROW) {
         startingRow = (MAIN_WINDOW_ROW - centrePosition->y) + (totalRow / 2);
         for (int i = 0; i < totalColumn; i++) {
-            mvwaddch(window, startingRow - 2, i, '#');
+            mvwaddch(window, startingRow - 1, i, '#');
         }
     }
     // Left border
@@ -161,7 +162,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
     if (centrePosition->x + (totalColumn / 2) > MAIN_WINDOW_COLUMN) {
         startingColumn = (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumn / 2);
         for (int i = 0; i < totalRow; i++) {
-            mvwaddch(window, i, startingColumn - 2, '#');
+            mvwaddch(window, i, startingColumn - 1, '#');
         }
     }
     return window;

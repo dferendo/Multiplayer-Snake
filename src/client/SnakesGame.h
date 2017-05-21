@@ -99,9 +99,4 @@ void removeGameData(Vector *snakes, Vector *foods, bool *keepAlive, pthread_t ch
  */
 int closeGame(int status);
 
-/**
- * Print the updated screen.
- */
-void printNewScreen();
-
 #endif //SNAKES_SNAKESGAME_H
