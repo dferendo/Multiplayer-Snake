@@ -85,17 +85,18 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
     LinkedListPosition * snake;
     SnakeInfo * snakeInfo = NULL;
     Position * centrePosition = NULL;
-    int totalRow, totalColumn, startingRow = 0, startingColumn = 0;
+    int totalRowVisitable, totalColumnVisitable, startingRow = 0, startingColumn = 0, startColOrRow, endColOrRow;
+    ;
 
-    getmaxyx(stdscr, totalRow, totalColumn);
+    getmaxyx(stdscr, totalRowVisitable, totalColumnVisitable);
 
     for (int i = 0; i < snakes->size; i++) {
         snakeInfo = ((SnakeInfo *) snakes->data[i]);
 
         if (snakeInfo->uniqueID == uniqueID) {
             centrePosition = snakeInfo->snake->positions->position;
-            startingRow = centrePosition->y - (totalRow / 2);
-            startingColumn = centrePosition->x - (totalColumn / 2);
+            startingRow = centrePosition->y - (totalRowVisitable / 2);
+            startingColumn = centrePosition->x - (totalColumnVisitable / 2);
             break;
         }
     }
@@ -106,14 +107,14 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
     }
 
     // Generate window.
-    window = newwin(totalRow, totalColumn, 0, 0);
+    window = newwin(totalRowVisitable, totalColumnVisitable, 0, 0);
 
     // Check the snakes and food if they are found in the window screen
 
     if (foods != NULL) {
         for (int i = 0; i < foods->size; i++) {
             food = ((Food *) foods->data[i]);
-            if (checkIfPositionIsFoundInScreen(centrePosition, food->position, totalRow, totalColumn)) {
+            if (checkIfPositionIsFoundInScreen(centrePosition, food->position, totalRowVisitable, totalColumnVisitable)) {
                 mvwaddch(window, food->position->y - startingRow,
                          food->position->x - startingColumn, foodType(food));
             }
@@ -127,7 +128,7 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
             snake = ((SnakeInfo *) snakes->data[i])->snake->positions;
             // Display snake.
             do {
-                if (checkIfPositionIsFoundInScreen(centrePosition, snake->position, totalRow, totalColumn)) {
+                if (checkIfPositionIsFoundInScreen(centrePosition, snake->position, totalRowVisitable, totalColumnVisitable)) {
                     mvwprintw(window, snake->position->y - startingRow,
                               snake->position->x - startingColumn, SNAKE_CHARACTER);
                 }
@@ -138,30 +139,48 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
 
     // Create Border
     // Top border
-    if (centrePosition->y - (totalRow / 2) < 0) {
-        startingRow = centrePosition->y - (totalRow / 2);
-        for (int i = 0; i < totalColumn; i++) {
+    if (centrePosition->y - (totalRowVisitable / 2) < 0) {
+        startingRow = centrePosition->y - (totalRowVisitable / 2);
+        // indicate the starting and ending of the border. The border can stay not at the
+        // beginning (not 0) if the player is near the corner.
+        startColOrRow = centrePosition->x - (totalColumnVisitable / 2) < 0 ? centrePosition->x - (totalColumnVisitable / 2) : 0;
+        endColOrRow = centrePosition->x + (totalColumnVisitable / 2) > MAIN_WINDOW_COLUMN ?
+                 (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumnVisitable / 2) : totalColumnVisitable;
+        for (int i = abs(startColOrRow); i < endColOrRow; i++) {
             mvwaddch(window, abs(startingRow) - 1, i, '#');
         }
     }
     // Button border
-    if (centrePosition->y + (totalRow / 2) > MAIN_WINDOW_ROW) {
-        startingRow = (MAIN_WINDOW_ROW - centrePosition->y) + (totalRow / 2);
-        for (int i = 0; i < totalColumn; i++) {
+    if (centrePosition->y + (totalRowVisitable / 2) > MAIN_WINDOW_ROW) {
+        startingRow = (MAIN_WINDOW_ROW - centrePosition->y) + (totalRowVisitable / 2);
+
+        startColOrRow = centrePosition->x - (totalColumnVisitable / 2) < 0 ? centrePosition->x
+                                                                    - (totalColumnVisitable / 2) : 0;
+        endColOrRow = centrePosition->x + (totalColumnVisitable / 2) > MAIN_WINDOW_COLUMN ?
+                      (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumnVisitable / 2) : totalColumnVisitable;
+        for (int i = abs(startColOrRow); i < endColOrRow; i++) {
             mvwaddch(window, startingRow - 1, i, '#');
         }
     }
     // Left border
-    if (centrePosition->x - (totalColumn / 2) < 0) {
-        startingColumn = centrePosition->x - (totalColumn / 2);
-        for (int i = 0; i < totalRow; i++) {
+    if (centrePosition->x - (totalColumnVisitable / 2) < 0) {
+        startingColumn = centrePosition->x - (totalColumnVisitable / 2);
+
+        startColOrRow = centrePosition->y - (totalRowVisitable / 2) < 0 ? centrePosition->y - (totalRowVisitable / 2) : 0;
+        endColOrRow = centrePosition->y + (totalRowVisitable / 2) > MAIN_WINDOW_ROW ?
+                      (MAIN_WINDOW_ROW - centrePosition->y) + (totalRowVisitable / 2) : totalRowVisitable;
+        for (int i = abs(startColOrRow) - 1; i < endColOrRow; i++) {
             mvwaddch(window, i, abs(startingColumn) - 1, '#');
         }
     }
     // Right border
-    if (centrePosition->x + (totalColumn / 2) > MAIN_WINDOW_COLUMN) {
-        startingColumn = (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumn / 2);
-        for (int i = 0; i < totalRow; i++) {
+    if (centrePosition->x + (totalColumnVisitable / 2) > MAIN_WINDOW_COLUMN) {
+        startingColumn = (MAIN_WINDOW_COLUMN - centrePosition->x) + (totalColumnVisitable / 2);
+
+        startColOrRow = centrePosition->y - (totalRowVisitable / 2) < 0 ? centrePosition->y - (totalRowVisitable / 2) : 0;
+        endColOrRow = centrePosition->y + (totalRowVisitable / 2) > MAIN_WINDOW_ROW ?
+                      (MAIN_WINDOW_ROW - centrePosition->y) + (totalRowVisitable / 2) : totalRowVisitable;
+        for (int i = abs(startColOrRow); i < endColOrRow; i++) {
             mvwaddch(window, i, startingColumn - 1, '#');
         }
     }

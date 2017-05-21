@@ -22,7 +22,7 @@
 
 // All consoles will have the same size of the map
 #define MAIN_WINDOW_ROW 26
-#define MAIN_WINDOW_COLUMN 60
+#define MAIN_WINDOW_COLUMN 100
 
 #define PROMPT_SCREEN_DELAY_SEC 1
 
