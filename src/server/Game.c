@@ -143,6 +143,7 @@ bool moveSnakes(Vector *connections, Vector *foods) {
             connection = (Connection *) connections->data[i];
             if (moveSnakesReturns[j] == DIED) {
                 sendEndGameToClient(connection->sockFd, DIED);
+                printf("Client Disconnected. Snake Died.\n");
                 // Clear snake, regardless if connection failed
                 freeDataOfConnection(connection);
                 deleteItemFromVector(connections, connection);
