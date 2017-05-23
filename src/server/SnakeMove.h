@@ -35,6 +35,15 @@ Position * moveHeadSnake(Direction direction, Position *position);
 SnakeStatus snakeAction(Snake * snake, Vector * foods, Vector * connections);
 
 /**
+ * Checks if the next position points to the next position of the snake. If
+ * so change the direction to point the opposite direction. This is done to avoid
+ * snake hitting himself by pressing 2 keys after each other immediately
+ * resulting in the snake dying.
+ * @param snake The snake to be checked.
+ */
+void checkIfSnakeHeadPointsToTheNextSnakePosition(Snake * snake);
+
+/**
  * Check for a head collision. If two snakes hit each other, both snakes will die.
  *
  * @param snake: The snake that will be compared to other snakes.

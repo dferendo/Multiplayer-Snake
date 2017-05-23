@@ -9,6 +9,9 @@
 #include "../utility/LinkedList.h"
 #include "../utility/Vector.h"
 
+// Mark the opposite direction give the direction
+#define OPPOSITE_DIR(x) x == D_UP ? D_DOWN : x == D_LEFT ? D_RIGHT : x == D_DOWN ? D_UP : x == D_RIGHT ? D_LEFT : D_UP
+
 /**
  * All positions the snake can go.
  */

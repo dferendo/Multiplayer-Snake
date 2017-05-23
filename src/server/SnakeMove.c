@@ -10,6 +10,8 @@
 SnakeStatus snakeAction(Snake * snake, Vector * foods, Vector * connections) {
     bool error;
 
+    checkIfSnakeHeadPointsToTheNextSnakePosition(snake);
+
     // Check Head collisions
     if (checkHeadCollision(snake, connections)) {
         return DIED;
@@ -182,4 +184,19 @@ void snakeMove(Snake *snake) {
     }
     // The head still needs to be updated.
     snake->positions->position = nextPositionOfSelectedSnake;
+}
+
+void checkIfSnakeHeadPointsToTheNextSnakePosition(Snake *snake) {
+    Position * nextPositionOfSelectedSnake;
+
+    nextPositionOfSelectedSnake = moveHeadSnake(snake->direction, snake->positions->position);
+
+    if (snake->positions->next->position->x == nextPositionOfSelectedSnake->x &&
+            snake->positions->next->position->y == nextPositionOfSelectedSnake->y) {
+        // Change direction since the user tried to kill himself by pressing too
+        // many direction resulting the head going to the snake 2nd position
+        snake->direction = OPPOSITE_DIR(snake->direction);
+    }
+
+    free(nextPositionOfSelectedSnake);
 }
