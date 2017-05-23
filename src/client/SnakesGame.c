@@ -7,6 +7,7 @@
 #include "API/ClientAPI.h"
 #include "../utility/General.h"
 #include <pthread.h>
+#include <signal.h>
 
 WINDOW * window;
 Vector * foods = NULL;
@@ -48,6 +49,7 @@ int gameManager(int sockFd) {
 int handleGameDataFromServer(int sockFd) {
     int nextCompute;
     WINDOW * window = NULL;
+    signal(SIGWINCH, NULL);
 
     while (true) {
         nextCompute = readDelimiterSnakes(sockFd);

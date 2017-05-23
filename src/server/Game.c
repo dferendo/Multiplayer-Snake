@@ -139,9 +139,9 @@ bool moveSnakes(Vector *connections, Vector *foods) {
         return true;
     } else {
         // Check if snakes died.
-        for (int i = 0; i < connections->size; i++) {
+        for (int i = 0, j = 0; i < connections->size; i++, j++) {
             connection = (Connection *) connections->data[i];
-            if (moveSnakesReturns[i] == DIED) {
+            if (moveSnakesReturns[j] == DIED) {
                 sendEndGameToClient(connection->sockFd, DIED);
                 // Clear snake, regardless if connection failed
                 freeDataOfConnection(connection);
