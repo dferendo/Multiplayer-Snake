@@ -39,7 +39,7 @@ bool sendSnakeDataToClients(Vector * connections) {
         response = (int) write(connection->sockFd, buffer, size);
 
         if (response == -1) {
-            perror("Failed to write to the socket");
+            perror("Client Disconnected. Error writing to socket");
             // Error, close socket, delete connection and indicate the server to
             // resend the data.
             freeDataOfConnection(connection);
@@ -65,7 +65,7 @@ bool sendEndGameToClient(int sockFd, SnakeStatus status) {
     response = (int) write(sockFd, buffer, DELIMITERS_SIZE);
 
     if (response < 0) {
-        perror("Error writing to socket");
+        perror("Client Disconnected. Error writing to socket");
         return false;
     }
     return true;
@@ -143,7 +143,7 @@ bool writeFoodDataToClients(Vector * connections, Vector * foods) {
         response = (int) write(connection->sockFd, buffer, size);
 
         if (response < 0) {
-            perror("Error writing to socket");
+            perror("Client Disconnected. Error writing to socket");
             // Error, close socket, delete connection and indicate the server to
             // resend the data. Connection is lost thus no other thread have access.
             freeDataOfConnection(connection);
@@ -164,7 +164,7 @@ bool writeUserUniqueID(int sockFd, int uniqueID) {
     response = (int) write(sockFd, buffer, size);
 
     if (response == -1) {
-        perror("Failed to write to the socket");
+        perror("Client Disconnected. Error writing to socket");
         return false;
     }
     return true;

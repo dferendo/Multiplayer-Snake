@@ -17,7 +17,8 @@ Snake *createSnake(Vector * connections, Vector * foods, bool restart, int curre
     }
 
     if (allPositions[0] == NULL) {
-        return NULL;
+        // No memory
+        exit(1);
     }
 
     // Add the default snakes positions, these positions were checked by the first positions

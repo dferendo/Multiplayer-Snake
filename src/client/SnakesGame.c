@@ -21,21 +21,21 @@ int gameManager(int sockFd) {
     bool * keepAlive = (bool *) malloc(sizeof(bool));
 
     if (keepAlive == NULL) {
-        perror("Failed to allocate memory to Params");
+        perror("Client Disconnected. Failed to allocate memory to Params");
         return -1;
     }
     *keepAlive = true;
     inputThreadParams = (ReadUserInputThreadParams *) malloc(sizeof(ReadUserInputThreadParams));
 
     if (inputThreadParams == NULL) {
-        perror("Failed to allocate memory to Params");
+        perror("Client Disconnected. Failed to allocate memory to Params");
         return -1;
     }
     inputThreadParams->sockFd = sockFd;
     inputThreadParams->keepAlive = keepAlive;
     // Create a thread that reads user input.
     if (pthread_create(&characterReaderTId, NULL, readDirectionFromUser, inputThreadParams) != 0) {
-        perror("Could not create a read user thread.");
+        perror("Client Disconnected. Could not create a read user thread.");
         free(inputThreadParams);
         return -1;
     }

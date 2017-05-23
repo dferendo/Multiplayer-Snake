@@ -8,6 +8,7 @@
 #include "API/SnakesAPI.h"
 #include <unistd.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 pthread_mutex_t lock;
 Vector * foods;
@@ -23,7 +24,7 @@ void * serverInit(void * args) {
     sockFd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (sockFd == -1) {
-        perror("Error opening socket.");
+        perror("Server Shutdown. Error opening socket.");
         exit(1);
     }
 
@@ -35,7 +36,7 @@ void * serverInit(void * args) {
 
     // Binding
     if (bind(sockFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
-        perror("Error on binding");
+        perror("Server Shutdown. Error on binding");
         exit(1);
     }
 
@@ -57,7 +58,7 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
 
         // Failed connection, ignore client
         if (newSockFd == -1) {
-            perror("Error on client accept");
+            perror("Client Disconnected. Failed connection");
             continue;
         }
         CreateConnectThreadArguments * args = (CreateConnectThreadArguments *)
@@ -65,15 +66,16 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
 
         // Failed malloc, ignore client
         if (args == NULL) {
-            perror("Error on malloc arguments");
+            perror("Client Disconnected. Error on malloc arguments");
             close(newSockFd);
             exit(1);
         }
 
         args->sockFd = newSockFd;
+        args->pV4Addr = (struct sockaddr_in *) clientAddress;
 
         if (pthread_create(&clientThread, NULL, initNewConnection, args) != 0) {
-            perror("Could not create a worker thread.");
+            perror("Server Shutdown. Could not create a worker thread.");
             free(args);
             close(newSockFd);
             exit(1);
@@ -83,6 +85,8 @@ void acceptClients(int sockFd, struct sockaddr * clientAddress, socklen_t * clie
 
 void * initNewConnection(void *arg) {
     int socketFileDescriptor = ((CreateConnectThreadArguments *) arg)->sockFd;
+    struct in_addr ipAddress = ((CreateConnectThreadArguments *) arg)->pV4Addr->sin_addr;
+    char ipAddressBuffer[INET_ADDRSTRLEN];
 
     Connection * connection;
     bool error;
@@ -122,6 +126,9 @@ void * initNewConnection(void *arg) {
         error |= writeFoodDataToClients(connections, foods);;
     } while (!error);
 
+    inet_ntop(AF_INET, &ipAddress, ipAddressBuffer, INET_ADDRSTRLEN);
+    printf("Connection: IP: %s, ID: %d.\n", ipAddressBuffer, connection->uniqueID);
+
     // Unlock since connections no longer used.
     pthread_mutex_unlock(&lock);
 
@@ -135,7 +142,7 @@ Connection * createConnection(int socketFileDescriptor, Vector * connections, Ve
     // Allocate memory to Connection info
     Connection * connection = (Connection *) malloc(sizeof(Connection));
     if (connection == NULL) {
-        perror("Failed to allocate memory to connection");
+        perror("Client Disconnected. Failed to allocate memory to connection");
         return NULL;
     }
     snake = createSnake(connections, foods, false, 0);

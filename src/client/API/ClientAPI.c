@@ -45,10 +45,14 @@ Vector * readFoodsFromSocket(int socketFileDescriptor) {
     bzero(bufferInteger, INTEGER_BYTES);
     Vector * foods = initVector();
 
+    if (foods == NULL) {
+        exit(1);
+    }
+
     response = (int) read(socketFileDescriptor, bufferInteger, INTEGER_BYTES);
 
     if (response == -1) {
-        perror("Error when reading from socket");
+        perror("Client Disconnected. Error when reading from socket");
         // Deallocate foods.
         clearFoodsVector(foods);
         return NULL;
@@ -64,7 +68,7 @@ Vector * readFoodsFromSocket(int socketFileDescriptor) {
     response = (int) read(socketFileDescriptor, buffer, foodSize);
 
     if (response == -1) {
-        perror("Error when reading from socket");
+        perror("Client Disconnected. Error when reading from socket");
         clearFoodsVector(foods);
         return NULL;
     }
@@ -84,11 +88,15 @@ Vector * readSnakesFromSocket(int sockFd) {
     size_t integerRead = INTEGER_BYTES, sizeForPositionsOfSnake;
     unsigned char bufferForReadingInt[integerRead];
 
+    if (snakes == NULL) {
+        exit(1);
+    }
+
     bzero(bufferForReadingInt, integerRead);
     response = (int) read(sockFd, bufferForReadingInt, integerRead);
 
     if (response < 0) {
-        perror("Failed to read from socket");
+        perror("Client Disconnected. Failed to read from socket");
         clearSnakeVector(snakes);
         return NULL;
     }
@@ -104,7 +112,7 @@ Vector * readSnakesFromSocket(int sockFd) {
         deserializeInt(bufferForReadingInt, &snakeID);
 
         if (response < 0) {
-            perror("Failed to read from socket");
+            perror("Client Disconnected. Failed to read from socket");
             clearSnakeVector(snakes);
             return NULL;
         }
@@ -114,7 +122,7 @@ Vector * readSnakesFromSocket(int sockFd) {
         response = (int) read(sockFd, bufferForReadingInt, integerRead);
 
         if (response < 0) {
-            perror("Failed to read from socket");
+            perror("Client Disconnected. Failed to read from socket");
             clearSnakeVector(snakes);
             return NULL;
         }
@@ -129,7 +137,7 @@ Vector * readSnakesFromSocket(int sockFd) {
         response = (int) read(sockFd, bufferSnake, sizeForPositionsOfSnake);
 
         if (response < 0) {
-            perror("Failed to read from socket");
+            perror("Client Disconnected. Failed to read from socket");
             clearSnakeVector(snakes);
             return NULL;
         }
@@ -137,7 +145,7 @@ Vector * readSnakesFromSocket(int sockFd) {
         snake = (Snake *) malloc(sizeof(Snake));
 
         if (snake == NULL) {
-            perror("Failed to allocate memory to snake");
+            perror("Client Disconnected. Failed to allocate memory to snake");
             clearSnakeVector(snakes);
             return NULL;
         }
@@ -148,7 +156,7 @@ Vector * readSnakesFromSocket(int sockFd) {
         snakeInfo = (SnakeInfo *) malloc(sizeof(SnakeInfo));
 
         if (snakeInfo == NULL) {
-            perror("Failed to allocate memory to snake info");
+            perror("Client Disconnected. Failed to allocate memory to snake info");
             clearSnakeVector(snakes);
             return NULL;
         }
@@ -176,7 +184,7 @@ bool sendUserDirection(int sockFd, int direction) {
     response = (int) write(sockFd, buffer, size);
 
     if (response == -1) {
-        perror("Failed to write to the socket");
+        perror("Client Disconnected. Failed to write to socket");
         // Do not close socket, it will be handled by the main thread.
         return false;
     }
@@ -191,7 +199,7 @@ int readUserID(int sockFd) {
     response = (int) read(sockFd, bufferInteger, INTEGER_BYTES);
 
     if (response < 0) {
-        perror("Failed to read from socket");
+        perror("Client Disconnected. Failed to read from socket");
         return -1;
     }
 

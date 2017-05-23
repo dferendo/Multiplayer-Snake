@@ -39,7 +39,7 @@ bool connectToServer(int * sockFd, int portNumber, char * hostName) {
     *sockFd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (*sockFd == -1) {
-        perror("Error encountered when opening the socket");
+        perror("Client Disconnected. Error encountered when opening the socket");
         exit(1);
     }
     // Get the server name

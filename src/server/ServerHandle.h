@@ -21,10 +21,11 @@ typedef struct Connection {
 } Connection;
 
 /**
- * Params passed to create connection pthread.
+ * Params passed to create connection pthread and client IP for display.
  */
 typedef struct CreateConnectThreadArguments {
     int sockFd;
+    struct sockaddr_in * pV4Addr;
 } CreateConnectThreadArguments;
 
 /**

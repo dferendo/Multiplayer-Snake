@@ -73,7 +73,7 @@ void startGameThread() {
 
     // Game Thread
     if (pthread_create(&gameThread, NULL, gameManagement, NULL) != 0) {
-        perror("Could not create a worker thread.");
+        perror("Server Shutdown. Could not create a worker thread.");
         deleteVector(foods);
         deleteVector(connections);
         exit(1);
@@ -87,7 +87,7 @@ void startServerThread(uint16_t portNumber) {
     ServerParams * serverArgs = (ServerParams *) malloc(sizeof(ServerParams));
 
     if (serverArgs == NULL) {
-        perror("Error on malloc arguments");
+        perror("Server Shutdown. Error on malloc arguments");
         deleteVector(connections);
         deleteVector(foods);
         exit(1);
@@ -97,7 +97,7 @@ void startServerThread(uint16_t portNumber) {
 
     // Server Thread
     if (pthread_create(&serverThread, NULL, serverInit, serverArgs) != 0) {
-        perror("Could not create a worker thread.");
+        perror("Server Shutdown. Could not create a worker thread.");
         free(serverArgs);
         deleteVector(foods);
         deleteVector(connections);

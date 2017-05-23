@@ -23,11 +23,11 @@ void * gameManagement(void *args) {
             * keepFoodGeneratorThread = (bool *) malloc(sizeof(bool));
 
     if (keepChangeDirectionThread == NULL) {
-        perror("Failed to allocate memory to Params");
+        perror("Server Shutdown. Failed to allocate memory to Params");
         exit(1);
     } else if (keepFoodGeneratorThread == NULL) {
         free(keepChangeDirectionThread);
-        perror("Failed to allocate memory to Params");
+        perror("Server Shutdown. Failed to allocate memory to Params");
         exit(1);
     }
     *keepChangeDirectionThread = true;
@@ -36,7 +36,7 @@ void * gameManagement(void *args) {
     changeDirectionParams = (ChangeDirectionParams *) malloc(sizeof(ChangeDirectionParams));
 
     if (changeDirectionParams == NULL) {
-        perror("Cannot allocate memory to Params");
+        perror("Server Shutdown. Cannot allocate memory to Params");
         exit(1);
     }
     changeDirectionParams->connections = connections;
@@ -45,7 +45,7 @@ void * gameManagement(void *args) {
     foodGeneratorParams = (FoodGeneratorParams *) malloc(sizeof(FoodGeneratorParams));
 
     if (foodGeneratorParams == NULL) {
-        perror("Cannot allocate memory to Params");
+        perror("Server Shutdown. Cannot allocate memory to Params");
         free(changeDirectionParams);
         exit(1);
     }
@@ -55,7 +55,7 @@ void * gameManagement(void *args) {
 
     // Create thread for food.
     if (pthread_create(&foodThread, NULL, generateFood, foodGeneratorParams) != 0) {
-        perror("Could not create a food thread");
+        perror("Server Shutdown. Could not create a food thread");
         free(changeDirectionParams);
         free(foodGeneratorParams);
         // If the thread could not be created, stop the execution since it will be useless.
@@ -64,7 +64,7 @@ void * gameManagement(void *args) {
     // Create Thread that listens to user change of direction.
     if (pthread_create(&changeDirectionThread, NULL, checkForChangeOfDirections,
                        changeDirectionParams) != 0) {
-        perror("Could not create a Change direction thread");
+        perror("Server Shutdown. Could not create a Change direction thread");
         free(changeDirectionParams);
         free(foodGeneratorParams);
         // Without the thread, the rest of the system is useless
@@ -177,5 +177,9 @@ void gameCleanUp(bool * keepChangeDirectionThread, bool * keepFoodGeneratorThrea
     pthread_mutex_lock(&lock);
     clearDataUsedForGame(connections, foods);
     foods = initVector();
+
+    if (foods == NULL) {
+        exit(1);
+    }
     pthread_mutex_unlock(&lock);
 }
