@@ -49,7 +49,7 @@ int gameManager(int sockFd) {
 int handleGameDataFromServer(int sockFd) {
     int nextCompute;
     WINDOW * window = NULL;
-    signal(SIGWINCH, NULL);
+    signal(SIGWINCH, handleResize);
 
     while (true) {
         nextCompute = readDelimiterSnakes(sockFd);
@@ -224,4 +224,12 @@ int closeGame(int status) {
         // Exit game if server cannot be reached
         return -1;
     }
+}
+
+void handleResize(int sig) {
+    // End the previous win so that resize can happen
+    endwin();
+    deleteWindow(window);
+    clear();
+    refresh();
 }

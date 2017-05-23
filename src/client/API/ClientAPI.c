@@ -184,7 +184,6 @@ bool sendUserDirection(int sockFd, int direction) {
     response = (int) write(sockFd, buffer, size);
 
     if (response == -1) {
-        perror("Client Disconnected. Failed to write to socket");
         // Do not close socket, it will be handled by the main thread.
         return false;
     }

@@ -52,6 +52,13 @@ int gameManager(int sockFd);
 int handleGameDataFromServer(int sockFd);
 
 /**
+ * Handles the resize of a signal.
+ *
+ * @param sig
+ */
+void handleResize(int sig);
+
+/**
  * Handle any food update of the game and update the window screen. Will clean the
  * previous vector holding the previous foods of the game.
  *
