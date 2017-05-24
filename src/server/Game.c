@@ -109,12 +109,19 @@ bool moveSnakes(Vector *connections, Vector *foods) {
     bool thereAreWinners = false;
     Connection * connection;
 
-    // Move snakes
+    // Check the statuses of all the snakes.
     for (int i = 0; i < connections->size; i++) {
         snake = ((Connection *) connections->data[i])->snake;
         moveSnakesReturns[i] = snakeAction(snake, foods, connections);
         if (moveSnakesReturns[i] == WINNER) {
             thereAreWinners = true;
+        }
+    }
+    // Move Snakes if not winner, loser or restart
+    for (int i = 0; i < connections->size; i++) {
+        snake = ((Connection *) connections->data[i])->snake;
+        if (moveSnakesReturns[i] == NORMAL) {
+            snakeMove(snake);
         }
     }
     // If there is a winner tell non-winners they lost.

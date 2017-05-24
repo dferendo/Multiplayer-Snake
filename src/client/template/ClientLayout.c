@@ -27,13 +27,15 @@ void ncursesInit() {
 }
 
 void setColors() {
+    init_color(COLOR_BLACK, 150, 120, 120);
+    init_pair(7, COLOR_WHITE, COLOR_BLACK);
     init_color(COLOR_RED, 600, 200, 200);
     init_pair(1, COLOR_WHITE, COLOR_RED);
     init_pair(2, COLOR_WHITE, COLOR_YELLOW);
     init_pair(3, COLOR_WHITE, COLOR_BLUE);
-    init_pair(4, COLOR_WHITE, COLOR_GREEN);
-    init_pair(5, COLOR_WHITE, COLOR_MAGENTA);
-    init_pair(6, COLOR_WHITE, COLOR_CYAN);
+    init_pair(4, COLOR_WHITE, COLOR_MAGENTA);
+    init_pair(5, COLOR_WHITE, COLOR_CYAN);
+    init_pair(6, COLOR_WHITE, COLOR_GREEN);
 }
 
 void printError(char *errorMessage) {
@@ -81,6 +83,7 @@ WINDOW * createModalLayout(int height) {
     WINDOW * menuWindow;
     // Create new window where main menu will be placed.
     menuWindow = newwin(correctHeight, width, windowStartingY, windowStartingX);
+    wbkgd(menuWindow, COLOR_PAIR(7));
     // Draw border
     wborder(menuWindow,
             MAIN_MENU_BORDER_CHARACTER, MAIN_MENU_BORDER_CHARACTER,
@@ -124,6 +127,8 @@ WINDOW * displayNewData(Vector *foods, Vector * snakes, int uniqueID) {
 
     // Generate window.
     window = newwin(totalRowVisitable, totalColumnVisitable, 0, 0);
+
+    wbkgd(window, COLOR_PAIR(7));
 
     // Check the snakes and food if they are found in the window screen
     if (foods != NULL) {

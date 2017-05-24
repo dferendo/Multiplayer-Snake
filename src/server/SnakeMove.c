@@ -30,10 +30,7 @@ SnakeStatus snakeAction(Snake * snake, Vector * foods, Vector * connections) {
     if (snake->size == FOOD_TO_WIN) {
         return WINNER;
     }
-    // Move
-    snakeMove(snake);
 
-    // Snake just moved
     return NORMAL;
 }
 
