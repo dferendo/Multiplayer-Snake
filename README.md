@@ -45,6 +45,9 @@ The following shows the delimiters used to communicate between the client and th
 
 ![Image](images/delimiters.png "Delimiters")
 
+The communication with delimiters can be seen below:
+
+![Image](images/network.jpg "Network communication")
 
 ## Build
 
