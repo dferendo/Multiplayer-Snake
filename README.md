@@ -53,6 +53,18 @@ The communication with delimiters can be seen below:
 
 The system can be built with either Make or CMake. Pthread and ncurses library are needed.
 
+To run the server use:
+
+```
+./server <port>
+```
+
+To run the client use:
+
+```
+./client <server-ip> <server-port>
+```
+
 ## License
 
 This project is licensed under MIT.
