@@ -1,7 +1,5 @@
 # Snakes
 
-Compilation can be done using either Cmake or make.
+A multiplayer snakes game build using C and the ncurses library. The network protocol that will be used is TCP/IP. The program will be divided into two sections: the server and the client.
 
-Server requires port number.
-
-Client requires IP port number.
+![Image](images/play.png "Game Layout")
