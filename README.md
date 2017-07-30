@@ -37,6 +37,13 @@ Before using and updating the snakes, a lock is used. Other threads can add or r
 
 * Thread 5: This thread reads the new direction of the snake sent from the client. To handle multiple clients, the socket was temporary switched to non-blocking instead blocking thus the read function will not wait for data to be received, an error will be shown instead. This error can be read and ignore if it matches that no data was found in the socket. Whenever the threads need to change the direction of a snake, a lock is used to ensure that the change will not effect the movement action. 
 
+![Image](images/serverPThread.jpg "Server Design")
+
+### Network
+
+The following shows the delimiters used to communicate between the client and the server. 
+
+![Image](images/delimiters.png "Delimiters")
 
 
 ## Build
